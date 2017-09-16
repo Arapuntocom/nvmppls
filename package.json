@@ -27,5 +27,8 @@
   "engines": {
     "node": "latest",
     "npm": "latest"
+  },
+  "devDependencies": {
+    "http-server": "^0.10.0"
   }
 }
