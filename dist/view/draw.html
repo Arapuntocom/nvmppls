@@ -1,0 +1,554 @@
+<div ng-controller="DrawController" ng-cloak>
+	<md-content>
+		<md-toolbar class="md-hue-2">
+			<div class="md-toolbar-tools">
+				<md-button class="md-icon-button" aria-label="Settings" ng-disabled="true">
+					 <md-icon md-svg-icon="dist/img/icons/other-icons/ic_menu_black_48px.svg"></md-icon>
+				</md-button>
+				<h2>
+					<span>Nuevo modelo conversacional</span>
+				</h2>
+			</div>
+		</md-toolbar>
+
+
+		<div layout="column" style="height:720px;" ng-cloak>
+		  
+			<!-- botones -->
+			<section>
+				<md-list  layout="row" layout-align="center center">
+			   
+					<md-list-item>
+						<md-button aria-label="New" class="md-icon-button">			        	
+							<md-icon md-svg-icon="dist/img/icons/other-icons/ic_add_black_48px.svg"></md-icon>
+						</md-button>
+					</md-list-item>
+						
+					<md-list-item> 
+						 <md-button aria-label="Save" class="md-icon-button">
+							<md-icon md-svg-icon="dist/img/icons/other-icons/ic_save_black_18px.svg"></md-icon>
+						</md-button>
+					</md-list-item>	
+						|
+					<md-list-item> 
+						<md-button aria-label="Workflow" class="md-icon-button">
+							<md-icon md-svg-icon="dist/img/icons/nova-icons/work24.svg"></md-icon>
+						</md-button>
+					</md-list-item>	
+
+					<md-list-item> 
+						<md-button aria-label="Pertenencia" class="md-icon-button">
+							<md-icon md-svg-icon="dist/img/icons/nova-icons/particiop24.svg"></md-icon>
+						</md-button>
+					</md-list-item>	
+
+					<md-list-item> 
+						<md-button aria-label="Excepcion" class="md-icon-button">
+							<md-icon md-svg-icon="dist/img/icons/nova-icons/excep24.svg"></md-icon>
+						</md-button>
+					</md-list-item>	
+
+					<md-list-item> 
+						<md-button aria-label="Agregacion" class="md-icon-button">
+							<md-icon md-svg-icon="dist/img/icons/nova-icons/agregacion24.svg"></md-icon>
+						</md-button>
+					</md-list-item>	
+
+					<md-list-item> 
+						<md-button aria-label="Decision" class="md-icon-button">
+							<md-icon md-svg-icon="dist/img/icons/nova-icons/decision24.svg"></md-icon>
+						</md-button>
+					</md-list-item>	
+						|
+					<md-list-item> 
+						<md-button aria-label="Undo" class="md-icon-button">
+							<md-icon md-svg-icon="dist/img/icons/other-icons/ic_undo_black_48px.svg"></md-icon>
+						</md-button>
+					</md-list-item>	
+
+					<md-list-item> 
+						<md-button aria-label="Redo" class="md-icon-button">
+							<md-icon md-svg-icon="dist/img/icons/other-icons/ic_redo_black_48px.svg"></md-icon>
+						</md-button>
+					</md-list-item>	
+
+					<md-list-item>
+						<md-button aria-label="ZoomIn" class="md-icon-button">
+							<md-icon md-svg-icon="dist/img/icons/other-icons/ic_zoom_in_black_48px.svg"></md-icon>
+						</md-button>
+					</md-list-item>
+						
+					<md-list-item>
+						<md-button aria-label="ZoomOut" class="md-icon-button">
+							<md-icon md-svg-icon="dist/img/icons/other-icons/ic_zoom_out_black_48px.svg"></md-icon>
+						</md-button>
+					</md-list-item>
+						|			    	
+					<md-list-item>
+						<md-button aria-label="Delete" class="md-icon-button">
+							<md-icon md-svg-icon="dist/img/icons/other-icons/ic_delete_black_48px.svg"></md-icon>
+						</md-button>
+					</md-list-item>			    
+						
+					<md-list-item>
+						<md-button aria-label="Roles" class="md-icon-button">
+							<md-icon md-svg-icon="dist/img/icons/other-icons/ic_assignment_ind_black_48px.svg"></md-icon>
+						</md-button>
+					</md-list-item>
+						
+					<md-list-item>
+						<md-button aria-label="SettingsApplications" class="md-icon-button" ng-click="toggleModelo()">
+							<md-icon md-svg-icon="dist/img/icons/other-icons/ic_settings_applications_black_48px.svg"></md-icon>
+						</md-button>
+					</md-list-item>
+						
+					<md-list-item>
+						<md-button aria-label="Download" class="md-icon-button">
+							<md-icon md-svg-icon="dist/img/icons/other-icons/ic_file_download_black_48px.svg"></md-icon>
+						</md-button>
+					</md-list-item>
+						
+						
+						
+						<!--<md-button aria-label="Print"  class="md-grid-item-content">
+							<md-icon md-svg-icon="dist/img/icons/other-icons/ic_print_black_48px.svg"></md-icon>
+						</md-button>-->
+						
+						
+						
+						
+					   
+						<span flex></span>
+						
+					<!-- </div> -->
+				</md-list>	
+			</section>
+			
+		  	<section layout="column" >
+
+				<md-content layout="column" ng-init="blocked = false" >					
+						<!--<p>
+						<div id="miDiagrama"></div>
+							(Área de dibujo)
+						</p>-->
+
+						
+						<div>
+							<md-button ng-click="toggleTree()" ng-hide="isOpenRight('tree')" class="md-primary" >
+								Mapa del proyecto
+							</md-button>
+						</div>
+						<div>
+							<md-button ng-click="toggleModelo()" ng-hide="isOpenRight('propertiesNav')" class="md-primary">
+								Propiedades (General, Roles, Variables)
+							</md-button>
+							<md-button ng-dblclick="fijar()" class="md-primary" data-context-menu="view/context-menu/context-cc.html" ng-model="message">
+								fijar -> {{blocked}}
+							</md-button>
+							<p data-context-menu="view/context-menu/context-cc.html" ng-model="message"> menu</p>
+						</div>
+						<div>
+							<md-button ng-click="toggleCC()" ng-hide="isOpenRight('CCNav')" class="md-primary">
+								Ciclo conversacional
+							</md-button>
+						</div>
+						<div>
+							<md-button ng-click="toggleEnlace()" ng-hide="isOpenRight('enlaceNav')" class="md-primary">
+								Enlace
+							</md-button>
+						</div>
+						<div>
+							<md-button ng-click="toggleCondicional()" ng-hide="isOpenRight('condNav')" class="md-primary">
+								Condicional
+							</md-button>
+						</div>
+
+
+<!-- div área de dibujo -->
+
+					<!--<div id="miDiagrama" layout="column" layout-align="top center" ng-controller="DiagramaController" >	
+						{{rect1json | json}}
+						<br>
+						{{rect2json | json}}
+					</div>-->
+
+
+
+
+					<!-- sidenav Mapa del proyecto -->
+					<md-sidenav class="md-sidenav-left" md-component-id="tree" md-whiteframe="4">
+						<md-toolbar class="md-theme-indigo">
+							<h1 class="md-toolbar-tools">Mapa del proyecto</h1>
+						</md-toolbar>
+						<md-content layout-padding ng-controller="TreeCtrl">
+							<p >
+								(Mapa del proyecto)
+							</p>
+							<md-button ng-click="close()" class="md-primary">
+								Volver
+							</md-button>
+						</md-content>
+					</md-sidenav>
+					
+					<!-- sidenav Propiedades -->
+					<md-sidenav class="md-sidenav-right md-whiteframe-4dp" md-component-id="propertiesNav" md-is-locked-open="blocked">
+						<md-toolbar class="md-theme-light">
+							<h1 class="md-toolbar-tools">Propiedades</h1>
+						</md-toolbar>
+
+						<md-tabs md-dynamic-height md-border-bottom>
+							<md-tab label="General">
+								<md-content ng-controller="PropertiesNavCtrl" layout-padding>
+									<form>
+										<md-input-container>
+											<label for="nameModel">Nombre</label>
+											<input type="text" id="nameModel" ng-model="model.name" md-autofocus>
+										</md-input-container>
+										<md-input-container>
+											<label for="versionModel">Versión</label>
+											<input type="text" id="versionModel" ng-model="model.version" >
+										</md-input-container>
+										<md-input-container>
+											<label for="duenoModel">Dueño</label>
+											<input type="text" id="duenoModel" ng-model="model.dueno" >
+										</md-input-container>
+										<md-input-container>
+											<label for="disenadorModel">Diseñador</label>
+											<input type="text" id="disenadorModel" ng-model="model.disenador">
+										</md-input-container>
+										<md-input-container>
+											<label for="cpplModel">Ciclo principal</label>
+											<input type="text" id="cpplModel" ng-model="model.cppl" >
+										</md-input-container>
+										<md-input-container>
+											<label for="descripcionModel">Descripción</label>
+											<input type="text" id="descripcionModel" ng-model="model.descripcion" >
+										</md-input-container>
+									</form>
+									<md-button ng-click="close()" class="md-primary">
+										Volver
+									</md-button>
+								</md-content>
+							</md-tab>	
+							<md-tab label="Roles">
+								<md-content ng-controller="PropertiesNavCtrl" layout-padding>
+									<form>	          							
+										<md-chips ng-model="users" readonly="false" md-removable="true" md-enable-chip-edit="true" >   
+										</md-chips>		
+									</form>
+									<md-button ng-click="close()" class="md-primary">
+										Volver
+									</md-button>
+								</md-content>
+							</md-tab>	
+
+							<md-tab label="Variables">
+								<md-content ng-controller="PropertiesNavCtrl" layout-padding ng-init="a = loadVariables()"> 
+									<md-table-container>   	
+										<table md-table>
+											 <thead md-head>
+												<tr md-row>
+													<th md-column>Nombre</th>
+													<th md-column>tipo</th>
+													<th md-column>Largo</th>
+													<th md-column>Formato</th>
+													<th md-column>Valor inicial</th>
+												</tr>
+											 </thead>
+											 <tbody md-body>
+												<tr md-row ng-repeat="user in variables">
+													
+												<td md-cell>{{user.nombre}}</td>
+												<td md-cell>{{user.tipo}}</td>
+												<td md-cell>{{user.largo}}</td>
+												<td md-cell>{{user.formato}}</td>
+												<td md-cell>{{user.valorInicial}}</td>
+												</tr>
+											</tbody>
+										</table>	
+									</md-table-container>
+
+									<div class="demo-md-panel-content" >
+										<md-button class="md-primary md-raised demo-dialog-open-button"
+												   ng-click="showNewVar($event)">
+											Agregar variable
+										</md-button>
+									</div>
+
+									<md-button ng-click="close()" class="md-primary">
+										Volver
+									</md-button>
+								</md-content>
+							</md-tab>		        	
+						</md-tabs>
+					</md-sidenav>
+
+					<!-- sidenav Ciclo conversacional -->
+					<md-sidenav class="md-sidenav-right md-whiteframe-4dp" md-component-id='CCNav'>
+						<md-toolbar class="md-theme-light">
+							<h1 class="md-toolbar-tools">Ciclo conversacional</h1>
+						</md-toolbar>
+						<md-content ng-controller="CCNavCtrl" layout-padding>
+							<form>
+								<md-list class="md-3-line" >
+									<md-list-item >											
+											<md-input-container>
+												<label for="nameWorkflow">Etiqueta del ciclo conversacional</label>
+												<input type="text" id="nameWorkflow" ng-model="w1.name" md-autofocus>
+											</md-input-container>								        	
+									</md-list-item>	
+									<md-list-item>						        	
+										
+											<md-input-container>
+												<label for="IDNova">ID Nova</label>
+												<input type="text" id="IDNova" ng-model="w1.id" >
+											</md-input-container>	
+										
+									</md-list-item>	        		
+	  
+									
+									<md-list-item >
+										<div class="md-list-item-text" layout="row" ng-controller="SelectAsyncPtoEnterController">						  		
+											<md-input-container>
+											<label>Punto de entrada</label>
+											<md-select placeholder="Punto de entrada" ng-model="w1.ptoEnter" md-on-open="loadPuntos()" style="min-width: 200px;">
+												<md-option ng-value="pto" ng-repeat="pto in ptos">{{pto.name}}</md-option>
+											</md-select>           											
+											</md-input-container>	
+											
+										</div>
+									</md-list-item>
+		
+									<md-list-item >
+										<div class="md-list-item-text" layout="row" ng-controller="SelectAsyncRolController">
+											<md-input-container>
+											<label>Rol Cliente</label>
+											<md-select placeholder="Rol Cliente" ng-model="w1.cliente" md-on-open="loadUsers()" style="min-width: 200px;">
+												<md-option ng-value="user" ng-repeat="user in users">{{user.name}}</md-option>
+											</md-select>
+											</md-input-container>
+										</div>
+									</md-list-item>
+
+									<md-list-item >
+										<div class="md-list-item-text" layout="row" ng-controller="SelectAsyncRolController">	
+											<md-input-container>
+											<label>Rol Realizador</label>							
+											<md-select placeholder="Rol Realizador" ng-model="w1.realizador" md-on-open="loadUsers()" style="min-width: 200px;">
+												<md-option ng-value="user" ng-repeat="user in users">{{user.name}}</md-option>
+											</md-select>
+											</md-input-container>
+										</div>
+									</md-list-item>
+
+									<md-list-item >
+										<div class="md-list-item-text" layout="row" ng-controller="SelectAsyncRolController">	
+											<md-input-container>
+											<label>Rol Observador</label>							
+											<md-select placeholder="Rol Observador" ng-model="w1.observador" md-on-open="loadUsers()" style="min-width: 200px;">
+												<md-option ng-value="user" ng-repeat="user in users">{{user.name}}</md-option>
+											</md-select>
+											</md-input-container>
+										</div>
+									</md-list-item>
+									
+									<md-divider></md-divider>
+
+									<md-list-item >
+										<div layout="column">
+											<b class="md-title" >Paso automático</b>	
+											<md-list class="md-4-line" >
+												<md-list-item >
+													<div layout="row">						  		
+														
+														<p for="prep"  >Preparación: </p>
+														<md-switch ng-model="w1.prep" aria-label="Switch Prep" ng-true-value="'automático'" ng-false-value="'manualP'" >
+															<p>{{ w1.prep }}</p>							 	
+														</md-switch>											
+														
+													</div>
+												</md-list-item>
+					
+												<md-list-item >
+													<div layout="row">
+														<p for="prep">Negociación: </p>
+														<md-switch ng-model="w1.neg" aria-label="Switch Neg" ng-true-value="'automático'" ng-false-value="'manualN'" >
+															<p> {{ w1.neg }}</p>
+														</md-switch>
+													</div>
+												</md-list-item>
+
+												<md-list-item >
+													<div layout="row">								
+														<p for="prep">Realización: </p>
+														<md-switch ng-model="w1.rea" aria-label="Switch Rea" ng-true-value="'automático'" ng-false-value="'manualR'" >
+															<p>{{ w1.rea }}</p>
+														</md-switch>
+													</div>
+												</md-list-item>
+
+												<md-list-item >
+													<div class="md-list-item-text" layout="row">
+														<p for="prep">Satisfacción: </p>
+														<md-switch ng-model="w1.sat" aria-label="Switch Sat" ng-true-value="'automático'" ng-false-value="'manualS'" >
+															<p>{{ w1.sat }}</p>
+														</md-switch>										
+													</div>
+												</md-list-item>
+											</md-list>	
+										</div>				            	
+									</md-list-item>
+
+									<md-divider></md-divider>
+
+									<md-list-item>						        	
+										
+											<md-input-container>
+												<label for="Descripcion">Descripción</label>
+												<input type="text" id="Descripcion" ng-model="w1.descripcion" >
+											</md-input-container>	
+										
+									</md-list-item>
+									
+								
+								</md-list>
+							</form>
+							<md-button ng-click="close()" class="md-primary">
+								Volver
+							</md-button>
+						</md-content>
+					</md-sidenav>
+
+					<!-- sidenav Enlace -->
+					<md-sidenav class="md-sidenav-right md-whiteframe-4dp" md-component-id="enlaceNav">
+						<md-toolbar class="md-theme-light">
+							<h1 class="md-toolbar-tools">Enlace</h1>
+						</md-toolbar>
+						<md-content ng-controller="EnlaceNavCtrl" layout-padding>
+							<form>
+								<md-input-container>
+									<label for="enlaceID">ID Nova</label>
+									<input type="text" id="enlaceID" ng-model="enlace.id" md-autofocus>
+								</md-input-container>
+								<md-input-container>
+									<label for="enlaceRotulo">Rótulo</label>
+									<input type="text" id="enlaceRotulo" ng-model="enlace.rotulo" >
+
+									<div ng-if="enlace.rotulo != ''">
+										<md-checkbox  ng-model="enlace.showRotulo" aria-label="MostrarRotulo">
+										   Mostrar rótulo
+										</md-checkbox>
+									</div>
+								</md-input-container>
+								<md-input-container>
+									<b class="md-title" >Tipo de enlace</b>
+									<md-radio-group ng-model="enlace.tipo">
+										<md-radio-button value="pertenencia">Pertenencia</md-radio-button>
+										<md-radio-button value="excepcion">Excepción</md-radio-button>
+									</md-radio-group>
+								</md-input-container>
+							</form>
+							<md-button ng-click="close()" class="md-primary">
+								Volver
+							</md-button>
+						</md-content>
+					</md-sidenav>
+
+					<!-- sidenav Condicional -->
+					<md-sidenav class="md-sidenav-right md-whiteframe-4dp" md-component-id="condNav">
+						<md-toolbar class="md-theme-light">
+							<h1 class="md-toolbar-tools">Condicional</h1>
+						</md-toolbar>
+						<md-content ng-controller="CondNavCtrl" layout-padding>
+							<form>
+								<div layout="column">      			
+								
+									<md-input-container>
+										<label for="condID">ID Nova</label>
+										<input type="text" id="condID" ng-model="cond.id" md-autofocus>
+									</md-input-container>
+
+									 <md-input-container>
+										<b class="md-title" >Tipo </b>
+										<md-radio-group ng-model="cond.tipo">
+											<md-radio-button value="agregacion">Agregación</md-radio-button>
+											<md-radio-button value="decision">Decisión</md-radio-button>
+										</md-radio-group>
+									</md-input-container>
+
+									<md-input-container>
+										<b class="md-title" >Responsable</b>
+										<md-radio-group ng-model="cond.responsable">
+											<md-radio-button value="automatico">Automático</md-radio-button>
+											<md-radio-button value="rol">Rol</md-radio-button>
+										</md-radio-group>
+										<div ng-if=" cond.responsable == 'rol'">
+											<div class="md-list-item-text" layout="row" ng-controller="SelectAsyncRolController">
+												<md-select  placeholder="Rol Cliente" ng-model="cond.rol" md-on-open="loadUsers()" style="min-width: 200px;">
+													<md-option ng-value="user" ng-repeat="user in users">{{user.name}}</md-option>
+												</md-select>
+											</div>	
+										</div>
+										
+									</md-input-container>
+
+									<md-divider></md-divider>
+
+									<md-input-container>
+										<b class="md-title" >Condicionales</b>
+
+										<md-table-container>   	
+											<table md-table>
+												 <thead md-head>
+													<tr md-row>
+														<th md-column>Variable</th>
+														<th md-column>Condición</th>
+														<th md-column>Expresión</th>
+													</tr>
+												 </thead>
+												 <tbody md-body>
+													<tr md-row ng-repeat="x in condiciones">
+														
+													<td md-cell>{{x.var}}</td>
+													<td md-cell>{{x.cond}}</td>
+													<td md-cell>{{x.exp}}</td>
+													</tr>
+												</tbody>
+											</table>	
+										</md-table-container>
+
+										<div class="demo-md-panel-content" >
+											<md-button class="md-primary md-raised demo-dialog-open-button"
+													   ng-click="showPrompt($event)">
+												Agregar condición
+											</md-button>
+										</div>
+									</md-input-container>
+									<md-input-container>
+										<b class="md-title" >Satisfacer</b>
+										<md-radio-group ng-model="cond.satisfacer">
+											<md-radio-button value="todas">Todas</md-radio-button>
+											<md-radio-button value="alguna">Alguna</md-radio-button>
+										</md-radio-group>
+									</md-input-container>
+
+									<md-divider></md-divider>
+
+									<md-input-container>
+										<label for="condDescripcion">Descripción</label>
+										<input type="text" id="condDescripcion" ng-model="cond.descripcion" >
+									</md-input-container>
+								</div>
+							</form>
+							<md-button ng-click="close()" class="md-primary">
+								Volver
+							</md-button>
+						</md-content>
+					</md-sidenav>
+
+				</md-content>
+			</section>
+		</div>
+	</md-content>
+</div>
+

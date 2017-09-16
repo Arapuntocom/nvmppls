@@ -1,0 +1,20 @@
+<md-toolbar>
+	<div class="md-toolbar-tools">
+		<md-button aria-label="Go Back">
+			volver
+		</md-button>
+		<h2>
+			<span>NovaMap+</span>
+		</h2>
+		<span flex></span>
+		<md-button >
+			<md-icon md-svg-icon="dist/img/icons/other-icons/ic_settings_black_48px.svg"></md-icon>
+		</md-button>
+	</div>
+</md-toolbar>
+
+<div layout="row" layout-padding layout-wrap layout-margin ng-cloak layout-align="space-around">
+	<div class="padded" md-whiteframe="{{height}}" flex="100" flex-gt-sm="50" layout="column" layout-align="center center" ng-init="height = 3" ng-mouseenter="height = 6" ng-mouseleave="height = 3" ui-sref="draw">
+    	<md-icon md-svg-icon="dist/img/icons/other-icons/ic_add_black_48px.svg"></md-icon>
+	</div>
+</div>

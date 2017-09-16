@@ -1,0 +1,40 @@
+<div role="dialog" aria-label="Eat me!" layout="column" layout-align="center center">
+  <md-toolbar>
+    <div class="md-toolbar-tools">
+      <h2>Nueva condición</h2>
+    </div>
+  </md-toolbar>
+  <div class="demo-dialog-content">
+    <md-content layout-padding>
+      <form>
+        <div class="md-list-item-text" layout="row">               
+          <md-select placeholder="Variable" ng-model="newCond.var" style="min-width: 200px;">
+              <md-option ng-value="var1" >Var1</md-option>
+              <md-option ng-value="var2" >Var2</md-option>
+              <md-option ng-value="var3" >Var3</md-option>
+          </md-select>
+          <md-select placeholder="Condición" ng-model="newCond.cond" style="min-width: 200px;">
+              <md-option ng-value="equal" >==</md-option>
+              <md-option ng-value="menorEq" ><=</md-option>
+              <md-option ng-value="mayorEq" >>=</md-option>
+              <md-option ng-value="mayor" ><</md-option>
+              <md-option ng-value="menor" >></md-option>
+          </md-select>
+          <md-select placeholder="Expresión" ng-model="newCond.exp" style="min-width: 200px;">
+              <md-option ng-value="var1" >Var1</md-option>
+              <md-option ng-value="var2" >Var2</md-option>
+              <md-option ng-value="var3" >Var3</md-option>
+          </md-select>
+        </div>
+      </form>   
+    </md-content>
+  </div>
+  <div layout="row" class="demo-dialog-button">
+    <md-button md-autofocus class="md-primary" ng-click="answer('aceptar')">
+      Aceptar
+    </md-button>
+    <md-button  class="md-secondary" ng-click="answer('not useful')">
+      Cancelar
+    </md-button>
+  </div>
+</div>

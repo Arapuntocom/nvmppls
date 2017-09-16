@@ -1,0 +1,56 @@
+<div role="dialog" aria-label="Eat me!" layout="column" layout-align="center center">
+  <md-toolbar>
+    <div class="md-toolbar-tools">
+      <h2>Nueva variable</h2>
+    </div>
+  </md-toolbar>
+  <div class="demo-dialog-content" >
+    <md-content layout-padding >
+      <form>
+      <div layout="column">
+        <md-input-container>
+          <label for="newVarName">Nombre</label>
+          <input type="text" id="newVarName" ng-model="newVar.nombre" md-autofocus>
+        </md-input-container>
+
+        <md-input-container>    
+          <label>Tipo</label>  
+          <md-select placeholder="Tipo" ng-model="newVar.tipo" style="min-width: 200px;">              
+              <md-option ng-value="texto" >Texto</md-option>
+              <md-option ng-value="numero" >Número</md-option>
+              <md-option ng-value="fecha" >Fecha/Hora</md-option>
+              <md-option ng-value="booleano" >Booleano</md-option>
+          </md-select>
+        </md-input-container>
+
+        <md-input-container>
+          <label for="newVarLargo">Largo</label>
+          <input type="text" id="newVarLargo" ng-model="newVar.largo">
+        </md-input-container>
+
+        <!-- FORMATO <div class="md-list-item-text" layout="row">               
+          <md-select placeholder="Tipo" ng-model="newVar.tipo" style="min-width: 200px;">
+              <md-option ng-value="texto" >Texto</md-option>
+              <md-option ng-value="numero" >Número</md-option>
+              <md-option ng-value="fecha" >Fecha/Hora</md-option>
+              <md-option ng-value="booleano" >Booleano</md-option>
+          </md-select>
+        </div> -->
+
+        <md-input-container>
+          <label for="newVarInit">Valor inicial</label>
+          <input type="text" id="newVarInit" ng-model="newVar.valorInicial" >
+        </md-input-container>
+        </div>
+      </form>   
+    </md-content>
+  </div>
+  <div layout="row" class="demo-dialog-button">
+    <md-button md-autofocus class="md-primary" ng-click="answer('aceptar')">
+      Aceptar
+    </md-button>
+    <md-button  class="md-secondary" ng-click="answer('not useful')">
+      Cancelar
+    </md-button>
+  </div>
+</div>

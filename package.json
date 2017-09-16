@@ -1,0 +1,31 @@
+{
+  "name": "nvmppls",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js",
+    "serve": "webpack-dev-server"
+  },
+  "author": "",
+  "license": "GPL-3.0",
+  "dependencies": {
+    "angular": "^1.6.6",
+    "angular-animate": "^1.6.6",
+    "angular-aria": "^1.6.6",
+    "angular-material": "^1.1.5",
+    "angular-material-data-table": "^0.10.10",
+    "angular-route": "^1.6.6",
+    "angular-ui-router": "^1.0.3",
+    "express": "^4.15.4",
+    "jointjs": "^1.1.0",
+    "jquery.json-viewer": "^1.1.0",
+    "ng-context-menu": "^0.1.1",
+    "ng-contextmenu": "^0.8.0"
+  },
+  "engines": {
+    "node": "latest",
+    "npm": "latest"
+  }
+}
