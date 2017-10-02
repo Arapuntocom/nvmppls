@@ -1,8 +1,8 @@
 'use strict';
 
-angular.module('dibujo', ['ngRoute', 'ui.router','ngMaterial', 'md.data.table', 'ngContextMenu', 'ShapesNova'])
+angular.module('dibujo', ['ngRoute', 'ui.router','ngMaterial', 'md.data.table', 'ngContextMenu'])
 
-.controller('DibujoController', function($scope, $timeout, $mdSidenav, $log, $mdDialog, $document, contextMenu, $mdMenu, $rootScope, $compile, ShapesNova) {
+.controller('DibujoController', function($scope, $timeout, $mdSidenav, $log, $mdDialog, $document, contextMenu, $mdMenu, $rootScope, $compile) {
 	$log.debug("DibujoController is here!!!");
 	$scope.toggleTree = buildDelayedToggler('tree');
 	$scope.toggleModelo = buildToggler('propertiesNav');
@@ -12,7 +12,7 @@ angular.module('dibujo', ['ngRoute', 'ui.router','ngMaterial', 'md.data.table', 
 
 	$scope.message = "msj";
 
-	$scope.w1 = {cliente : ''};
+	$scope.w1 = {cliente : ''};	
 
 
 	$scope.fijar = function(){
@@ -25,7 +25,7 @@ angular.module('dibujo', ['ngRoute', 'ui.router','ngMaterial', 'md.data.table', 
 	}
 
 	$scope.blocked = true;
-
+	
 	$scope.enlace = {
 		'rotulo': ""
 	};
@@ -162,48 +162,13 @@ angular.module('dibujo', ['ngRoute', 'ui.router','ngMaterial', 'md.data.table', 
 
 	var graph = new joint.dia.Graph;
 
-	var graphElementView = joint.dia.ElementView.extend({
-
-		pointerdown: function(evt, x, y){
-			dateCellPointerDown = new Date();
-			//$log.debug("dateCellPointerDown: "+dateCellPointerDown);
-
-			joint.dia.ElementView.prototype.pointerdown.apply(this, [evt, x, y]);
-		},
-		pointerup: function(evt, x, y){
-			dateCellPointerUp = new Date();
-			//$log.debug("dateCellPointerUp: "+dateCellPointerUp);
-
-			joint.dia.ElementView.prototype.pointerup.apply(this, [evt, x, y]);
-		}
-
-	});
-
-	var myConnectionPoint = function(thisCell, x, y){
-		var type = thisCell.get('type');
-		var viewCell = paper.findViewByModel(thisCell);
-		var scalable,aux;
-		var pointStick = viewCell.getBBox({'useModelGeometry':false}).center();
-		if(type == 'cicloConversacional' || type == 'estacionOr' || type == 'estacionAnd'){
-			scalable = viewCell.$('.scalable')[0];
-			if (scalable && scalable.firstChild){
-				$log.debug('hay hijo en escalable -> '+scalable.firstChild);
-				aux = paper.findView(scalable.firstChild).getBBox();
-				$log.debug('hay hijo en escalable -> '+aux.x);
-				pointStick = g.rect(aux).pointNearestToPoint(g.point(x,y));
-				$log.debug('hay hijo en escalable punto -> '+pointStick);
-			}
-		}
-		return pointStick;
-	}
-
 	var determinarStickPoint = function(thisCell, x, y){
 		var type = thisCell.get('type');
 		var pointStick;
 		$log.debug("determinarStickPoint de "+type);
 
 		switch(type){
-			case 'cicloConversacional':
+			case 'basic.CicloConversacional':
 				//calcular punto para ubicar el puerto
 				//obtenemos la cordenada más cercana al punto presionado con respecto a la elipse
 				var ellipse = g.ellipse(thisCell.get('position'), 60, 30);
@@ -212,8 +177,8 @@ angular.module('dibujo', ['ngRoute', 'ui.router','ngMaterial', 'md.data.table', 
 				var view = paper.findViewByModel(thisCell);
 				var bbox = view.getBBox({'useModelGeometry':false});
 				// var viewEllipse = view[2];
-
-
+				
+				
 				var ellipse2 = thisCell.get('attrs').ellipse;
 
 				$log.debug("bbox x: "+bbox.x+", y: "+bbox.y+", w: "+bbox.width+", h: "+bbox.height);
@@ -222,24 +187,130 @@ angular.module('dibujo', ['ngRoute', 'ui.router','ngMaterial', 'md.data.table', 
 				pointStick = ellipse.intersectionWithLineFromCenterToPoint(g.point(x,y));
 				pointStick= g.point(pointStick.x - thisCell.get('position').x, pointStick.y - thisCell.get('position').y);
 				break;
-			case 'estacionAnd':
+			case 'basic.And':
 				var circle = g.ellipse(thisCell.get('position'), thisCell.get('size').width / 2, thisCell.get('size').height / 2);
 				pointStick = circle.intersectionWithLineFromCenterToPoint(g.point(x,y));
 				pointStick = g.point(pointStick.x - thisCell.get('position').x, pointStick.y - thisCell.get('position').y);
 				break;
-			case 'estacionOr':
+			case 'basic.Or':
 				var bboxThisCell = thisCell.getBBox();
 				var realBBox = bboxThisCell.bbox(45);
 				pointStick = bboxThisCell.pointNearestToPoint(g.point(x,y));
-				pointStick = g.point(pointStick.x - bboxThisCell.x, pointStick.y - bboxThisCell.y);
+				pointStick = pointStick.rotate(bboxThisCell.center(),45);
+				pointStick = g.point(pointStick.x - bboxThisCell.x, pointStick.y - bboxThisCell.y);				
 				break;
-			default :
-				pointStick = g.point(x,y);
 		}
-		$log.debug('line 239: pointStick: '+pointStick.x+", "+pointStick.y);
+		$log.debug('line 188: pointStick: '+pointStick.x+", "+pointStick.y);
 		return pointStick;
-
 	}
+
+	var graphElementView = joint.dia.ElementView.extend({
+
+		pointerdown: function(evt, x, y){
+			dateCellPointerDown = new Date();
+			$log.debug("dateCellPointerDown: "+dateCellPointerDown);					
+			
+			joint.dia.ElementView.prototype.pointerdown.apply(this, [evt, x, y]);
+		},
+		pointerup: function(evt, x, y){
+			dateCellPointerUp = new Date();			
+			$log.debug("dateCellPointerUp: "+dateCellPointerUp);
+
+			
+
+			joint.dia.ElementView.prototype.pointerup.apply(this, [evt, x, y]);
+		}
+
+		// pointermove: function(evt, x, y){ 	
+		// 	//$log.debug('cellView.isLink():'+this.model.isLink());
+		// 	var links = graph.getConnectedLinks(this.model, {'inbound':true}); //solo aquellos en que la celda es Target
+			
+			
+
+		// 	if(links.length > 0){ //si la celda tiene enlaces entrantes
+		// 		$log.debug("PM mueve celda con enlace entrante");
+		// 		var cc = links[links.length-1].getSourceElement(); //pregunta por el origen del enlace para luego limitar el movimiento
+		// 		var centerTarget = this.model.getBBox().center(); // toma la posición de este elemento (target del enlace)
+
+		// 		var puntoFinal = g.point(x,y); // punto al que se traslada este elemento
+
+		// 		/* adicionalmente, es necesario mover el target del enlace */
+		// 		// var puntoTargetPrevio = links[0].get('targetPoint');
+				
+		// 		// links[0].transition('target', { x: puntoTargetPrevio.x + x, y: puntoTargetPrevio.y + y }, {
+		// 		//     delay: 0,
+		// 		//     duration: (dateCellPointerUp.getTime() - dateCellPointerDown.getTime()),
+		// 		//     timingFunction: joint.util.timing.bounce,
+		// 		//     valueFunction: joint.util.interpolate.object
+		// 		// });
+
+
+		// 		if( cc != null){ //si el origen del enlace es un ciclo conversacional
+		// 			//var centroCC = cc.get('position');
+		// 			var centroCC = cc.getBBox().center(); //obtenemos el origen de este ciclo conversacional en el origen del enlace para usarlo como referencia en la limitación de movimiento
+		// 			var etapaOrigen = links[0].get('attrs').text.etapaOrigen; //obtenemos la etapa de origen 
+					
+		// 			// $log.debug("etapaOrigen: "+etapaOrigen);
+		// 			// $log.debug("BBoxCenterORIGEN ("+centroCC.x+", "+centroCC.y+")");
+		// 			// $log.debug("BBoxCenterTARGET("+centerTarget.x+", "+centerTarget.y+")");
+		// 			// $log.debug("try ("+puntoFinal.x+", "+puntoFinal.y+")");
+
+		// 			// switch(etapaOrigen){
+		// 			// 	case 'PETICION':
+		// 			// 		if(x >= centroCC.x ){
+		// 			// 			puntoFinal.x = centroCC.x;
+		// 			// 		}
+		// 			// 		if(y >= centroCC.y){
+		// 			// 			puntoFinal.y = centroCC.y;
+		// 			// 		}
+		// 			// 		break;
+		// 			// 	case 'NEGOCIACION':
+		// 			// 		if(x <= (centroCC.x) ){
+		// 			// 			puntoFinal.x = centroCC.x;
+		// 			// 		}
+		// 			// 		if(y >= centroCC.y){
+		// 			// 			puntoFinal.y = centroCC.y;
+		// 			// 		}
+		// 			// 		break;
+		// 			// 	case 'REALIZACION':
+		// 			// 		if(x <= centroCC.x ){
+		// 			// 			puntoFinal.x = centroCC.x;
+		// 			// 		}
+		// 			// 		if(y <= centroCC.y){
+		// 			// 			puntoFinal.y = centroCC.y;
+		// 			// 		}
+		// 			// 		break;
+		// 			// 	case 'SATISFACCION':
+		// 			// 		if(x >= centroCC.x ){
+		// 			// 			puntoFinal.x = centroCC.x;
+		// 			// 		}
+		// 			// 		if(y <= centroCC.y){
+		// 			// 			puntoFinal.y = centroCC.y;
+		// 			// 		}
+		// 			// 		break;					
+		// 			// }
+
+		// 			$log.debug("done ("+puntoFinal.x+", "+puntoFinal.y+")");
+					
+		// 			joint.dia.ElementView.prototype.pointermove.apply(this, [evt, puntoFinal.x, puntoFinal.y]);
+
+		// 		}else{
+		// 			$log.debug("PM LINK NO TIENE SOURCE");
+					
+		// 			joint.dia.ElementView.prototype.pointermove.apply(this, [evt, x, y]);
+		// 		}
+		// 	}else{
+		// 		$log.debug("PM mueve celda sin enlace entrante");
+		// 		var celda = graph.getCell(this.model.id);
+		// 		$scope.celda = celda;
+		// 		if(celda.isLink()){
+		// 			$log.debug("PM mueve enlace");
+		// 		}
+		// 		joint.dia.ElementView.prototype.pointermove.apply(this, [evt, x, y]);
+		// 	}
+		// }	
+
+	});
 
 	var paper = new joint.dia.Paper({
 		el: $('#miDiagrama'),
@@ -248,22 +319,22 @@ angular.module('dibujo', ['ngRoute', 'ui.router','ngMaterial', 'md.data.table', 
 		model: graph,
 		gridSize: 1,
 		elementView: graphElementView,
-    linkConnectionPoint: joint.util.shapePerimeterConnectionPoint
-	})
-
-  var crearPortInElement = function(id, group, position, element){
-  	var port = {
-  		markup: '<g><circle r="3" fill="red" stroke="red"/></g>',
-        id: id,
-        group: group,
-        args: {
-	        x: position.x,
-	        y: position.y,
-    	}
-  	};
-  	element.addPort(port);
-  }
-
+    	linkConnectionPoint: joint.util.shapePerimeterConnectionPoint
+	});
+	
+    var crearPortInElement = function(id, group, position, element){
+    	var port = {
+    		markup: '<g><circle r="3" fill="red" stroke="red"/></g>',
+	        id: id,
+	        group: group,
+	        args: {	        	
+		        x: position.x,
+		        y: position.y,	        	
+	    	}    	        
+    	};
+    	element.addPort(port);
+    }	
+	
 
 	var setearIdsNova = function(cellOrigen){
 		var idNovaDestino, idNovaOrigen, cellDestino;
@@ -274,7 +345,7 @@ angular.module('dibujo', ['ngRoute', 'ui.router','ngMaterial', 'md.data.table', 
 		var arrayCeldasSalientesVecindad = graph.getNeighbors(cellOrigen, {'outbound' : true, 'inbound' : false});
 
 		var arrayPuertosCeldaOrigen = cellOrigen.getPorts();
-		var puntoPortA, puntoPortB, thetaA, thetaB;
+		var puntoPortA, puntoPortB, thetaA, thetaB; 
 		arrayPuertosCeldaOrigen.sort(function(a,b){
 			puntoPortA = g.point(a.args.x , a.args.y);
 			puntoPortB = g.point(b.args.x, b.args.y);
@@ -294,7 +365,7 @@ angular.module('dibujo', ['ngRoute', 'ui.router','ngMaterial', 'md.data.table', 
 				return -1;
 			}
 			return 0;
-		})
+		})		
 
 		idNovaOrigen = cellOrigen.get('etiquetas').idNova != 'Main' ? cellOrigen.get('etiquetas').idNova : '';
 
@@ -309,9 +380,9 @@ angular.module('dibujo', ['ngRoute', 'ui.router','ngMaterial', 'md.data.table', 
 					}else{
 						idNovaDestino = idNovaOrigen+''+(count+1);
 					}
-					count++;
+					count++;					
 					arrayCeldasSalientesVecindad[j].attr('.idNova/text', idNovaDestino);
-					joint.util.setByPath(arrayCeldasSalientesVecindad[j].get('etiquetas'), 'idNova', idNovaDestino);
+					joint.util.setByPath(arrayCeldasSalientesVecindad[j].get('etiquetas'), 'idNova', idNovaDestino);					
 					setearIdsNova(arrayCeldasSalientesVecindad[j]);
 				}
 			}
@@ -343,14 +414,14 @@ angular.module('dibujo', ['ngRoute', 'ui.router','ngMaterial', 'md.data.table', 
 			enlace.remove();
 			return false;
 		}
-
+		
 		if(celdaDestino && celdaDestino.get('type') == 'basic.CicloConversacional' && celdaDestino.get('etiquetas').idNova == 'Main'){
 			alert("Ciclo 'Main' no puede ser una celda de destino");
 			//removerElemento(enlace);
 			enlace.remove();
 			return false;
 		}
-
+		
 		var enlacesEntrantesEnDestino = graph.getConnectedLinks(celdaDestino, {'outbound' : false, 'inbound' : true});
 		var count = 0;
 		for(var i =0; i<enlacesEntrantesEnDestino.length; i++){
@@ -360,8 +431,8 @@ angular.module('dibujo', ['ngRoute', 'ui.router','ngMaterial', 'md.data.table', 
 					alert("Enlace ya existe");
 					//removerElemento(enlace);
 					enlace.remove();
-					return false;
-				}
+					return false;	
+				}				
 			}
 		}
 
@@ -370,43 +441,37 @@ angular.module('dibujo', ['ngRoute', 'ui.router','ngMaterial', 'md.data.table', 
 
 	var crearEnlace =  function(){
 		$log.debug("creando enlace");
-
+		
 		var etapaOrigen = etapaCiclo(pointStickOrigen);
-
+		
 		var etapaDestino = etapaCiclo(pointStickDestino);
 
-		var enlace = new ShapesNova.enlace({
-			// source: { id: estacionOrigen.id, port: portIdOrigen },
-	    // target: { id: estacionDestino.id, port: portIdDestino },
-			source: { id: estacionOrigen.id},
-	    target: { id: estacionDestino.id},
-	    attrs: {
-	    	text:{
-	    		'etapaOrigen': etapaOrigen,
-	    		'etapaDestino': etapaDestino,
-	    		'rotulo': '',
-	    		'tipoEnlace': 'pertenencia',
-	    		'mostrarRotulo' : true
-	    	}
-	    },
-			'connector': { name: 'smooth' }
+		var enlace = new joint.dia.Enlace({
+			source: { id: estacionOrigen.id, port: portIdOrigen },
+		    target: { id: estacionDestino.id, port: portIdDestino },		    
+		    attrs: {
+		    	text:{
+		    		'etapaOrigen': etapaOrigen,
+		    		'etapaDestino': etapaDestino,
+		    		'rotulo': '',
+		    		'tipoEnlace': 'pertenencia',
+		    		'mostrarRotulo' : true
+		    	}		    	
+		    },
+		    'connector': { name: 'smooth' }
 		})
-
+		
 		if(tipoEnlace == 'excepcion'){
-			enlace.attr('.connection', {'stroke-dasharray': '5,2'});
+			enlace.attr('.connection',{'stroke-dasharray': '5,2'});
 			enlace.attr('text/tipoEnlace', tipoEnlace);
 		}
-
-
-
 		graph.addCell(enlace);
-		enlace.toBack();
 		//enlace.toBack();
 		if(validarEnlace(enlace)){
 			$log.debug("enlace valido");
 			setearIdsNova(estacionOrigen);
-		}
-
+		}		
+		
 		estacionOrigen = null;
 		estacionDestino = null;
 		portIdOrigen = null;
@@ -414,31 +479,31 @@ angular.module('dibujo', ['ngRoute', 'ui.router','ngMaterial', 'md.data.table', 
 		btnAgregarEnlace = false;
 
 		enlace.on('change:source change:target',function(){
-			$log.debug('change source');
+			
 			if(enlace.get('source').port == null && enlace.get('source').x != null){
-				$log.debug('source of the link changed, puerto desconectado');
+				$log.debug('source of the link changed, puerto desconectado');	
 				var celdaSource = graph.getCell(enlace.previous('source').id);
 				if(celdaSource && celdaSource.hasPort(enlace.previous('source').port)){
 					celdaSource.removePort(enlace.previous('source').port);
 					//renombrar vecinos y sucesores de ellos
 					setearIdsNova(celdaSource);
-				}
+				}					
 			}
 
 			if(enlace.get('target').port == null && enlace.get('target').x != null){
-				$log.debug('target of the link changed, puerto desconectado');
+				$log.debug('target of the link changed, puerto desconectado');	
 				var celdaTarget = graph.getCell(enlace.previous('target').id);
 				if(celdaTarget && celdaTarget.hasPort(enlace.previous('target').port)){
 					celdaTarget.removePort(enlace.previous('target').port);
 					//renombrar vecinos y sucesores
 					if(enlace.get('source').id != null){
 						setearIdsNova(graph.getCell(enlace.get('source').id));
-					}
-				}
+					}					
+				}				
 			}
 
 			if(enlace.get('source').port == null && enlace.get('source').id != null){
-				$log.debug('source of the link changed, puerto reconectado');
+				$log.debug('source of the link changed, puerto reconectado');	
 				//volver a calcular punto más cercano al elemento, poner allí el puerto y setearlo al enlace,
 				//no olvidar setear etapa
 				//adicionalmente es necesario renombrar todos los idNova sucesores al origen y vecinos
@@ -446,14 +511,14 @@ angular.module('dibujo', ['ngRoute', 'ui.router','ngMaterial', 'md.data.table', 
 				var pointStick = determinarStickPoint(nuevoOrigen, enlace.previous('source').x, enlace.previous('source').y);
 				var id = ''+nuevoOrigen.id+'-'+Math.random();
 				crearPortInElement(id, 'out', pointStick, nuevoOrigen);
-				enlace.set('source', {'id': nuevoOrigen.id, 'port': id});
+				enlace.set('source', {'id': nuevoOrigen.id, 'port': id});				
 				if(graph.getCell(enlace.get('source').id).get('type') == 'basic.CicloConversacional'){
 					enlace.attr('text/etapaOrigen', etapaCiclo(pointStick),'/');
-				}
+				}	
 				if(validarEnlace(enlace)){
-					setearIdsNova(nuevoOrigen);
+					setearIdsNova(nuevoOrigen);	
 				}
-
+				
 			}
 
 			if(enlace.get('target').port == null && enlace.get('target').id != null){
@@ -462,7 +527,7 @@ angular.module('dibujo', ['ngRoute', 'ui.router','ngMaterial', 'md.data.table', 
 				var pointStick = determinarStickPoint(nuevoDestino, enlace.previous('target').x, enlace.previous('target').y);
 				var idPortDestino = ''+enlace.get('target').id+'-'+Math.random();
 				crearPortInElement(idPortDestino, 'in', pointStick, nuevoDestino);
-				enlace.set('target', {'id': nuevoDestino.id,'port': idPortDestino});
+				enlace.set('target', {'id': nuevoDestino.id,'port': idPortDestino});				
 				if(nuevoDestino.get('type') == 'basic.CicloConversacional'){
 					enlace.attr('text/etapaDestino',etapaCiclo(pointStick),'/');
 				}
@@ -470,7 +535,7 @@ angular.module('dibujo', ['ngRoute', 'ui.router','ngMaterial', 'md.data.table', 
 					setearIdsNova(enlace.getSourceElement());
 				}
 			}
-
+			
 		})
 	};
 
@@ -487,7 +552,7 @@ angular.module('dibujo', ['ngRoute', 'ui.router','ngMaterial', 'md.data.table', 
 			$log.debug("agregarCicloConversacional, se apaga celda seleccionada");
 			//celdaViewPointerClick.unhighlight();
 			custumUnhighlight(celdaViewPointerClick);
-			celdaViewPointerClick = null;
+			celdaViewPointerClick = null;	
 		}
 	}
 
@@ -499,10 +564,10 @@ angular.module('dibujo', ['ngRoute', 'ui.router','ngMaterial', 'md.data.table', 
 			$log.debug("agregarEstacionAnd, se apaga celda seleccionada");
 			//celdaViewPointerClick.unhighlight();
 			custumUnhighlight(celdaViewPointerClick);
-			celdaViewPointerClick = null;
+			celdaViewPointerClick = null;	
 		}
 	}
-
+	
 	$scope.agregarEstacionOr = function(){
 		cancelarAccionEnCurso();
 		$log.debug("btn Estacion AND");
@@ -511,18 +576,19 @@ angular.module('dibujo', ['ngRoute', 'ui.router','ngMaterial', 'md.data.table', 
 			$log.debug("agregarEstacionOr, se apaga celda seleccionada");
 			//celdaViewPointerClick.unhighlight();
 			custumUnhighlight(celdaViewPointerClick);
-			celdaViewPointerClick = null;
+			celdaViewPointerClick = null;	
 		}
 	}
 
 	var crearEstacionAnd = function(x,y){
 		$log.debug("Agregando estacion And");
-		var nuevoAND2 = new ShapesNova.estacionAnd({
+		var nuevoAND2 = new joint.shapes.basic.And({
 			position: { x: x, y: y },
 			size: { width: 25, height: 25},
 			etiquetas : {
-				idNova: ''
-			}
+				idNova: '',
+				nombre: ''
+			}			
 		});
 		graph.addCell(nuevoAND2);
 		btnAgregarAnd = false;
@@ -530,49 +596,54 @@ angular.module('dibujo', ['ngRoute', 'ui.router','ngMaterial', 'md.data.table', 
 
 	var crearEstacionOr = function(x,y){
 		$log.debug("Agregando estacion Or");
-		var rombo = new ShapesNova.estacionOr({
+		var rombo = new joint.shapes.basic.Or({
 			position: { x: x, y: y },
 			size: { width: 20, height: 20 },
 			etiquetas : {
 				idNova: '',
-				condiciones: ''
+				nombre: ''
 			},
-			attrs: {
+			attrs: { rect: { fill: 'white' } ,
 				'.idNova': { text : ''}
 			}
 		})
+		rombo.rotate(45,{'absolute':true});
 		graph.addCell(rombo);
 		btnAgregarOr = false;
 	}
 
-	var crearCicloConversacional = function(x,y){
+	var crearCicloConversacional = function(x,y){	
 		$log.debug("Agregando Ciclo Conversacional ");
+
 		var nombre = 'ciclo_'+cantCiclosConversacionales;
+		
 		var idNova = '';
 		if(cantCiclosConversacionales == 0){
 			idNova = 'Main'
-		}
-		var nuevoCC2 = new ShapesNova.cicloConversacional({
+		}	
+
+		var nuevoCC2 = new joint.shapes.basic.CicloConversacional({
 			position: { x: x, y: y },
-			size: { width: 134, height: 74 },
+			size: { width: 134, height: 74 }, 
 			etiquetas : {
 				idNova: idNova,
 				nombre: nombre
-			},
-			attrs: {
-				'.idNova': { text : joint.util.breakText(idNova, { width: 180 })},
-				'.nombre': { text: joint.util.breakText(nombre, { width: 180 })}
-			}
+			}, 
+			attrs: { 				
+				'.idNova': { text : idNova},
+				'.nombre': { text : nombre}							
+			}  			
 		});
+
 		graph.addCell(nuevoCC2);
-		cantCiclosConversacionales++;
+		cantCiclosConversacionales++;	
 		btnAgregarCicloConversacional = false;
 	}
 
 	$scope.agregarEnlace = function(tipo){
 		cancelarAccionEnCurso();
 		$log.debug("click on newLinkEP");
-		tipoEnlace = tipo;
+		tipoEnlace = tipo;	
 		estacionOrigen = null;
 		estacionDestino = null;
 		btnAgregarEnlace = true;
@@ -580,7 +651,7 @@ angular.module('dibujo', ['ngRoute', 'ui.router','ngMaterial', 'md.data.table', 
 			$log.debug("agregarEnlace, se apaga celda seleccionada");
 			//celdaViewPointerClick.unhighlight();
 			custumUnhighlight(celdaViewPointerClick);
-			celdaViewPointerClick = null;
+			celdaViewPointerClick = null;	
 		}
 	}
 
@@ -632,10 +703,10 @@ angular.module('dibujo', ['ngRoute', 'ui.router','ngMaterial', 'md.data.table', 
 		enlace.attr('text/rotulo', $scope.enlace.rotulo);
 		if($scope.enlace.mostrarRotulo){
 			enlace.label(0, {position: .5, attrs: {text: { text: $scope.enlace.rotulo}}});
-		}
+		}		
 	}
 
-	$scope.setMostrarRotulo = function(){
+	$scope.setMostrarRotulo = function(){	
 		var enlace = graph.getCell($scope.cellViewLink.id);
 		if($scope.enlace.mostrarRotulo){
 			enlace.attr('text/mostrarRotulo', true);
@@ -649,11 +720,11 @@ angular.module('dibujo', ['ngRoute', 'ui.router','ngMaterial', 'md.data.table', 
 	$scope.cambiarTipoEnlace = function(){
 		var enlace = graph.getCell($scope.cellViewLink.id);
 		if( $scope.enlace.tipo == 'excepcion'){
-			enlace.attr('.connection',{'stroke-dasharray': '5,2'});
+			enlace.attr('.connection',{'stroke-dasharray': '5,2'});	
 		}
 		if( $scope.enlace.tipo == 'pertenencia'){
-			enlace.removeAttr('.connection/stroke-dasharray');
-		}
+			enlace.removeAttr('.connection/stroke-dasharray');		
+		}		
 		enlace.attr('text/tipoEnlace', $scope.enlace.tipo);
 	}
 
@@ -663,8 +734,8 @@ angular.module('dibujo', ['ngRoute', 'ui.router','ngMaterial', 'md.data.table', 
 		if(celda && celda.get('type') == 'basic.CicloConversacional' && celda.get('etiquetas').idNova == 'Main'){
 			alert("Ciclo 'Main' no puede ser eliminado del modelo");
 		}else{
-			celda.remove(); // desencadena graph.on('remove'...
-		}
+			celda.remove(); // desencadena graph.on('remove'...	
+		}		
 		celdaViewPointerClick = null;
 	}
 	var cancelarAccionEnCurso = function(){
@@ -682,19 +753,19 @@ angular.module('dibujo', ['ngRoute', 'ui.router','ngMaterial', 'md.data.table', 
 		portIdDestino = null;
 	}
 
-	$(document).keyup(function(tecla) { //si se presiona la {tecla}
+	$(document).keyup(function(tecla) { //si se presiona la {tecla} 
 		if(tecla.keyCode == 27){ //al presionar tecla escape
 			cancelarAccionEnCurso();
 		}
 		if(tecla.keyCode == 46){ //al presionar tecla delete (Supr)
 			if(celdaViewPointerClick != null){
 				$scope.removerElementoPresionado();
-			}
+			}					
 		}
-
+		
 	});
-
-	graph.on('remove', function(cell) {
+	
+	graph.on('remove', function(cell) {   
 
     	if(cell.isLink()){ //si se removió el enlace, entonces removemos los puertos asociados
     		//alert('Link:remove with id ' + cell.id + ' remove to the graph.');
@@ -707,27 +778,27 @@ angular.module('dibujo', ['ngRoute', 'ui.router','ngMaterial', 'md.data.table', 
     		if(celdaDestino.hasPort(cell.get('target').port)){
     			celdaDestino.removePort(cell.get('target').port);
     			setearIdsNova(celdaOrigen);
-    		}
+    		} 	    		
     	}else{
     		//alert('Cell:remove with id ' + cell.id + ' remove to the graph.');
     		//por defecto, si se remueve un elemento sus enlaces son automaticamente removidos
     	}
 	})
 
-
-	paper.on('cell:pointerdblclick ', function(cellView, evt, x, y) {
+	
+	paper.on('cell:pointerdblclick ', function(cellView, evt, x, y) { 
 		//$scope.objeto = cellView;
 
 		$log.debug('cell:pointerdblclick cellView.className-> '+cellView.className());
 		var type = cellView.className();
-
+		
 		switch(type){
-			case 'cell type-cicloconversacional element':
+			case 'cell type-basic type-basic-cicloconversacional element': 
 				$scope.cellViewCC = graph.getCell(cellView.model.id);
-
+								
 				var etiquetas = $scope.cellViewCC.get('etiquetas');
 
-				$scope.w1 = {
+				$scope.w1 = { 
 					idNova : etiquetas.idNova || 'no definido',
 					name:  etiquetas.nombre || 'no definido',
 					cliente: etiquetas.cliente  || 'no definido',
@@ -746,14 +817,14 @@ angular.module('dibujo', ['ngRoute', 'ui.router','ngMaterial', 'md.data.table', 
 				$scope.toggleEnlace();
 				break;
 		}
-	})
+	})	
 
 	graph.on('change:vertices', function(cellView){
 		$scope.cellViewLink = cellView;
 	})
 
 	graph.on('change:position',function(cellView){
-		$scope.objeto = cellView;
+		$scope.objeto = cellView;	
 		$scope.objetoPosition = cellView.get('position');
 		$scope.objetoCenter = cellView.getBBox().center();
 		//$log.debug('change:position cell ->'+cellView.id + " x: " + cellView.get('position').x + " ,y: "+cellView.get('position').y );
@@ -761,91 +832,83 @@ angular.module('dibujo', ['ngRoute', 'ui.router','ngMaterial', 'md.data.table', 
 	})
 
 	paper.on('cell:pointerclick', function(cellView, evt, x, y) {
-		$log.debug("cell:pointerClick className: "+cellView.className());
-		var thisCell = graph.getCell(cellView.model.id);
-		var type = thisCell.get('type');
+		$log.debug("cell:pointerClick className: "+cellView.className());		
+		if(cellView.className() != 'cell type-basic type-basic-ellipse element'){
+		if(celdaViewPointerClick != null){
+			$log.debug(" apagar celda antes presionada");
+			//celdaViewPointerClick.unhighlight();	
+			custumUnhighlight(celdaViewPointerClick);
+		}
+		celdaViewPointerClick = cellView;
+		//cellView.highlight();
+		custumHighlight(cellView);
+
 		if(btnAgregarEnlace){
 			//obtener celda y punto donde se ubicará el puerto (el punto depende de la celda)
-
-			var pointStick = determinarStickPoint(thisCell, x, y);
+			var thisCell = graph.getCell(cellView.model.id);
+			var type = thisCell.get('type');
+			var pointStick = determinarStickPoint(thisCell, x, y);							
 
 			if (!estacionOrigen){
-				estacionOrigen = thisCell;
-				pointStickOrigen = 	pointStick;
+				estacionOrigen = thisCell;	
+				pointStickOrigen = 	pointStick;	
 				portIdOrigen = ''+estacionOrigen.id+'-'+Math.random();
-
+	
 				crearPortInElement(portIdOrigen, 'out', pointStickOrigen, estacionOrigen);
-
+						
 			}else{
 				estacionDestino = thisCell;
 				pointStickDestino = pointStick;
 				portIdDestino = ''+estacionDestino.id+'-'+Math.random();
-
+	
 				crearPortInElement(portIdDestino, 'in', pointStickDestino, estacionDestino);
-
+				
 				//ya que estan seteados ambos puertos, se crea el enlace
 				crearEnlace();
 			}
-		}
-		if(thisCell.isLink()){
-			$log.debug("cell-link:pointerClick className: "+cellView.className());
-
-		}else{
-			var elementos = graph.findModelsFromPoint(g.point(x,y));
-			$log.debug('element click -> '+elementos[0]);
-		}
+		}	
+		}	
 	});
 
 	paper.on('cell:pointermove',function(cellView, evt, x, y){
 		$log.debug("cell:pointermove");
-		var thisCell = graph.getCell(cellView.model.id);
-		var type = thisCell.get('type');
-
-		if(thisCell.isLink()){
-			$log.debug("cell-link:pointerMove className: "+cellView.className());
-
-		}else{
-
-			if(thisCell.get('type') != 'enlace'){
-
-				var elementos = thisCell.getPorts();
-				$log.debug('812 elementos: '+elementos.length);
-				$log.debug('813 x y: '+x+', '+y);
-				if(elementos){
-					var rectBoundari = g.rect(x, y, 20, 20);
-					var portPoint;
-					var i;
-					for (i =0; i < elementos.length; i++){
-						portPoint = g.point(joint.util.getByPath(elementos[i], 'args/x','/'), joint.util.getByPath(elementos[i], 'args/y','/'));
-						portPoint.offset(thisCell.get('position').x, thisCell.get('position').y);
-
-						if(rectBoundari.containsPoint(portPoint)){
-							$log.debug('toca el puerto, limitar su movimiento');
-							
-							break;
-						}else{
-							$log.debug('no toca puerto');
-						}
-					}
-
-				}
+		if(cellView.className() != 'cell type-basic type-basic-ellipse element'){
+			if(celdaViewPointerClick != null){
+				$log.debug(" apagar celda antes presionada.");
+				//celdaViewPointerClick.unhighlight();		
+				custumUnhighlight(celdaViewPointerClick);
 			}
+			celdaViewPointerClick = cellView;
+
+			custumHighlight(cellView);
+		}else{
+			
+			var elipse = graph.getCell(cellView.model.id); //ellipse
+			var position = elipse.get('position'); //posicion nueva de la ellipse
+			var previous = elipse.previous('position'); //posicion antigua de la ellipse
+			var celda = graph.getCell(celdaViewPointerClick.model.id); //elemento a escalar
+			var size = celda.get('size'); // tamaño original del elemento
+			celda.resize(size.width + position.x- previous.x, size.height + previous.y - position.y);
 		}
 	})
 
 	paper.on('cell:mouseover', function(cellView, evt){
+		if(cellView.className() != 'cell type-basic type-basic-ellipse element'){
 		if(btnAgregarEnlace && graph.getCell(cellView.model.id).isElement()){
 			$log.debug("mouseOver Agregando Enlace");
 			//cellView.highlight();
 			custumHighlight(cellView);
 		}
+	}
 	})
 
 	paper.on('cell:mouseout',function(cellView, evt){
-		if(btnAgregarEnlace && graph.getCell(cellView.model.id).isElement()){
-			$log.debug("mouseOut Agregando Enlace");
-			//cellView.unhighlight();
-			custumUnhighlight(cellView);
+		if(cellView.className() != 'cell type-basic type-basic-ellipse element'){
+			if(btnAgregarEnlace && graph.getCell(cellView.model.id).isElement()){
+				$log.debug("mouseOut Agregando Enlace");
+				//cellView.unhighlight();
+				custumUnhighlight(cellView);
+			}
 		}
 	})
 
@@ -855,7 +918,7 @@ angular.module('dibujo', ['ngRoute', 'ui.router','ngMaterial', 'md.data.table', 
 			$log.debug("blank: apagar celda antes presionada");
 			//celdaViewPointerClick.unhighlight();
 			custumUnhighlight(celdaViewPointerClick);
-			celdaViewPointerClick = null;
+			celdaViewPointerClick = null;	
 		}
 		if(btnAgregarCicloConversacional){
 			crearCicloConversacional(x, y);
@@ -865,69 +928,144 @@ angular.module('dibujo', ['ngRoute', 'ui.router','ngMaterial', 'md.data.table', 
 		}
 		if(btnAgregarOr){
 			crearEstacionOr(x,y);
-		}
+		}				
 	})
 
-	graph.on('add', function(cell) {
+	graph.on('add', function(cell) { 
+		//$log.debug("celda agregada, activar su highlight");
 		var cellView = paper.findViewByModel(cell);
 		$log.debug("celda agregada, activar su highlight, cellView-> "+cellView.className());
-
-	    if(celdaViewPointerClick != null){
+		if(cellView.className() != 'cell type-basic type-basic-ellipse element'){
+			
+	    	if(celdaViewPointerClick != null){
 				$log.debug("add: apagar celda antes presionada");
 				//celdaViewPointerClick.unhighlight();
 				custumUnhighlight(celdaViewPointerClick);
 			}
+			
+			
+			//cellView.highlight();
+		
 			custumHighlight(cellView);
-			celdaViewPointerClick = cellView;
+			celdaViewPointerClick = cellView;			
+		}		
 	})
+
+	var addCircleBlue = function(cellView){
+		var element = graph.getCell(cellView.model.id);
+		var position = g.rect(element.get('position').x-element.get('size').width/2, element.get('position').y-element.get('size').height/2, element.get('size').width, element.get('size').height).topRight();
+		$log.debug("position-> "+position);
+		var circulo = new joint.shapes.basic.Ellipse({
+			position: { x: position.x, y: position.y },
+        	size: { width: 5, height: 5 },
+        	attrs: { ellipse: { fill: 'blue', stroke: 'blue' }}	
+		})
+		graph.addCell(circulo);
+    	$log.debug("circulo agregado");
+    	element.embed(circulo);
+    	celdaViewPointerClick = cellView;
+    }
+
+    var removeCircleBlue = function(cellView){
+		var element = graph.getCell(cellView.model.id);
+		var circulo = element.getEmbeddedCells();
+		if(circulo[0]){
+			element.unembed(circulo[0]);
+	    	$log.debug("circulo desembebido");
+	    	circulo[0].remove();
+	    	$log.debug("circulo removido");	
+		}		
+    	celdaViewPointerClick = cellView;
+    }
 
 	var custumHighlight = function(cellView){
 		if(cellView){
 			var tipo = cellView.className();
 			switch (tipo){
-				case 'cell type-cicloconversacional element':
-					cellView.highlight('ellipse', {type: 'elementAvailability'});
+				case 'cell type-basic type-basic-cicloconversacional element':					
+					cellView.highlight('ellipse');
 					break;
-				case 'cell type-estacionand element':
+				case 'cell type-basic type-basic-and element':
 					cellView.highlight('circle');
 					break;
-				case 'cell type-estacionor element':
-					cellView.highlight('path');
+				case 'cell type-basic type-basic-or element':
+					cellView.highlight('rect');
 					break;
 				case 'cell type-enlace link':
 					cellView.highlight('path');
 					break;
 			}
-			if(btnAgregarEnlace == false){ // celda iluminada debe mostrar marca para escalar.
-				// mostrar marca para escalar
+			if(btnAgregarEnlace == false){
+				addCircleBlue(cellView);
 			}
-		}
+		}		
 	}
 
 	var custumUnhighlight = function(cellView){
 		if(cellView){
 			var tipo = cellView.className();
 			switch (tipo){
-				case 'cell type-cicloconversacional element':
+				case 'cell type-basic type-basic-cicloconversacional element':
 					cellView.unhighlight('ellipse');
+					
 					break;
-				case 'cell type-estacionand element':
+				case 'cell type-basic type-basic-and element':
 					cellView.unhighlight('circle');
 					break;
-				case 'cell type-estacionor element':
-					cellView.unhighlight('path');
+				case 'cell type-basic type-basic-or element':
+					cellView.unhighlight('rect');
 					break;
 				case 'cell type-enlace link':
 					cellView.unhighlight('path');
 					break;
 			}
-			// remover marca de escalamiento
-		}
+
+				removeCircleBlue(cellView);
+			
+		}		
 	}
+
+	var vm = this;
 
 	$rootScope.alerta = function(){
 		alert("enviada por-> ");
 	};
+	
+	var customMenuCC = angular.element('<div class="md-open-menu-container md-whiteframe-z2">'+
+					'<md-menu-content>'+
+						'<md-menu-item>'+
+							'<button onclick="alerta()" aria-label="delete element" >'+
+								'Eliminar CC'+
+							'</button>'+
+						'</md-menu-item>'+
+						'<md-menu-item>'+
+							'<md-button aria-label="atributos element" ng-click="toggleCC()">'+
+								'Ver atributos CC'+
+							'</md-button>'+
+						'</md-menu-item>'+
+					'</md-menu-content>'+
+					'</div>');
+	
+	var RightClickMenuCtrlCC = {
+		open: function(event) {
+			$mdMenu.show({
+				scope: $rootScope.$new(),
+				mdMenuCtrl: RightClickMenuCtrlCC,
+				element: customMenuCC,
+				target: event.target // used for where the menu animates out of
+			});
+		}, 
+		close: function() { $mdMenu.hide(); },
+		positionMode: function(x,y) { return { left: 'target', top: 'target' }; },
+		offsets: function() { return { top: 0, left: 0 }; }
+	};
+
+
+	$scope.$on('ctxmnCC', function(event) {
+    	console.log('Sadface + '); // outputs Sadface
+    	RightClickMenuCtrlCC.open('event');
+  	});
+
 
 	var myCustomMenu = angular.element('<div class="md-open-menu-container md-whiteframe-z2">'+
 					'<md-menu-content>'+
@@ -943,7 +1081,7 @@ angular.module('dibujo', ['ngRoute', 'ui.router','ngMaterial', 'md.data.table', 
 						'</md-menu-item>'+
 					'</md-menu-content>'+
 					'</div>');
-
+	
 	var RightClickMenuCtrl = {
 		open: function(event) {
 			$mdMenu.show({
@@ -952,34 +1090,41 @@ angular.module('dibujo', ['ngRoute', 'ui.router','ngMaterial', 'md.data.table', 
 				element: myCustomMenu,
 				target: event.target // used for where the menu animates out of
 			});
-		},
+		}, 
 		close: function() { $mdMenu.hide(); },
 		positionMode: function() { return { left: 'target', top: 'target' }; },
 		offsets: function() { return { top: 0, left: 0 }; }
 	};
 
-	paper.on('cell:contextmenu', function(cellView, evt, x, y) {
-		$log.debug('cell:contextmenu cellView.id-> '+cellView.id);
-		var type = cellView.className();
-		$log.debug('cell:contextmenu cellView.type-> '+type);
 
+	paper.on('cell:contextmenu', function(cellView, evt, x, y) { 
+		$log.debug('cell:contextmenu cellView.id-> '+cellView.id);	   
+
+		var type = cellView.className();
+
+		$log.debug('cell:contextmenu cellView.type-> '+type);
+		
 		switch(type){
-			case 'cell type-cicloconversacional element':
-				RightClickMenuCtrl.open(evt);
-				break;
-			case 'cell type-estacionor element':
-				RightClickMenuCtrl.open(evt);
-				break;
-			case 'cell type-estacionand element':
-				RightClickMenuCtrl.open(evt);
+			case 'element basic Rect': 	     		
+				$log.debug("switch contextmenu=Rect");
+				//cmcc(cellView, x,y);
+				//alert("switch contextmenu=Rect");
+				RightClickMenuCtrlCC.open(evt);
 				break;
 			case 'link':
 				$log.debug("switch contextmenu=link");
 				RightClickMenuCtrl.open(evt);
 				break;
+			case 'cell type-basic type-basic-cicloconversacional element': 	     		
+				$log.debug("switch contextmenu=CC -> "+evt.target.parentNode.parentNode.parentNode.parentNode.parentNode.parentNode.nodeName);
+				RightClickMenuCtrlCC.open(evt);
+				//$scope.$emit('ctxmnCC', evt);
+				//alert("switch contextmenu=Image");
+				break;
+
 		}
 	})
-
+	
 	/* Actualiza el json del modelo*/
 	graph.on('all',function(eventName, cell){
 		$('#json-renderer').jsonViewer(graph.toJSON());

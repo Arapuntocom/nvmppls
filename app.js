@@ -3,7 +3,7 @@
 // Declare app level module which depends on views, and components
 angular.module('myApp', [
   'ngRoute',
-  'ui.router', 
+  'ui.router',
   'header',
   'draw',
   'dibujo'
@@ -16,11 +16,11 @@ angular.module('myApp', [
 
   .state('inicio', {
     url: '/',
-    templateUrl: 'dist/view/add.html' 
+    templateUrl: 'dist/view/add.html'
   })
 
   .state('draw', {
-    url: '/draw',   
+    url: '/draw',
     templateUrl: 'dist/view/draw.html'
   })
 
@@ -33,7 +33,7 @@ angular.module('myApp', [
   .state('test', {
     url: '/test',
     templateUrl: 'dist/view/test.html',
-    controller: 'DibujoController'
+    controller: 'testDiagramaController'
   });;
 
 
