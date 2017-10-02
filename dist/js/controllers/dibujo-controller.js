@@ -162,37 +162,122 @@ angular.module('dibujo', ['ngRoute', 'ui.router','ngMaterial', 'md.data.table', 
 
 	var graph = new joint.dia.Graph;
 
+	var constraint = function(parentCell){
+		var retorno;
+		var viewCell = paper.findViewByModel(parentCell);
+		var scalable = viewCell.$('.scalable')[0];
+		var aux = paper.findView(scalable.firstChild).getBBox();
+
+		var lista = scalable.transform.baseVal;
+
+		$log.debug('bbox center '+aux.center());
+		$log.debug('w h '+aux.width+', '+aux.height);
+		$log.debug('escale: '+lista.getItem(0).matrix.a+', '+lista.getItem(0).matrix.d);
+		$log.debug('parent position-> '+parentCell.get('position').x+', '+parentCell.get('position').y);
+
+		switch (parentCell.get('type')) {
+			case 'cicloConversacional':
+
+				retorno = g.ellipse(parentCell.get('position'), scalable.firstChild.rx.baseVal.valueAsString*lista.getItem(0).matrix.a ,scalable.firstChild.ry.baseVal.valueAsString*lista.getItem(0).matrix.d
+			 );
+
+				break;
+			case 'estacionAnd':
+				retorno = g.ellipse(parentCell.get('position'), scalable.firstChild.r.baseVal.valueAsString*lista.getItem(0).matrix.a ,scalable.firstChild.r.baseVal.valueAsString*lista.getItem(0).matrix.d
+			 );
+				break;
+			case 'estacionOr':
+
+				break;
+
+			default:
+				retorno = g.rect(viewCell.getBBox({'useModelGeometry':false}));
+		}
+		return retorno;
+	}
+
+
 	var graphElementView = joint.dia.ElementView.extend({
 
-		pointerdown: function(evt, x, y){
-			dateCellPointerDown = new Date();
-			//$log.debug("dateCellPointerDown: "+dateCellPointerDown);
+		pointerdown: function(evt, x, y) {
 
-			joint.dia.ElementView.prototype.pointerdown.apply(this, [evt, x, y]);
+			if(this.model.get('type') == 'basic.Ellipse'){ //si es puerto
+				$log.debug('IF Down');
+				var parentId = this.model.get('parent');
+
+				var intersection = constraint(graph.getCell(parentId)).intersectionWithLineFromCenterToPoint(g.point(x,y));
+				joint.dia.ElementView.prototype.pointerdown.apply(this, [evt, intersection.x, intersection.y]);
+			}else{
+				$log.debug('ELSE: Down');
+				joint.dia.ElementView.prototype.pointerdown.apply(this,[evt,x,y]);
+			}
 		},
-		pointerup: function(evt, x, y){
-			dateCellPointerUp = new Date();
-			//$log.debug("dateCellPointerUp: "+dateCellPointerUp);
+		pointermove: function(evt, x, y) {
 
-			joint.dia.ElementView.prototype.pointerup.apply(this, [evt, x, y]);
+			if(this.model.get('type') == 'basic.Ellipse'){ //si es puerto
+				$log.debug('IF Move');
+				var parentId = this.model.get('parent');
+
+				var intersection = constraint(graph.getCell(parentId)).intersectionWithLineFromCenterToPoint(g.point(x,y));
+				joint.dia.ElementView.prototype.pointermove.apply(this, [evt, intersection.x, intersection.y]);
+			}else{
+				$log.debug('ELSE move');
+				joint.dia.ElementView.prototype.pointermove.apply(this, [evt,x,y]);
+			}
+
+
 		}
 
 	});
 
 	var myConnectionPoint = function(thisCell, x, y){
 		var type = thisCell.get('type');
+		$log.debug('184 type: '+type);
 		var viewCell = paper.findViewByModel(thisCell);
-		var scalable,aux;
+		var scalable,aux, rectBBox;
 		var pointStick = viewCell.getBBox({'useModelGeometry':false}).center();
-		if(type == 'cicloConversacional' || type == 'estacionOr' || type == 'estacionAnd'){
+		if(type == 'cicloConversacional'){
 			scalable = viewCell.$('.scalable')[0];
 			if (scalable && scalable.firstChild){
-				$log.debug('hay hijo en escalable -> '+scalable.firstChild);
+				$log.debug('hay hijo en escalable -> '+scalable.firstChild.id);
+
 				aux = paper.findView(scalable.firstChild).getBBox();
-				$log.debug('hay hijo en escalable -> '+aux.x);
-				pointStick = g.rect(aux).pointNearestToPoint(g.point(x,y));
-				$log.debug('hay hijo en escalable punto -> '+pointStick);
+				rectBBox = g.rect(aux.x, aux.y, aux.width, aux.height);
+				var transform = scalable.firstChild.rx.baseVal.valueAsString;
+				var lista = scalable.transform.baseVal;
+				$log.debug('position: '+thisCell.get('position').x+', '+thisCell.get('position').y);
+				$log.debug('*center: '+thisCell.getBBox().center());
+				$log.debug('centerBBox: '+thisCell.get('size').width*lista.getItem(0).matrix.a/2);
+				$log.debug('w h :'+aux.width+', '+aux.height);
+				$log.debug('aux :'+aux);
+				$log.debug('transform0 : '+transform);
+				$log.debug('transform1 : '+scalable.getAttribute('transform'));
+				$log.debug('transform2 : '+lista);
+				$log.debug('transform2.x : '+lista.getItem(0).matrix.a);
+				$log.debug('transform2.y : '+lista.getItem(0).matrix.d);
+				$log.debug('transform2.cx : '+aux.width*lista.getItem(0).matrix.a/2);
+				$log.debug('transform2.cy : '+aux.height*lista.getItem(0).matrix.d/2);
+				var rx = scalable.firstChild.rx.baseVal.valueAsString;
+				var ry = scalable.firstChild.ry.baseVal.valueAsString;
+				pointStick = g.ellipse(thisCell.get('position'), scalable.firstChild.rx.baseVal.valueAsString*lista.getItem(0).matrix.a ,scalable.firstChild.ry.baseVal.valueAsString*lista.getItem(0).matrix.d
+			 ).intersectionWithLineFromCenterToPoint(g.point(x,y));
+
+				$log.debug('214 myConnectionPoint -> '+pointStick.x);
 			}
+		}if( type == 'estacionAnd'){
+			scalable = viewCell.$('.scalable')[0];
+			if (scalable && scalable.firstChild){
+				$log.debug('219 hay hijo en escalable -> '+scalable.firstChild.id);
+				var transform = scalable.firstChild.r.baseVal.valueAsString;
+				var lista = scalable.transform.baseVal;
+				pointStick = g.ellipse(thisCell.get('position'), scalable.firstChild.r.baseVal.valueAsString*lista.getItem(0).matrix.a ,scalable.firstChild.r.baseVal.valueAsString*lista.getItem(0).matrix.d
+			 ).intersectionWithLineFromCenterToPoint(g.point(x,y));
+
+				$log.debug('227 myConnectionPoint -> '+pointStick.x);
+			}
+		}
+		if(type == 'estacionOr'){
+
 		}
 		return pointStick;
 	}
@@ -263,6 +348,21 @@ angular.module('dibujo', ['ngRoute', 'ui.router','ngMaterial', 'md.data.table', 
   	};
   	element.addPort(port);
   }
+
+	var agregarPuertoAzul = function(cellElement, x, y){
+		var element = cellElement;
+
+		var position = myConnectionPoint(cellElement, x, y);
+
+		var circulo = new joint.shapes.basic.Ellipse({
+			position: { x: position.x, y: position.y },
+			size: { width: 7, height: 7 },
+			attrs: { ellipse: { fill: 'blue', stroke: 'blue' }}
+		})
+		graph.addCell(circulo);
+		element.embed(circulo);
+		return circulo;
+	}
 
 
 	var setearIdsNova = function(cellOrigen){
@@ -767,21 +867,16 @@ angular.module('dibujo', ['ngRoute', 'ui.router','ngMaterial', 'md.data.table', 
 		if(btnAgregarEnlace){
 			//obtener celda y punto donde se ubicará el puerto (el punto depende de la celda)
 
-			var pointStick = determinarStickPoint(thisCell, x, y);
+			var pointStick = myConnectionPoint(thisCell, x, y);
 
 			if (!estacionOrigen){
-				estacionOrigen = thisCell;
-				pointStickOrigen = 	pointStick;
-				portIdOrigen = ''+estacionOrigen.id+'-'+Math.random();
+				estacionOrigen = agregarPuertoAzul(thisCell,x,y);
 
-				crearPortInElement(portIdOrigen, 'out', pointStickOrigen, estacionOrigen);
+				pointStickOrigen = estacionOrigen.get('position');
 
 			}else{
-				estacionDestino = thisCell;
-				pointStickDestino = pointStick;
-				portIdDestino = ''+estacionDestino.id+'-'+Math.random();
-
-				crearPortInElement(portIdDestino, 'in', pointStickDestino, estacionDestino);
+				estacionDestino = agregarPuertoAzul(thisCell, x, y);
+				pointStickDestino = estacionDestino.get('position');
 
 				//ya que estan seteados ambos puertos, se crea el enlace
 				crearEnlace();
@@ -821,7 +916,7 @@ angular.module('dibujo', ['ngRoute', 'ui.router','ngMaterial', 'md.data.table', 
 
 						if(rectBoundari.containsPoint(portPoint)){
 							$log.debug('toca el puerto, limitar su movimiento');
-							
+
 							break;
 						}else{
 							$log.debug('no toca puerto');

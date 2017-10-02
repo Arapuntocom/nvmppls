@@ -384,7 +384,7 @@ angular.module('draw', ['ngRoute', 'ui.router','ngMaterial', 'md.data.table', 'n
 				attrs: {
 					'.idNova': { text : joint.util.breakText(idNova, { width: 180 })},
 					'.nombre': { text: joint.util.breakText(nombre, { width: 180 })},
-					'.realizador': { text: joint.util.breakText('perersdfasdfa sdfasdfasd', { width: 180 })}
+					'.realizador': { text: joint.util.breakText('perersdfasdfa sdfasdfas adasfasdfasdfd', { width: 180 })}
 				}
 			});
 			graph.addCell(cicloC);
