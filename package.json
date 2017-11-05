@@ -19,7 +19,6 @@
     "angular-route": "^1.6.6",
     "angular-ui-router": "^1.0.3",
     "express": "^4.15.4",
-    "jointjs": "^1.1.0",
     "jquery.json-viewer": "^1.1.0",
     "ng-context-menu": "^0.1.1",
     "ng-contextmenu": "^0.8.0"

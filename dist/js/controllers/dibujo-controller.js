@@ -147,14 +147,15 @@ angular.module('dibujo', ['ngRoute', 'ui.router','ngMaterial', 'md.data.table', 
 		};
 	}
 
-	var dateCellPointerDown;
-	var dateCellPointerUp;
-	var celdaViewPointerClick;
+
+	var celdaViewPointerClick = null;
 
 	var cantCiclosConversacionales = 0;
 	var tipoEnlace, pointStickOrigen, pointStickDestino, portIdOrigen, portIdDestino;
 	var estacionOrigen = null;
 	var estacionDestino = null;
+	var puertoOrigen = null;
+	var puertoDestino = null;
 	var btnAgregarEnlace = false;
 	var btnAgregarCicloConversacional = false;
 	var btnAgregarAnd = false;
@@ -162,169 +163,84 @@ angular.module('dibujo', ['ngRoute', 'ui.router','ngMaterial', 'md.data.table', 
 
 	var graph = new joint.dia.Graph;
 
-	var constraint = function(parentCell){
-		var retorno;
-		var viewCell = paper.findViewByModel(parentCell);
-		var scalable = viewCell.$('.scalable')[0];
-		var aux = paper.findView(scalable.firstChild).getBBox();
-
-		var lista = scalable.transform.baseVal;
-
-		$log.debug('bbox center '+aux.center());
-		$log.debug('w h '+aux.width+', '+aux.height);
-		$log.debug('escale: '+lista.getItem(0).matrix.a+', '+lista.getItem(0).matrix.d);
-		$log.debug('parent position-> '+parentCell.get('position').x+', '+parentCell.get('position').y);
-
-		switch (parentCell.get('type')) {
-			case 'cicloConversacional':
-
-				retorno = g.ellipse(parentCell.get('position'), scalable.firstChild.rx.baseVal.valueAsString*lista.getItem(0).matrix.a ,scalable.firstChild.ry.baseVal.valueAsString*lista.getItem(0).matrix.d
-			 );
-
-				break;
-			case 'estacionAnd':
-				retorno = g.ellipse(parentCell.get('position'), scalable.firstChild.r.baseVal.valueAsString*lista.getItem(0).matrix.a ,scalable.firstChild.r.baseVal.valueAsString*lista.getItem(0).matrix.d
-			 );
-				break;
-			case 'estacionOr':
-
-				break;
-
-			default:
-				retorno = g.rect(viewCell.getBBox({'useModelGeometry':false}));
+	var puntoInterseccionFun = function(celdaRestrictiva, punto){
+		if(celdaRestrictiva === undefined || punto === undefined){
+			$log.debug('210 ERROR, celda o punto indefinido');
+		}else {
+			var puntoInterseccion;
+			var formaRestriccion;
+			var vista = paper.findViewByModel(celdaRestrictiva);// encontrar la vista del elemento
+			var scalable = vista.$('.scalable')[0]; 						// determinar el subelemento que tiene el valor del escalamiento
+			var transform = scalable.transform.baseVal;					// elemento que tiene el valor del escalamiento
+			$log.debug('fun 271 type: '+celdaRestrictiva.get('type'));
+			switch (celdaRestrictiva.get('type')) {
+				case 'cicloConversacional':
+					formaRestriccion = g.ellipse(celdaRestrictiva.get('position'),
+					scalable.firstChild.rx.baseVal.valueAsString*transform.getItem(0).matrix.a,
+					scalable.firstChild.ry.baseVal.valueAsString*transform.getItem(0).matrix.d);
+					puntoInterseccion = formaRestriccion.intersectionWithLineFromCenterToPoint(punto);
+					break;
+				case 'estacionAnd':
+					formaRestriccion = g.ellipse(celdaRestrictiva.get('position'),
+					scalable.firstChild.r.baseVal.valueAsString*transform.getItem(0).matrix.a,
+					scalable.firstChild.r.baseVal.valueAsString*transform.getItem(0).matrix.d);
+					puntoInterseccion = formaRestriccion.intersectionWithLineFromCenterToPoint(punto);
+					break;
+				case 'estacionOr':
+					var centro = g.point(celdaRestrictiva.get('position').x + celdaRestrictiva.get('size').width/2, celdaRestrictiva.get('position').y + celdaRestrictiva.get('size').height/2 );
+					var click = punto.offset(punto.x - centro.x, punto.y - centro.y);
+					var puntaN, puntaE, puntaS, puntaO; // posición de las puntas del rombo
+					puntaN = g.point(celdaRestrictiva.get('position').x + celdaRestrictiva.get('size').width/2, celdaRestrictiva.get('position').y);
+					puntaS = g.point(celdaRestrictiva.get('position').x + celdaRestrictiva.get('size').width/2, celdaRestrictiva.get('position').y+celdaRestrictiva.get('size').height);
+					puntaO = g.point(celdaRestrictiva.get('position').x, celdaRestrictiva.get('position').y + celdaRestrictiva.get('size').height/2);
+					puntaE = g.point(celdaRestrictiva.get('position').x + celdaRestrictiva.get('size').width, celdaRestrictiva.get('position').y + celdaRestrictiva.get('size').height/2);
+					var path;
+					var lineaCentroClick;
+					var puntoInterseccion;
+					if(punto.x >= centro.x && punto.y < centro.y){ //cuadrante NE
+						path = g.line(puntaN, puntaE);
+					}
+					if(punto.x >= centro.x && punto.y >= centro.y){ //cuadrante SE
+						path = g.line(puntaS, puntaE);
+					}
+					if(punto.x < centro.x && punto.y >= centro.y){ //cuadrante SO
+						path = g.line(puntaS, puntaO);
+					}
+					if(punto.x < centro.x && punto.y < centro.y){ //cuadrante NO
+						path = g.line(puntaN, puntaO);
+					}
+					lineaCentroClick = g.line(centro, click);
+					puntoInterseccion = path.intersect(lineaCentroClick);
+					break;
+				default:
+					puntoInterseccion = punto;
+			}
+			return puntoInterseccion;
 		}
-		return retorno;
+		return null;
 	}
-
 
 	var graphElementView = joint.dia.ElementView.extend({
 
 		pointerdown: function(evt, x, y) {
-
-			if(this.model.get('type') == 'basic.Ellipse'){ //si es puerto
-				$log.debug('IF Down');
-				var parentId = this.model.get('parent');
-
-				var intersection = constraint(graph.getCell(parentId)).intersectionWithLineFromCenterToPoint(g.point(x,y));
-				joint.dia.ElementView.prototype.pointerdown.apply(this, [evt, intersection.x, intersection.y]);
+			if(this.model.get('type') == 'basic.Ellipse'){ //si es puerto azul
+				var parentCell = graph.getCell(this.model.get('parent'));
+				var intersectionPoint = puntoInterseccionFun(parentCell, g.point(x, y));
+				joint.dia.ElementView.prototype.pointerdown.apply(this, [evt, intersectionPoint.x, intersectionPoint.y]);
 			}else{
-				$log.debug('ELSE: Down');
 				joint.dia.ElementView.prototype.pointerdown.apply(this,[evt,x,y]);
 			}
 		},
 		pointermove: function(evt, x, y) {
-
-			if(this.model.get('type') == 'basic.Ellipse'){ //si es puerto
-				$log.debug('IF Move');
-				var parentId = this.model.get('parent');
-
-				var intersection = constraint(graph.getCell(parentId)).intersectionWithLineFromCenterToPoint(g.point(x,y));
-				joint.dia.ElementView.prototype.pointermove.apply(this, [evt, intersection.x, intersection.y]);
+			if(this.model.get('type') == 'basic.Ellipse'){ //si es puerto azul
+				var parentCell = graph.getCell(this.model.get('parent'));
+				var intersectionPoint = puntoInterseccionFun(parentCell, g.point(x, y));
+				joint.dia.ElementView.prototype.pointermove.apply(this, [evt, intersectionPoint.x, intersectionPoint.y]);
 			}else{
-				$log.debug('ELSE move');
 				joint.dia.ElementView.prototype.pointermove.apply(this, [evt,x,y]);
 			}
-
-
 		}
-
 	});
-
-	var myConnectionPoint = function(thisCell, x, y){
-		var type = thisCell.get('type');
-		$log.debug('184 type: '+type);
-		var viewCell = paper.findViewByModel(thisCell);
-		var scalable,aux, rectBBox;
-		var pointStick = viewCell.getBBox({'useModelGeometry':false}).center();
-		if(type == 'cicloConversacional'){
-			scalable = viewCell.$('.scalable')[0];
-			if (scalable && scalable.firstChild){
-				$log.debug('hay hijo en escalable -> '+scalable.firstChild.id);
-
-				aux = paper.findView(scalable.firstChild).getBBox();
-				rectBBox = g.rect(aux.x, aux.y, aux.width, aux.height);
-				var transform = scalable.firstChild.rx.baseVal.valueAsString;
-				var lista = scalable.transform.baseVal;
-				$log.debug('position: '+thisCell.get('position').x+', '+thisCell.get('position').y);
-				$log.debug('*center: '+thisCell.getBBox().center());
-				$log.debug('centerBBox: '+thisCell.get('size').width*lista.getItem(0).matrix.a/2);
-				$log.debug('w h :'+aux.width+', '+aux.height);
-				$log.debug('aux :'+aux);
-				$log.debug('transform0 : '+transform);
-				$log.debug('transform1 : '+scalable.getAttribute('transform'));
-				$log.debug('transform2 : '+lista);
-				$log.debug('transform2.x : '+lista.getItem(0).matrix.a);
-				$log.debug('transform2.y : '+lista.getItem(0).matrix.d);
-				$log.debug('transform2.cx : '+aux.width*lista.getItem(0).matrix.a/2);
-				$log.debug('transform2.cy : '+aux.height*lista.getItem(0).matrix.d/2);
-				var rx = scalable.firstChild.rx.baseVal.valueAsString;
-				var ry = scalable.firstChild.ry.baseVal.valueAsString;
-				pointStick = g.ellipse(thisCell.get('position'), scalable.firstChild.rx.baseVal.valueAsString*lista.getItem(0).matrix.a ,scalable.firstChild.ry.baseVal.valueAsString*lista.getItem(0).matrix.d
-			 ).intersectionWithLineFromCenterToPoint(g.point(x,y));
-
-				$log.debug('214 myConnectionPoint -> '+pointStick.x);
-			}
-		}if( type == 'estacionAnd'){
-			scalable = viewCell.$('.scalable')[0];
-			if (scalable && scalable.firstChild){
-				$log.debug('219 hay hijo en escalable -> '+scalable.firstChild.id);
-				var transform = scalable.firstChild.r.baseVal.valueAsString;
-				var lista = scalable.transform.baseVal;
-				pointStick = g.ellipse(thisCell.get('position'), scalable.firstChild.r.baseVal.valueAsString*lista.getItem(0).matrix.a ,scalable.firstChild.r.baseVal.valueAsString*lista.getItem(0).matrix.d
-			 ).intersectionWithLineFromCenterToPoint(g.point(x,y));
-
-				$log.debug('227 myConnectionPoint -> '+pointStick.x);
-			}
-		}
-		if(type == 'estacionOr'){
-
-		}
-		return pointStick;
-	}
-
-	var determinarStickPoint = function(thisCell, x, y){
-		var type = thisCell.get('type');
-		var pointStick;
-		$log.debug("determinarStickPoint de "+type);
-
-		switch(type){
-			case 'cicloConversacional':
-				//calcular punto para ubicar el puerto
-				//obtenemos la cordenada más cercana al punto presionado con respecto a la elipse
-				var ellipse = g.ellipse(thisCell.get('position'), 60, 30);
-
-				// joint.util.getElementBBox(el)
-				var view = paper.findViewByModel(thisCell);
-				var bbox = view.getBBox({'useModelGeometry':false});
-				// var viewEllipse = view[2];
-
-
-				var ellipse2 = thisCell.get('attrs').ellipse;
-
-				$log.debug("bbox x: "+bbox.x+", y: "+bbox.y+", w: "+bbox.width+", h: "+bbox.height);
-				$log.debug("elli x: "+ellipse2.rx+", y: "+ellipse2.ry);
-				//var ellipse = g.ellipse(thisCell.get('position'), thisCell.get('size').width / 2, thisCell.get('size').height / 2);
-				pointStick = ellipse.intersectionWithLineFromCenterToPoint(g.point(x,y));
-				pointStick= g.point(pointStick.x - thisCell.get('position').x, pointStick.y - thisCell.get('position').y);
-				break;
-			case 'estacionAnd':
-				var circle = g.ellipse(thisCell.get('position'), thisCell.get('size').width / 2, thisCell.get('size').height / 2);
-				pointStick = circle.intersectionWithLineFromCenterToPoint(g.point(x,y));
-				pointStick = g.point(pointStick.x - thisCell.get('position').x, pointStick.y - thisCell.get('position').y);
-				break;
-			case 'estacionOr':
-				var bboxThisCell = thisCell.getBBox();
-				var realBBox = bboxThisCell.bbox(45);
-				pointStick = bboxThisCell.pointNearestToPoint(g.point(x,y));
-				pointStick = g.point(pointStick.x - bboxThisCell.x, pointStick.y - bboxThisCell.y);
-				break;
-			default :
-				pointStick = g.point(x,y);
-		}
-		$log.debug('line 239: pointStick: '+pointStick.x+", "+pointStick.y);
-		return pointStick;
-
-	}
 
 	var paper = new joint.dia.Paper({
 		el: $('#miDiagrama'),
@@ -332,40 +248,27 @@ angular.module('dibujo', ['ngRoute', 'ui.router','ngMaterial', 'md.data.table', 
 		height: 2000,
 		model: graph,
 		gridSize: 1,
-		elementView: graphElementView,
-    linkConnectionPoint: joint.util.shapePerimeterConnectionPoint
+		elementView: graphElementView
 	})
 
-  var crearPortInElement = function(id, group, position, element){
-  	var port = {
-  		markup: '<g><circle r="3" fill="red" stroke="red"/></g>',
-        id: id,
-        group: group,
-        args: {
-	        x: position.x,
-	        y: position.y,
-    	}
-  	};
-  	element.addPort(port);
-  }
+	var agregarPuertoAzul = function(celdaPadre, x, y){
 
-	var agregarPuertoAzul = function(cellElement, x, y){
-		var element = cellElement;
+		var position = puntoInterseccionFun(celdaPadre, g.point(x, y));
 
-		var position = myConnectionPoint(cellElement, x, y);
-
-		var circulo = new joint.shapes.basic.Ellipse({
-			position: { x: position.x, y: position.y },
+		var puertoAzul = new joint.shapes.basic.Ellipse({
+			position: position.offset(-4,-4),
 			size: { width: 7, height: 7 },
 			attrs: { ellipse: { fill: 'blue', stroke: 'blue' }}
 		})
-		graph.addCell(circulo);
-		element.embed(circulo);
-		return circulo;
+		graph.addCell(puertoAzul);
+		celdaPadre.embed(puertoAzul);
+		//TO DO setear id Nova celdaPadre
+		return puertoAzul;
 	}
 
-
-	var setearIdsNova = function(cellOrigen){
+	var setearIdsNova = function(cellOrigen){ //debe ser la celda de origen para determinar el orden de los puertos salientes
+		$log.debug('ID-NOVA- cellOrigen: '+cellOrigen.id);
+		/*
 		var idNovaDestino, idNovaOrigen, cellDestino;
 		var puntoCentroOrigen = g.point(0, 0);
 		if(cellOrigen.get('type') == 'basic.Or'){
@@ -375,6 +278,7 @@ angular.module('dibujo', ['ngRoute', 'ui.router','ngMaterial', 'md.data.table', 
 
 		var arrayPuertosCeldaOrigen = cellOrigen.getPorts();
 		var puntoPortA, puntoPortB, thetaA, thetaB;
+
 		arrayPuertosCeldaOrigen.sort(function(a,b){
 			puntoPortA = g.point(a.args.x , a.args.y);
 			puntoPortB = g.point(b.args.x, b.args.y);
@@ -416,9 +320,12 @@ angular.module('dibujo', ['ngRoute', 'ui.router','ngMaterial', 'md.data.table', 
 				}
 			}
 		}
+		*/
 	}
 
+
 	var etapaCiclo = function(pointStick){
+		// TO DO formatear point tisck restando el centro de la celdaPadre
 		if(pointStick.x < 0 && pointStick.y < 0){
 			return 'PETICION';
 		}
@@ -435,30 +342,31 @@ angular.module('dibujo', ['ngRoute', 'ui.router','ngMaterial', 'md.data.table', 
 
 	var validarEnlace = function(enlace){
 		var esValido = true;
-		var celdaOrigen = enlace.getSourceElement();
-		var celdaDestino = enlace.getTargetElement();
-		if(celdaOrigen && celdaDestino && enlace.hasLoop()){
+		var puertoSource = enlace.getSourceElement();
+		var celdaSource = graph.getCell(puertoSource.get('parent'));
+		var puertoTarget = enlace.getTargetElement();
+		var celdaTarget = graph.getCell(puertoTarget.get('parent'));
+
+		if(celdaSource && celdaTarget && celdaSource == celdaTarget){
 			alert("La celda de destino debe ser distinta a la de origen");
-			//removerElemento(enlace);
-			enlace.remove();
+			remover(enlace);
 			return false;
 		}
 
-		if(celdaDestino && celdaDestino.get('type') == 'basic.CicloConversacional' && celdaDestino.get('etiquetas').idNova == 'Main'){
+		if(celdaTarget && celdaTarget.get('type') == 'cicloConversacional' && celdaTarget.get('etiquetas').idNova == 'Main'){
 			alert("Ciclo 'Main' no puede ser una celda de destino");
-			//removerElemento(enlace);
-			enlace.remove();
+			remover(enlace);
 			return false;
 		}
 
-		var enlacesEntrantesEnDestino = graph.getConnectedLinks(celdaDestino, {'outbound' : false, 'inbound' : true});
+		var enlacesEntrantesEnDestino = graph.getConnectedLinks(celdaTarget, {'outbound' : false, 'inbound' : true, 'deep': true});
+		$log.debug('363: enlacesEntrantesEnDestino: '+enlacesEntrantesEnDestino.length);
 		var count = 0;
 		for(var i =0; i<enlacesEntrantesEnDestino.length; i++){
-			if(celdaOrigen = enlacesEntrantesEnDestino[i].getSourceElement()){
+			if(celdaSource = enlacesEntrantesEnDestino[i].getSourceElement()){
 				count++;
 				if(count > 1){
 					alert("Enlace ya existe");
-					//removerElemento(enlace);
 					enlace.remove();
 					return false;
 				}
@@ -472,14 +380,11 @@ angular.module('dibujo', ['ngRoute', 'ui.router','ngMaterial', 'md.data.table', 
 		$log.debug("creando enlace");
 
 		var etapaOrigen = etapaCiclo(pointStickOrigen);
-
 		var etapaDestino = etapaCiclo(pointStickDestino);
 
 		var enlace = new ShapesNova.enlace({
-			// source: { id: estacionOrigen.id, port: portIdOrigen },
-	    // target: { id: estacionDestino.id, port: portIdDestino },
-			source: { id: estacionOrigen.id},
-	    target: { id: estacionDestino.id},
+			source: { id: puertoOrigen.id},
+	    target: { id: puertoDestino.id},
 	    attrs: {
 	    	text:{
 	    		'etapaOrigen': etapaOrigen,
@@ -497,25 +402,23 @@ angular.module('dibujo', ['ngRoute', 'ui.router','ngMaterial', 'md.data.table', 
 			enlace.attr('text/tipoEnlace', tipoEnlace);
 		}
 
-
-
 		graph.addCell(enlace);
 		enlace.toBack();
-		//enlace.toBack();
+
 		if(validarEnlace(enlace)){
-			$log.debug("enlace valido");
-			setearIdsNova(estacionOrigen);
+			$log.debug("409: enlace valido");
+			setearIdsNova(graph.getCell(estacionOrigen));
 		}
 
 		estacionOrigen = null;
 		estacionDestino = null;
-		portIdOrigen = null;
-		portIdDestino = null;
+		puertoOrigen = null;
+		puertoDestino = null;
 		btnAgregarEnlace = false;
 
 		enlace.on('change:source change:target',function(){
 			$log.debug('change source');
-			if(enlace.get('source').port == null && enlace.get('source').x != null){
+			if(enlace.get('source').id == null && enlace.get('source').x != null){
 				$log.debug('source of the link changed, puerto desconectado');
 				var celdaSource = graph.getCell(enlace.previous('source').id);
 				if(celdaSource && celdaSource.hasPort(enlace.previous('source').port)){
@@ -525,7 +428,7 @@ angular.module('dibujo', ['ngRoute', 'ui.router','ngMaterial', 'md.data.table', 
 				}
 			}
 
-			if(enlace.get('target').port == null && enlace.get('target').x != null){
+			if(enlace.get('target').id == null && enlace.get('target').x != null){
 				$log.debug('target of the link changed, puerto desconectado');
 				var celdaTarget = graph.getCell(enlace.previous('target').id);
 				if(celdaTarget && celdaTarget.hasPort(enlace.previous('target').port)){
@@ -537,7 +440,7 @@ angular.module('dibujo', ['ngRoute', 'ui.router','ngMaterial', 'md.data.table', 
 				}
 			}
 
-			if(enlace.get('source').port == null && enlace.get('source').id != null){
+			if(enlace.get('source').id != null){
 				$log.debug('source of the link changed, puerto reconectado');
 				//volver a calcular punto más cercano al elemento, poner allí el puerto y setearlo al enlace,
 				//no olvidar setear etapa
@@ -556,7 +459,7 @@ angular.module('dibujo', ['ngRoute', 'ui.router','ngMaterial', 'md.data.table', 
 
 			}
 
-			if(enlace.get('target').port == null && enlace.get('target').id != null){
+			if(enlace.get('target').id != null){
 				$log.debug('target of the link changed, puerto reconectado');
 				var nuevoDestino = graph.getCell(enlace.get('target').id);
 				var pointStick = determinarStickPoint(nuevoDestino, enlace.previous('target').x, enlace.previous('target').y);
@@ -605,7 +508,7 @@ angular.module('dibujo', ['ngRoute', 'ui.router','ngMaterial', 'md.data.table', 
 
 	$scope.agregarEstacionOr = function(){
 		cancelarAccionEnCurso();
-		$log.debug("btn Estacion AND");
+		$log.debug("btn Estacion OR");
 		btnAgregarOr = true;
 		if(celdaViewPointerClick != null){
 			$log.debug("agregarEstacionOr, se apaga celda seleccionada");
@@ -641,6 +544,7 @@ angular.module('dibujo', ['ngRoute', 'ui.router','ngMaterial', 'md.data.table', 
 				'.idNova': { text : ''}
 			}
 		})
+
 		graph.addCell(rombo);
 		btnAgregarOr = false;
 	}
@@ -675,6 +579,8 @@ angular.module('dibujo', ['ngRoute', 'ui.router','ngMaterial', 'md.data.table', 
 		tipoEnlace = tipo;
 		estacionOrigen = null;
 		estacionDestino = null;
+		puertoOrigen = null;
+		puertoDestino = null;
 		btnAgregarEnlace = true;
 		if(celdaViewPointerClick != null){
 			$log.debug("agregarEnlace, se apaga celda seleccionada");
@@ -758,28 +664,31 @@ angular.module('dibujo', ['ngRoute', 'ui.router','ngMaterial', 'md.data.table', 
 	}
 
 	$scope.removerElementoPresionado = function(){
-		cancelarAccionEnCurso();
 		var celda = graph.getCell(celdaViewPointerClick.model.id);
-		if(celda && celda.get('type') == 'basic.CicloConversacional' && celda.get('etiquetas').idNova == 'Main'){
-			alert("Ciclo 'Main' no puede ser eliminado del modelo");
-		}else{
-			celda.remove(); // desencadena graph.on('remove'...
-		}
-		celdaViewPointerClick = null;
+		remover(celda); // desencadena graph.on('remove'...
 	}
+
 	var cancelarAccionEnCurso = function(){
 		$log.debug("candelar accion en curso");
+		if(celdaViewPointerClick != null){
+			custumUnhighlight(celdaViewPointerClick);
+		}
 		btnAgregarEnlace = false;
 		btnAgregarCicloConversacional = false;
 		btnAgregarAnd = false;
 		btnAgregarOr = false;
-		if(estacionOrigen != null){
-			estacionOrigen.removePort(portIdOrigen);
+		if(estacionOrigen != null && puertoOrigen != null){
+			puertoOrigen.remove();
+		}
+		if(estacionDestino != null && puertoDestino != null){
+			puertoDestino.remove();
 		}
 		estacionOrigen = null;
 		estacionDestino = null;
-		portIdOrigen = null;
-		portIdDestino = null;
+		puertoOrigen = null;
+		puertoDestino = null;
+
+		celdaViewPointerClick = null;
 	}
 
 	$(document).keyup(function(tecla) { //si se presiona la {tecla}
@@ -794,30 +703,53 @@ angular.module('dibujo', ['ngRoute', 'ui.router','ngMaterial', 'md.data.table', 
 
 	});
 
+	var remover = function(celda){
+		cancelarAccionEnCurso();
+		var type = celda.get('type');
+		switch (type) {
+			case 'cicloConversacional':
+				if(celda.get('etiquetas').idNova == 'Main'){
+					alert("Ciclo 'Main' no puede ser eliminado del modelo");
+				}else{
+					celda.remove();
+				}
+				break;
+			case 'estacionAnd':
+				celda.remove();
+				break;
+			case 'estacionOr':
+				celda.remove();
+				break;
+			case 'enlace':
+				var puertoSource = graph.getCell(celda.get('source').id);
+				var puertoTarget = graph.getCell(celda.get('target').id);
+				if(puertoSource){
+					$log.debug('742: remueve source del enlace');
+					puertoSource.remove();
+					puertoOrigen = null;
+				}
+				if(puertoTarget){
+					$log.debug('747: remueve Target del enlace');
+					puertoTarget.remove();
+					puertoDestino = null;
+				}
+				celda.remove();
+				break;
+			case  'basic.Ellipse':
+				celda.remove();
+				break;
+			default:
+				$log.debug('nada que remover');
+		}
+	}
+
 	graph.on('remove', function(cell) {
 
-    	if(cell.isLink()){ //si se removió el enlace, entonces removemos los puertos asociados
-    		//alert('Link:remove with id ' + cell.id + ' remove to the graph.');
-    		var celdaOrigen = graph.getCell(cell.get('source').id);
-    		var celdaDestino = graph.getCell(cell.get('target').id);
-    		if(celdaOrigen.hasPort(cell.get('source').port)){
-    			celdaOrigen.removePort(cell.get('source').port);
-    			setearIdsNova(celdaOrigen);
-    		}
-    		if(celdaDestino.hasPort(cell.get('target').port)){
-    			celdaDestino.removePort(cell.get('target').port);
-    			setearIdsNova(celdaOrigen);
-    		}
-    	}else{
-    		//alert('Cell:remove with id ' + cell.id + ' remove to the graph.');
-    		//por defecto, si se remueve un elemento sus enlaces son automaticamente removidos
-    	}
 	})
-
 
 	paper.on('cell:pointerdblclick ', function(cellView, evt, x, y) {
 		//$scope.objeto = cellView;
-
+		custumHighlight(cellView);
 		$log.debug('cell:pointerdblclick cellView.className-> '+cellView.className());
 		var type = cellView.className();
 
@@ -854,78 +786,48 @@ angular.module('dibujo', ['ngRoute', 'ui.router','ngMaterial', 'md.data.table', 
 
 	graph.on('change:position',function(cellView){
 		$scope.objeto = cellView;
-		$scope.objetoPosition = cellView.get('position');
-		$scope.objetoCenter = cellView.getBBox().center();
-		//$log.debug('change:position cell ->'+cellView.id + " x: " + cellView.get('position').x + " ,y: "+cellView.get('position').y );
 
 	})
 
 	paper.on('cell:pointerclick', function(cellView, evt, x, y) {
 		$log.debug("cell:pointerClick className: "+cellView.className());
 		var thisCell = graph.getCell(cellView.model.id);
-		var type = thisCell.get('type');
+		if(celdaViewPointerClick != null){
+			custumUnhighlight(celdaViewPointerClick);
+		}
+		celdaViewPointerClick = cellView;
+		custumHighlight(cellView);
 		if(btnAgregarEnlace){
-			//obtener celda y punto donde se ubicará el puerto (el punto depende de la celda)
 
-			var pointStick = myConnectionPoint(thisCell, x, y);
+			if (estacionOrigen == null && puertoOrigen == null){
+				estacionOrigen = thisCell;
+				$log.debug('791 point: '+g.point(x,y));
+				puertoOrigen = agregarPuertoAzul(estacionOrigen, x, y);
 
-			if (!estacionOrigen){
-				estacionOrigen = agregarPuertoAzul(thisCell,x,y);
-
-				pointStickOrigen = estacionOrigen.get('position');
-
-			}else{
-				estacionDestino = agregarPuertoAzul(thisCell, x, y);
-				pointStickDestino = estacionDestino.get('position');
-
+				pointStickOrigen = puertoOrigen.get('position');
+				$log.debug('795 pointStickOrigen '+pointStickOrigen.x);
+				estacionDestino = null;
+				puertoDestino = null;
+			}else if (estacionDestino == null && puertoDestino == null) {
+				$log.debug('816: point en destino');
+				estacionDestino = thisCell;
+				$log.debug('798 point: '+g.point(x,y));
+				$log.debug('818: estacionDestino: '+estacionDestino.id);
+				puertoDestino = agregarPuertoAzul(estacionDestino, x, y);
+				pointStickDestino = puertoDestino.get('position');
+				$log.debug('801 pointStickDestino '+pointStickDestino.x);
 				//ya que estan seteados ambos puertos, se crea el enlace
 				crearEnlace();
 			}
 		}
-		if(thisCell.isLink()){
-			$log.debug("cell-link:pointerClick className: "+cellView.className());
 
-		}else{
-			var elementos = graph.findModelsFromPoint(g.point(x,y));
-			$log.debug('element click -> '+elementos[0]);
-		}
 	});
 
 	paper.on('cell:pointermove',function(cellView, evt, x, y){
-		$log.debug("cell:pointermove");
+		//$log.debug("cell:pointermove");
 		var thisCell = graph.getCell(cellView.model.id);
 		var type = thisCell.get('type');
-
-		if(thisCell.isLink()){
-			$log.debug("cell-link:pointerMove className: "+cellView.className());
-
-		}else{
-
-			if(thisCell.get('type') != 'enlace'){
-
-				var elementos = thisCell.getPorts();
-				$log.debug('812 elementos: '+elementos.length);
-				$log.debug('813 x y: '+x+', '+y);
-				if(elementos){
-					var rectBoundari = g.rect(x, y, 20, 20);
-					var portPoint;
-					var i;
-					for (i =0; i < elementos.length; i++){
-						portPoint = g.point(joint.util.getByPath(elementos[i], 'args/x','/'), joint.util.getByPath(elementos[i], 'args/y','/'));
-						portPoint.offset(thisCell.get('position').x, thisCell.get('position').y);
-
-						if(rectBoundari.containsPoint(portPoint)){
-							$log.debug('toca el puerto, limitar su movimiento');
-
-							break;
-						}else{
-							$log.debug('no toca puerto');
-						}
-					}
-
-				}
-			}
-		}
+		custumHighlight(cellView);
 	})
 
 	paper.on('cell:mouseover', function(cellView, evt){
@@ -945,7 +847,7 @@ angular.module('dibujo', ['ngRoute', 'ui.router','ngMaterial', 'md.data.table', 
 	})
 
 	paper.on('blank:pointerclick', function(evt, x, y){
-		$log.debug("blank:pointerClick");
+		$log.debug("blank:pointerClick: "+g.point(x,y));
 		if(celdaViewPointerClick != null){
 			$log.debug("blank: apagar celda antes presionada");
 			//celdaViewPointerClick.unhighlight();

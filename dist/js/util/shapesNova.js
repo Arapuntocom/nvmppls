@@ -55,6 +55,7 @@ app.factory('ShapesNova', function() {
   			}
   		})
     }),
+
     estacionAnd : joint.shapes.basic.Generic.extend({
       markup: '<g class="rotatable"><g class="scalable"><circle/><path class="vertical"/><path class="horizontal"/></g><text class="idNova"/></g>',
       defaults: joint.util.deepSupplement({
@@ -81,8 +82,9 @@ app.factory('ShapesNova', function() {
         }
       })
     }),
+
     estacionOr : joint.shapes.basic.Generic.extend({
-      markup: '<g><g class="rotatable"><g class="scalable"><path class="rombo"/></g></g><text class="idNova"/><text class="condiciones"/></g>',
+      markup: '<g class="rotatable"><g class="scalable"><path class="rombo"/></g><text class="idNova"/><text class="condiciones"/></g>',
       defaults: joint.util.deepSupplement({
         type: 'estacionOr',
         size: { width: 25, height: 25 },
@@ -107,6 +109,7 @@ app.factory('ShapesNova', function() {
         }
       })
     }),
+
     enlace: joint.dia.Link.extend({
         defaults: {
           type: 'enlace',
