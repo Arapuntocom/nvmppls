@@ -266,61 +266,60 @@ angular.module('dibujo', ['ngRoute', 'ui.router','ngMaterial', 'md.data.table', 
 		return puertoAzul;
 	}
 
-	var setearIdsNova = function(cellOrigen){ //debe ser la celda de origen para determinar el orden de los puertos salientes
-		$log.debug('ID-NOVA- cellOrigen: '+cellOrigen.id);
-		/*
-		var idNovaDestino, idNovaOrigen, cellDestino;
-		var puntoCentroOrigen = g.point(0, 0);
-		if(cellOrigen.get('type') == 'basic.Or'){
-			puntoCentroOrigen = g.point(cellOrigen.getBBox().bbox(45).width/2, cellOrigen.getBBox().bbox(45).height/2);
+	var angulo = function(puerto){
+		var celdaPadre = graph.getCell(puerto.get('parent'));
+		var centroPadre = g.point(celdaPadre.get('position').x, celdaPadre.get('position').y);
+		$log.debug('272: celdaPadre type: '+celdaPadre.get('type'));
+		if(celdaPadre.get('type') == 'estacionOr'){
+			centroPadre = g.point(celdaPadre.get('position').x + celdaPadre.get('size').width/2, celdaPadre.get('position').y + celdaPadre.get('size').height/2);
 		}
-		var arrayCeldasSalientesVecindad = graph.getNeighbors(cellOrigen, {'outbound' : true, 'inbound' : false});
+		var angulo = centroPadre.angleBetween(g.point(centroPadre.x-20, centroPadre.y),g.point(puerto.get('position').x, puerto.get('position').y));
+		return angulo;
+	}
 
-		var arrayPuertosCeldaOrigen = cellOrigen.getPorts();
-		var puntoPortA, puntoPortB, thetaA, thetaB;
+	var setearIdsNova = function(celdaOrigen){ //debe ser la celda de origen para determinar el orden de los puertos salientes
+		$log.debug('ID-NOVA- cellOrigen: '+celdaOrigen.id);
 
-		arrayPuertosCeldaOrigen.sort(function(a,b){
-			puntoPortA = g.point(a.args.x , a.args.y);
-			puntoPortB = g.point(b.args.x, b.args.y);
-			thetaA = puntoCentroOrigen.theta(puntoPortA);
-			thetaB = puntoCentroOrigen.theta(puntoPortB);
-			if(cellOrigen.get('type') == 'basic.Or'){
-				thetaA = thetaA-45;
-				thetaB = thetaB-45;
+		// determinar puertos que son salida
+		var puertos = celdaOrigen.getEmbeddedCells();
+		var puertosSalientes = [];
+		var grupo;
+		for(var i =0; i<puertos.length; i++){
+			if(puertos[i].get('attrs').grupo[0] == 'salida'){
+				puertosSalientes.push(puertos[i]);
 			}
-			thetaA = (thetaA >= 0 && thetaA <= 180) ? (180-thetaA) : (540-thetaA);
-			thetaB = (thetaB >= 0 && thetaB <= 180) ? (180-thetaB) : (540-thetaB);
+		}
 
-			if(thetaA > thetaB){
-				return 1;
-			}
-			if(thetaA < thetaB){
+		//ordenar puertosSalientes
+		var anguloA, anguloB;
+		puertosSalientes.sort(function(a,b){
+			anguloA = angulo(a);
+			anguloB = angulo(b);
+			if(anguloA > anguloB)
 				return -1;
-			}
+			if(anguloA < anguloB)
+				return 1;
 			return 0;
 		})
 
-		idNovaOrigen = cellOrigen.get('etiquetas').idNova != 'Main' ? cellOrigen.get('etiquetas').idNova : '';
-
-		var enlaceAsociado = [];
-		var count = 0;
-		for(var i =0; i<arrayPuertosCeldaOrigen.length; i++){
-			for(var j = 0; j<arrayCeldasSalientesVecindad.length; j++){
-				enlaceAsociado = graph.getConnectedLinks(arrayCeldasSalientesVecindad[j], {'outbound' : false, 'inbound' : true});
-				if(enlaceAsociado[0] && enlaceAsociado[0].get('source').port && enlaceAsociado[0].get('source').port == arrayPuertosCeldaOrigen[i].id){
-					if(cellOrigen.get('type') == 'basic.CicloConversacional'){
-						idNovaDestino = idNovaOrigen+String.fromCharCode(65+count);
-					}else{
-						idNovaDestino = idNovaOrigen+''+(count+1);
-					}
-					count++;
-					arrayCeldasSalientesVecindad[j].attr('.idNova/text', idNovaDestino);
-					joint.util.setByPath(arrayCeldasSalientesVecindad[j].get('etiquetas'), 'idNova', idNovaDestino);
-					setearIdsNova(arrayCeldasSalientesVecindad[j]);
-				}
+		//setear id Nova
+		var idNovaOrigen = celdaOrigen.get('etiquetas').idNova == 'Main' ? '' : celdaOrigen.get('etiquetas').idNova;
+		var idNovaDestino;
+		var enlaces, targetPuerto, targetCelda;
+		for(var i =0; i<puertosSalientes.length; i++){
+			$log.debug('j: '+i+' id: '+puertosSalientes[i].id+' angle: '+angulo(puertosSalientes[i]));
+			enlaces = graph.getConnectedLinks(puertosSalientes[i] ,{'inbound': false, 'outbound': true});
+			targetPuerto = graph.getCell(enlaces[0].get('target').id);
+			targetCelda = graph.getCell(targetPuerto.get('parent'));
+			if(celdaOrigen.get('type') == 'cicloConversacional'){
+				idNovaDestino = idNovaOrigen+String.fromCharCode(65+i);
+			}else{
+				idNovaDestino = idNovaOrigen+''+(1+i);
 			}
+			targetCelda.attr('.idNova/text', idNovaDestino);
+			joint.util.setByPath(targetCelda.get('etiquetas'), 'idNova', idNovaDestino);
+			setearIdsNova(targetCelda);
 		}
-		*/
 	}
 
 
@@ -803,7 +802,7 @@ angular.module('dibujo', ['ngRoute', 'ui.router','ngMaterial', 'md.data.table', 
 				estacionOrigen = thisCell;
 				$log.debug('791 point: '+g.point(x,y));
 				puertoOrigen = agregarPuertoAzul(estacionOrigen, x, y);
-
+				puertoOrigen.attr('grupo', ['salida']);
 				pointStickOrigen = puertoOrigen.get('position');
 				$log.debug('795 pointStickOrigen '+pointStickOrigen.x);
 				estacionDestino = null;
@@ -814,6 +813,7 @@ angular.module('dibujo', ['ngRoute', 'ui.router','ngMaterial', 'md.data.table', 
 				$log.debug('798 point: '+g.point(x,y));
 				$log.debug('818: estacionDestino: '+estacionDestino.id);
 				puertoDestino = agregarPuertoAzul(estacionDestino, x, y);
+				puertoDestino.attr('grupo', ['entrada']);
 				pointStickDestino = puertoDestino.get('position');
 				$log.debug('801 pointStickDestino '+pointStickDestino.x);
 				//ya que estan seteados ambos puertos, se crea el enlace
