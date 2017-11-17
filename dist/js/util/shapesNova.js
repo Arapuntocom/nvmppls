@@ -60,7 +60,7 @@ app.factory('ShapesNova', function() {
       markup: '<g class="rotatable"><g class="scalable"><circle/><path class="vertical"/><path class="horizontal"/></g><text class="idNova"/></g>',
       defaults: joint.util.deepSupplement({
         type: 'estacionAnd',
-        size: { width: 25, height: 25 },
+        size: { width: 35, height: 35 },
         attrs: {
           'circle': {
             fill: '#ffffff',
@@ -71,8 +71,8 @@ app.factory('ShapesNova', function() {
           },
           '.idNova': {
             'ref': 'circle',
-            'ref-x': '-5%',
-            'ref-y': '-5%',
+            'ref-x': '-25%',
+            'ref-y': '-25%',
             'x-alignment': 'left',
             'y-alignment': 'middle',
             fill: '#bfbfbf'
@@ -87,13 +87,13 @@ app.factory('ShapesNova', function() {
       markup: '<g class="rotatable"><g class="scalable"><path class="rombo"/></g><text class="idNova"/><text class="condiciones"/></g>',
       defaults: joint.util.deepSupplement({
         type: 'estacionOr',
-        size: { width: 25, height: 25 },
+        size: { width: 35, height: 35 },
         attrs:{
           'path.rombo': { stroke: '#000000', d: 'M 30 0 L 60 30 30 60 0 30 z', fill: '#ffffff'},
           '.idNova': {
             'ref': 'path.rombo',
-            'ref-x': '-5%',
-            'ref-y': '-5%',
+            'ref-x': '-25%',
+            'ref-y': '-25%',
             'x-alignment': 'left',
             'y-alignment': 'middle',
             fill: '#bfbfbf'

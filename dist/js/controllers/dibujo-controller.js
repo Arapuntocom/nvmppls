@@ -187,30 +187,56 @@ angular.module('dibujo', ['ngRoute', 'ui.router','ngMaterial', 'md.data.table', 
 					puntoInterseccion = formaRestriccion.intersectionWithLineFromCenterToPoint(punto);
 					break;
 				case 'estacionOr':
+
 					var centro = g.point(celdaRestrictiva.get('position').x + celdaRestrictiva.get('size').width/2, celdaRestrictiva.get('position').y + celdaRestrictiva.get('size').height/2 );
-					var click = punto.offset(punto.x - centro.x, punto.y - centro.y);
+					$log.debug('192: centro: '+centro);
+					var click = g.point(punto.x-5, punto.y-5);
+					$log.debug('193: click = punto: '+click);
+
 					var puntaN, puntaE, puntaS, puntaO; // posición de las puntas del rombo
 					puntaN = g.point(celdaRestrictiva.get('position').x + celdaRestrictiva.get('size').width/2, celdaRestrictiva.get('position').y);
-					puntaS = g.point(celdaRestrictiva.get('position').x + celdaRestrictiva.get('size').width/2, celdaRestrictiva.get('position').y+celdaRestrictiva.get('size').height);
 					puntaO = g.point(celdaRestrictiva.get('position').x, celdaRestrictiva.get('position').y + celdaRestrictiva.get('size').height/2);
+					puntaS = g.point(celdaRestrictiva.get('position').x + celdaRestrictiva.get('size').width/2, celdaRestrictiva.get('position').y+celdaRestrictiva.get('size').height);
 					puntaE = g.point(celdaRestrictiva.get('position').x + celdaRestrictiva.get('size').width, celdaRestrictiva.get('position').y + celdaRestrictiva.get('size').height/2);
 					var path;
 					var lineaCentroClick;
 					var puntoInterseccion;
-					if(punto.x >= centro.x && punto.y < centro.y){ //cuadrante NE
+					var cuadrante;
+					if(punto.x >= centro.x && punto.y <= centro.y){ //cuadrante NE
+						$log.debug('cuadrante NE');
 						path = g.line(puntaN, puntaE);
+						click = click.offset(celdaRestrictiva.get('size').width, -celdaRestrictiva.get('size').height);
+						$log.debug('208: new click NE: '+click);
+						cuadrante =  'NE';
 					}
 					if(punto.x >= centro.x && punto.y >= centro.y){ //cuadrante SE
 						path = g.line(puntaS, puntaE);
+						$log.debug('cuadrante SE');
+						click = click.offset(celdaRestrictiva.get('size').width, celdaRestrictiva.get('size').height);
+						$log.debug('214: new click SE: '+click);
+						cuadrante =  'SE';
 					}
-					if(punto.x < centro.x && punto.y >= centro.y){ //cuadrante SO
+					if(punto.x <= centro.x && punto.y >= centro.y){ //cuadrante SO
 						path = g.line(puntaS, puntaO);
+						$log.debug('cuadrante SO');
+						click = click.offset(-celdaRestrictiva.get('size').width, celdaRestrictiva.get('size').height);
+						$log.debug('220: new click SO: '+click);
+						cuadrante =  'SO';
 					}
-					if(punto.x < centro.x && punto.y < centro.y){ //cuadrante NO
+					if(punto.x <= centro.x && punto.y <= centro.y){ //cuadrante NO
 						path = g.line(puntaN, puntaO);
+						$log.debug('cuadrante NO');
+						click = click.offset(-celdaRestrictiva.get('size').width, -celdaRestrictiva.get('size').height);
+						$log.debug('226: new click NO: '+click);
+						cuadrante =  'NO';
 					}
 					lineaCentroClick = g.line(centro, click);
 					puntoInterseccion = path.intersect(lineaCentroClick);
+					$log.debug('230: linea centro click: '+lineaCentroClick);
+					$log.debug('231: path: '+path);
+					if (puntoInterseccion == null || puntoInterseccion == 'undefined'){
+							$log.debug('233: no se encontró punto de intersección');
+					}
 					break;
 				default:
 					puntoInterseccion = punto;
@@ -322,19 +348,45 @@ angular.module('dibujo', ['ngRoute', 'ui.router','ngMaterial', 'md.data.table', 
 		}
 	}
 
+	var centroNova = function(celda){
+		var type = celda.get('type');
+		var vista = paper.findViewByModel(celdaRestrictiva);// encontrar la vista del elemento
+		var scalable = vista.$('.scalable')[0]; 						// determinar el subelemento que tiene el valor del escalamiento
+		var transform = scalable.transform.baseVal;					// elemento que tiene el valor del escalamiento
+		switch (type) {
+			case 'cicloConversacional':
+				centro = g.point(position.x)
+				break;
+			case 'estacionAnd':
 
-	var etapaCiclo = function(pointStick){
+				break;
+			case 'estacionOr':
+
+				break;
+			default:
+
+		}
+
+	}
+
+	var etapaCiclo = function(padre, hijo){
 		// TO DO formatear point tisck restando el centro de la celdaPadre
-		if(pointStick.x < 0 && pointStick.y < 0){
+		var posicionHijo = g.point(hijo.get('position').x, hijo.get('position').y);
+		var centro = g.point(padre.get('position').x, padre.get('position').y);
+		if(padre.get('type') == 'estacionOr'){
+			centro = centro.offset(padre.get('size').width/2, padre.get('size').height/2);
+		}
+		
+		if(posicionHijo.x < centro.x && posicionHijo.y <= centro.y){
 			return 'PETICION';
 		}
-		if(pointStick.x >= 0 && pointStick.y < 0){
+		if(posicionHijo.x >= centro.x && posicionHijo.y < centro.y){
 			return 'NEGOCIACION';
 		}
-		if(pointStick.x > 0 && pointStick.y > 0){
+		if(posicionHijo.x > centro.x && posicionHijo.y >= centro.y){
 			return 'REALIZACION';
 		}
-		if(pointStick.x <= 0 && pointStick.y > 0){
+		if(posicionHijo.x <= centro.x && posicionHijo.y > centro.y){
 			return 'SATISFACCION';
 		}
 	}
@@ -378,7 +430,7 @@ angular.module('dibujo', ['ngRoute', 'ui.router','ngMaterial', 'md.data.table', 
 	var crearEnlace =  function(){
 		$log.debug("creando enlace");
 
-		var etapaOrigen = etapaCiclo(pointStickOrigen);
+		var etapaOrigen = etapaCiclo(g.point(puertoOrigen.get('position').x, puertoOrigen.get('position').y));
 		var etapaDestino = etapaCiclo(pointStickDestino);
 
 		var enlace = new ShapesNova.enlace({
@@ -534,7 +586,7 @@ angular.module('dibujo', ['ngRoute', 'ui.router','ngMaterial', 'md.data.table', 
 		$log.debug("Agregando estacion Or");
 		var rombo = new ShapesNova.estacionOr({
 			position: { x: x, y: y },
-			size: { width: 20, height: 20 },
+			size: { width: 25, height: 25 },
 			etiquetas : {
 				idNova: '',
 				condiciones: ''
@@ -802,6 +854,9 @@ angular.module('dibujo', ['ngRoute', 'ui.router','ngMaterial', 'md.data.table', 
 				estacionOrigen = thisCell;
 				$log.debug('791 point: '+g.point(x,y));
 				puertoOrigen = agregarPuertoAzul(estacionOrigen, x, y);
+				if(puertoOrigen == 'undefined' || puertoOrigen == null){
+					$log.debug('puertoOrigen es Null');
+				}
 				puertoOrigen.attr('grupo', ['salida']);
 				pointStickOrigen = puertoOrigen.get('position');
 				$log.debug('795 pointStickOrigen '+pointStickOrigen.x);
@@ -813,6 +868,9 @@ angular.module('dibujo', ['ngRoute', 'ui.router','ngMaterial', 'md.data.table', 
 				$log.debug('798 point: '+g.point(x,y));
 				$log.debug('818: estacionDestino: '+estacionDestino.id);
 				puertoDestino = agregarPuertoAzul(estacionDestino, x, y);
+				if(puertoDestino == 'undefined' || puertoDestino == null){
+					$log.debug('puertoDestino es Null');
+				}
 				puertoDestino.attr('grupo', ['entrada']);
 				pointStickDestino = puertoDestino.get('position');
 				$log.debug('801 pointStickDestino '+pointStickDestino.x);
@@ -892,7 +950,7 @@ angular.module('dibujo', ['ngRoute', 'ui.router','ngMaterial', 'md.data.table', 
 					cellView.highlight('path');
 					break;
 				case 'cell type-enlace link':
-					cellView.highlight('path');
+					//cellView.highlight('path');
 					break;
 			}
 			if(btnAgregarEnlace == false){ // celda iluminada debe mostrar marca para escalar.

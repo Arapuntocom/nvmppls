@@ -358,7 +358,7 @@ angular.module('draw', ['ngRoute', 'ui.router','ngMaterial', 'md.data.table', 'n
 
 		var estacionOr = new ShapesNova.estacionOr({
 			position: { x: 10, y: 10 },
-			size: { width: 20, height: 20 },
+			size: { width: 25, height: 25 },
 			etiquetas : {
 				idNova: '',
 				condiciones: ''
