@@ -376,7 +376,7 @@ angular.module('dibujo', ['ngRoute', 'ui.router','ngMaterial', 'md.data.table', 
 		if(padre.get('type') == 'estacionOr'){
 			centro = centro.offset(padre.get('size').width/2, padre.get('size').height/2);
 		}
-		
+
 		if(posicionHijo.x < centro.x && posicionHijo.y <= centro.y){
 			return 'PETICION';
 		}
@@ -430,8 +430,8 @@ angular.module('dibujo', ['ngRoute', 'ui.router','ngMaterial', 'md.data.table', 
 	var crearEnlace =  function(){
 		$log.debug("creando enlace");
 
-		var etapaOrigen = etapaCiclo(g.point(puertoOrigen.get('position').x, puertoOrigen.get('position').y));
-		var etapaDestino = etapaCiclo(pointStickDestino);
+		var etapaOrigen = etapaCiclo(estacionOrigen, puertoOrigen);
+		var etapaDestino = etapaCiclo(estacionDestino, puertoDestino);
 
 		var enlace = new ShapesNova.enlace({
 			source: { id: puertoOrigen.id},
@@ -881,8 +881,27 @@ angular.module('dibujo', ['ngRoute', 'ui.router','ngMaterial', 'md.data.table', 
 
 	});
 
+	paper.on('cell:pointerup', function(cellView, evt){
+		$log.debug('cell:pointerUP: '+cellView.className());
+		var celda = graph.getCell(cellView.model.id);
+		var celdaPadre = graph.getCell(celda.get('parent'));
+		var nuevaEtapa = null;
+		if(celdaPadre != null && celdaPadre != undefined){
+			var enlaceAsociado = graph.getConnectedLinks(celda);
+			nuevaEtapa = etapaCiclo(celdaPadre, celda);
+			for(var i = 0; i<enlaceAsociado.length; i++){
+				if(enlaceAsociado[i].get('source').id == celda.id){
+					enlaceAsociado[i].attr('text/etapaOrigen', nuevaEtapa);
+				}
+				if(enlaceAsociado[i].get('target').id == celda.id){
+					enlaceAsociado[i].attr('text/etapaDestino', nuevaEtapa);
+				}
+			}
+		}
+	})
+
 	paper.on('cell:pointermove',function(cellView, evt, x, y){
-		//$log.debug("cell:pointermove");
+		$log.debug("cell:pointermove");
 		var thisCell = graph.getCell(cellView.model.id);
 		var type = thisCell.get('type');
 		custumHighlight(cellView);
