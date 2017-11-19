@@ -881,6 +881,16 @@ angular.module('dibujo', ['ngRoute', 'ui.router','ngMaterial', 'md.data.table', 
 
 	});
 
+	paper.on('cell:pointerdown', function(cellView, evt){
+		$log.debug("cell:pointerDOWN className: "+cellView.className());
+		var thisCell = graph.getCell(cellView.model.id);
+		if(celdaViewPointerClick != null){
+			custumUnhighlight(celdaViewPointerClick);
+		}
+		celdaViewPointerClick = cellView;
+		custumHighlight(cellView);
+	})
+
 	paper.on('cell:pointerup', function(cellView, evt){
 		$log.debug('cell:pointerUP: '+cellView.className());
 		var celda = graph.getCell(cellView.model.id);
