@@ -120,6 +120,15 @@ app.factory('ShapesNova', function() {
               'rotulo': '',
     	    		'tipoEnlace': '',
     	    		'mostrarRotulo' : true
+            },
+            '.link-tools': {
+              display: 'none'
+            },
+            '.tool-remove': {
+              display: 'none'
+            },
+            '.marker-arrowheads': {
+              display: 'none'
             }
           }
         },
