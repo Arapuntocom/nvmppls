@@ -757,6 +757,13 @@ angular.module('dibujo', ['ngRoute', 'ui.router','ngMaterial', 'md.data.table', 
 	var remover = function(celda){
 		cancelarAccionEnCurso();
 		var type = celda.get('type');
+		var puertos = celda.getEmbeddedCells();
+		for(var p =0; p < puertos.length; p++){
+			var enlaces = graph.getConnectedLinks(puertos[p]);
+			for(var i =0; i<enlaces.length; i++){
+				remover(enlaces[i]);
+			}
+		}
 		switch (type) {
 			case 'cicloConversacional':
 				if(celda.get('etiquetas').idNova == 'Main'){
@@ -776,6 +783,7 @@ angular.module('dibujo', ['ngRoute', 'ui.router','ngMaterial', 'md.data.table', 
 				var puertoTarget = graph.getCell(celda.get('target').id);
 				if(puertoSource){
 					$log.debug('742: remueve source del enlace');
+
 					puertoSource.remove();
 					puertoOrigen = null;
 				}
