@@ -24,7 +24,7 @@
     "ng-contextmenu": "^0.8.0"
   },
   "engines": {
-    "node": "latest",
+    "node": "9.2.0",
     "npm": "latest"
   },
   "devDependencies": {
