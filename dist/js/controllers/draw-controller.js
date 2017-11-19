@@ -1,9 +1,9 @@
 'use strict';
 
-angular.module('draw', ['ngRoute', 'ui.router','ngMaterial', 'md.data.table', 'ngContextMenu'])
+angular.module('draw', ['ngRoute', 'ui.router','ngMaterial', 'md.data.table', 'ngContextMenu', 'ShapesNova'])
 
-.controller('DrawController', function($scope, $timeout, $mdSidenav, $log, $mdDialog) {
-	$log.debug("DrawController is here!!!");
+.controller('testDibujoController', function($scope, $timeout, $mdSidenav, $log, $mdDialog, ShapesNova) {
+	$log.debug("testDibujoController is here!!!");
 	$scope.toggleTree = buildDelayedToggler('tree');
 	$scope.toggleModelo = buildToggler('propertiesNav');
 	$scope.toggleCC = buildToggler('CCNav');
@@ -22,7 +22,7 @@ angular.module('draw', ['ngRoute', 'ui.router','ngMaterial', 'md.data.table', 'n
 	}
 
 	$scope.blocked = true;
-	
+
 	$scope.enlace = {
 		'rotulo': ""
 	};
@@ -231,37 +231,191 @@ angular.module('draw', ['ngRoute', 'ui.router','ngMaterial', 'md.data.table', 'n
   	};
 })
 
-.controller('DiagramaController', function($scope, $log){
 
-	var graph = new joint.dia.Graph;
+
+.controller('testDiagramaController', function($scope, $log, ShapesNova){
+
+	var constraint = function(parentCell){
+		var retorno;
+		var viewCell = paper.findViewByModel(parentCell);
+		var scalable = viewCell.$('.scalable')[0];
+		var aux = paper.findView(scalable.firstChild).getBBox();
+
+		var lista = scalable.transform.baseVal;
+
+		$log.debug('bbox center '+aux.center());
+		$log.debug('w h '+aux.width+', '+aux.height);
+		$log.debug('escale: '+lista.getItem(0).matrix.a+', '+lista.getItem(0).matrix.d);
+		$log.debug('parent position-> '+parentCell.get('position').x+', '+parentCell.get('position').y);
+
+		switch (parentCell.get('type')) {
+			case ('cicloConversacional' || 'estacionAnd'):
+
+				retorno = g.ellipse(parentCell.get('position'), scalable.firstChild.rx.baseVal.valueAsString*lista.getItem(0).matrix.a ,scalable.firstChild.ry.baseVal.valueAsString*lista.getItem(0).matrix.d
+			 );
+
+				break;
+			case 'estacionOr':
+				cellView = paper.findViewByModel(thisCell);
+				break;
+
+			default:
+				retorno = g.rect(viewCell.getBBox({'useModelGeometry':false}));
+		}
+		return retorno;
+	}
+		var myElementView = joint.dia.ElementView.extend({
+
+        pointerdown: function(evt, x, y) {
+
+					if(this.model.get('type') == 'basic.Ellipse'){ //si es puerto
+						$log.debug('IF Down');
+						var parentId = this.model.get('parent');
+
+						var intersection = constraint(graph.getCell(parentId)).intersectionWithLineFromCenterToPoint(g.point(x,y));
+						joint.dia.ElementView.prototype.pointerdown.apply(this, [evt, intersection.x, intersection.y]);
+					}else{
+						$log.debug('ELSE: Down');
+						joint.dia.ElementView.prototype.pointerdown.apply(this,[evt,x,y]);
+					}
+        },
+        pointermove: function(evt, x, y) {
+
+					if(this.model.get('type') == 'basic.Ellipse'){ //si es puerto
+						$log.debug('IF Move');
+						var parentId = this.model.get('parent');
+
+						var intersection = constraint(graph.getCell(parentId)).intersectionWithLineFromCenterToPoint(g.point(x,y));
+						joint.dia.ElementView.prototype.pointermove.apply(this, [evt, intersection.x, intersection.y]);
+					}else{
+						$log.debug('ELSE move');
+						joint.dia.ElementView.prototype.pointermove.apply(this, [evt,x,y]);
+					}
+
+
+        }
+    });
+
+		var cantCiclosConversacionales = 0;
+		var graph = new joint.dia.Graph;
 
     var paper = new joint.dia.Paper({
-        el: $('#miDiagrama'),
+        el: $('#miDiagramaTest'),
         width: 800,
         height: 700,
         model: graph,
-        gridSize: 1
+        gridSize: 1,
+				elementView: myElementView
     });
 
-    var rect = new joint.shapes.basic.Rect({
-        position: { x: 100, y: 30 },
-        size: { width: 100, height: 30 },
-        attrs: { rect: { fill: 'blue' }, text: { text: 'my box', fill: 'white' } }
-    });
+		var myConnectionPoint = function(thisCell, x, y){
+			var type = thisCell.get('type');
+			var viewCell = paper.findViewByModel(thisCell);
+			var scalable,aux, rectBBox;
+			var pointStick = viewCell.getBBox({'useModelGeometry':false}).center();
+			if(type == 'cicloConversacional' || type == 'estacionAnd'){
+				scalable = viewCell.$('.scalable')[0];
+				if (scalable && scalable.firstChild){
+					$log.debug('hay hijo en escalable -> '+scalable.firstChild.id);
 
-    var rect2 = new joint.shapes.basic.Rect({
-        position: { x: 300, y: 60 },
-        size: { width: 100, height: 30 },
-        attrs: { rect: { fill: 'green' }, text: { text: 'rect 2', fill: 'white' } }
-    });
+					aux = paper.findView(scalable.firstChild).getBBox();
+					rectBBox = g.rect(aux.x, aux.y, aux.width, aux.height);
+					var transform = scalable.firstChild.rx.baseVal.valueAsString;
+					var lista = scalable.transform.baseVal;
+					$log.debug('position: '+thisCell.get('position').x+', '+thisCell.get('position').y);
+					$log.debug('*center: '+thisCell.getBBox().center());
+					$log.debug('centerBBox: '+thisCell.get('size').width*lista.getItem(0).matrix.a/2);
+					$log.debug('w h :'+aux.width+', '+aux.height);
+					$log.debug('aux :'+aux);
+					$log.debug('transform0 : '+transform);
+					$log.debug('transform1 : '+scalable.getAttribute('transform'));
+					$log.debug('transform2 : '+lista);
+					$log.debug('transform2.x : '+lista.getItem(0).matrix.a);
+					$log.debug('transform2.y : '+lista.getItem(0).matrix.d);
+					$log.debug('transform2.cx : '+aux.width*lista.getItem(0).matrix.a/2);
+					$log.debug('transform2.cy : '+aux.height*lista.getItem(0).matrix.d/2);
+					var rx = scalable.firstChild.rx.baseVal.valueAsString;
+					var ry = scalable.firstChild.ry.baseVal.valueAsString;
+					pointStick = g.ellipse(thisCell.get('position'), scalable.firstChild.rx.baseVal.valueAsString*lista.getItem(0).matrix.a ,scalable.firstChild.ry.baseVal.valueAsString*lista.getItem(0).matrix.d
+				 ).intersectionWithLineFromCenterToPoint(g.point(x,y));
 
-    var link = new joint.dia.Link({
-        source: { id: rect.id },
-        target: { id: rect2.id }
-    });
+					$log.debug('myConnectionPoint -> '+pointStick.x);
+				}
+			}
+			if(type == 'estacionOr'){
 
-    graph.addCells([rect2, rect, link]);
+			}
+			return pointStick;
+		}
 
-    $scope.rect1json = rect.toJSON();
-    $scope.rect2json = rect2.toJSON();
+		var estacionAnd = new ShapesNova.estacionAnd({
+			position: { x: 100, y: 200 },
+			size: { width: 25, height: 25},
+			etiquetas : {
+				idNova: ''
+			}
+		});
+
+		var estacionOr = new ShapesNova.estacionOr({
+			position: { x: 10, y: 10 },
+			size: { width: 25, height: 25 },
+			etiquetas : {
+				idNova: '',
+				condiciones: ''
+			},
+			attrs: {
+				'.idNova': { text : ''}
+			}
+		})
+
+		var agregarCiclo = function(){
+			var nombre = 'ciclo_'+cantCiclosConversacionales;
+			var idNova = '';
+			if(cantCiclosConversacionales == 0){
+				idNova = 'Main'
+			}
+			var cicloC = new ShapesNova.cicloConversacional({
+				position: { x: 200, y: 400 },
+				size: { width: 200, height: 80 },
+				etiquetas : {
+					idNova: idNova,
+					nombre: nombre
+				},
+				attrs: {
+					'.idNova': { text : joint.util.breakText(idNova, { width: 180 })},
+					'.nombre': { text: joint.util.breakText(nombre, { width: 180 })},
+					'.realizador': { text: joint.util.breakText('perersdfasdfa sdfasdfas adasfasdfasdfd', { width: 180 })}
+				}
+			});
+			graph.addCell(cicloC);
+			cantCiclosConversacionales++;
+			return cicloC;
+		}
+
+		var addCircleBlue = function(){
+			var element = ciclo;
+
+			var position = myConnectionPoint(ciclo, 200, 310);
+			$log.debug("position-> "+position);
+			var circulo = new joint.shapes.basic.Ellipse({
+				position: { x: position.x, y: position.y },
+				size: { width: 5, height: 5 },
+				attrs: { ellipse: { fill: 'blue', stroke: 'blue' }}
+			})
+			graph.addCell(circulo);
+			element.embed(circulo);
+		}
+
+		var ciclo = agregarCiclo();
+		ciclo.resize(150,100);
+		addCircleBlue();
+		graph.addCells([estacionAnd, estacionOr]);
+		//ciclo.resize(150,100);
+//100. 58
+// 200. 124
+/* Actualiza el json del modelo*/
+	graph.on('all',function(eventName, cell){
+		$('#json-renderer').jsonViewer(graph.toJSON());
+	})
+
 });
