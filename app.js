@@ -14,18 +14,8 @@ angular.module('myApp', [
   $urlRouterProvider.otherwise("/");
   $stateProvider
 
-  .state('inicio', {
-    url: '/',
-    templateUrl: 'dist/view/add.html'
-  })
-
-  .state('draw', {
-    url: '/draw',
-    templateUrl: 'dist/view/draw.html'
-  })
-
   .state('dibujo', {
-    url: '/dibujo',
+    url: '/',
     templateUrl: 'dist/view/dibujo.html',
     controller: 'DibujoController'
   })
