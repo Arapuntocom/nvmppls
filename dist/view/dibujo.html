@@ -128,9 +128,6 @@
 	<!-- div del diagrama -->
 	<div id="miDiagrama" layout="column" layout-align="top center" >	</div>
 
-
-
-
 	<!-- div con los mil sidenav -->
 	<div ng-init="blocked = false">
 
@@ -249,131 +246,77 @@
 			</md-toolbar>
 			<md-content layout-padding>
 				<form>
-					<md-list class="md-3-line" >
+					<md-list class="md-3-line"   >
 						<md-list-item >
 								<md-input-container>
 									<label for="nameWorkflow">Etiqueta del ciclo conversacional</label>
-									<input type="text" id="nameWorkflow" ng-model="w1.name" ng-change="setNombreCC()" md-autofocus>
+									<input type="text" id="nameWorkflow" ng-model="nombreCC" ng-change="setNombreCC()" md-autofocus>
 								</md-input-container>
 						</md-list-item>
 						<md-list-item>
-
 								<md-input-container>
 									<label for="IDNova">ID Nova</label>
-									<!--<input type="text" id="IDNova" ng-model="objeto.attrs.idNova.text" disabled="true" >-->
-									<input type="text" id="IDNova" ng-model="w1.idNova" disabled="true" >
+									<input type="text" id="IDNova" ng-model="idNovaCC" disabled="true" >
 								</md-input-container>
-
 						</md-list-item>
 
-
 						<md-list-item >
-							<div class="md-list-item-text" layout="row" ng-controller="SelectAsyncPtoEnterController">
-								<md-input-container>
-								<label>Punto de entrada</label>
-								<md-select placeholder="Punto de entrada" ng-model="w1.ptoEnter" md-on-open="loadPuntos()" style="min-width: 200px;">
-									<md-option ng-value="pto" ng-repeat="pto in ptos">{{pto.name}}</md-option>
-								</md-select>
-								</md-input-container>
+							<div class="md-list-item-text" layout="row">
+
+									<md-chips ng-model="rolCliente" md-autocomplete-snap  md-transform-chip="transformarChipRol($chip)" md-require-match="false" md-on-add="agregarRolCicloConv('cliente')" md-on-remove="eliminarRolCicloConv('cliente')" readonly="rolCliente.length >= 1" md-removable="true" md-enable-chip-edit="true" md-floating-label="Cliente">
+										<md-autocomplete md-selected-item="rolClienteSeleccionado" md-search-text="rolClienteBuscado" md-items="item in filterRoles(rolClienteBuscado)" md-item-text="item.name" placeholder="Ingrese nombre" md-floating-label="Cliente">
+											<span md-highlight-text="rolBuscado">{{item.name}}</span>
+										</md-autocomplete>
+										<md-chip-template>
+											<span><strong>{{$chip.name}}</strong></span>
+										</md-chip-template>
+									</md-chips>
 
 							</div>
 						</md-list-item>
 
 						<md-list-item >
-							<div class="md-list-item-text" layout="row" ng-controller="SelectAsyncRolController">
-								<md-input-container>
-								<label>Rol Cliente</label>
-								<md-select placeholder="Rol Cliente" ng-model="w1.cliente" ng-change="setRolCliente()" md-on-open="loadUsers()" style="min-width: 200px;">
-									<md-option ng-value="user" ng-repeat="user in users">{{user.name}}</md-option>
-								</md-select>
-								</md-input-container>
+							<div class="md-list-item-text" layout="row">
+
+									<md-chips ng-model="rolRealizador" md-autocomplete-snap  md-transform-chip="transformarChipRol($chip)" md-require-match="false" md-on-add="agregarRolCicloConv('realizador')" md-on-remove="eliminarRolCicloConv('realizador')" readonly="rolRealizador.length >= 1" md-removable="true" md-enable-chip-edit="true" md-floating-label="Realizador">
+										<md-autocomplete md-selected-item="rolRealizadorSeleccionado" md-search-text="rolRealizadorBuscado" md-items="item in filterRoles(rolRealizadorBuscado)" md-item-text="item.name" placeholder="Ingrese nombre" md-floating-label="Realizador">
+											<span md-highlight-text="rolRealizadorBuscado">{{item.name}}</span>
+										</md-autocomplete>
+										<md-chip-template>
+											<span><strong>{{$chip.name}}</strong></span>
+										</md-chip-template>
+									</md-chips>
+
 							</div>
 						</md-list-item>
 
 						<md-list-item >
-							<div class="md-list-item-text" layout="row" ng-controller="SelectAsyncRolController">
-								<md-input-container>
-								<label>Rol Realizador</label>
-								<md-select placeholder="Rol Realizador" ng-model="w1.realizador" ng-change="setRolRealizador()" md-on-open="loadUsers()" style="min-width: 200px;">
-									<md-option ng-value="user" ng-repeat="user in users">{{user.name}}</md-option>
-								</md-select>
-								</md-input-container>
-							</div>
-						</md-list-item>
+							<div class="md-list-item-text" layout="row">
 
-						<md-list-item >
-							<div class="md-list-item-text" layout="row" ng-controller="SelectAsyncRolController">
-								<md-input-container>
-								<label>Rol Observador</label>
-								<md-select placeholder="Rol Observador" ng-model="w1.observador" ng-change="setRolObservador()" md-on-open="loadUsers()" style="min-width: 200px;">
-									<md-option ng-value="user" ng-repeat="user in users">{{user.name}}</md-option>
-								</md-select>
-								</md-input-container>
-							</div>
-						</md-list-item>
+									<md-chips ng-model="rolObservador" md-autocomplete-snap  md-transform-chip="transformarChipRol($chip)" md-require-match="false" md-on-add="agregarRolCicloConv('observador')" md-on-remove="eliminarRolCicloConv('observador')" readonly="rolObservador.length >= 1" md-removable="true" md-enable-chip-edit="true" md-floating-label="Observador">
+										<md-autocomplete md-selected-item="rolObservadorSeleccionado" md-search-text="rolObservadorBuscado" md-items="item in filterRoles(rolObservadorBuscado)" md-item-text="item.name" placeholder="Ingrese nombre" md-floating-label="Observador">
+											<span md-highlight-text="rolObservadorBuscado">{{item.name}}</span>
+										</md-autocomplete>
+										<md-chip-template>
+											<span><strong>{{$chip.name}}</strong></span>
+										</md-chip-template>
+									</md-chips>
 
-						<md-divider></md-divider>
-
-						<md-list-item >
-							<div layout="column">
-								<b class="md-title" >Paso automático</b>
-								<md-list class="md-4-line" >
-									<md-list-item >
-										<div layout="row">
-
-											<p for="prep"  >Preparación: </p>
-											<md-switch ng-model="w1.prep" aria-label="Switch Prep" ng-true-value="'automático'" ng-false-value="'manualP'" >
-												<p>{{ w1.prep }}</p>
-											</md-switch>
-
-										</div>
-									</md-list-item>
-
-									<md-list-item >
-										<div layout="row">
-											<p for="prep">Negociación: </p>
-											<md-switch ng-model="w1.neg" aria-label="Switch Neg" ng-true-value="'automático'" ng-false-value="'manualN'" >
-												<p> {{ w1.neg }}</p>
-											</md-switch>
-										</div>
-									</md-list-item>
-
-									<md-list-item >
-										<div layout="row">
-											<p for="prep">Realización: </p>
-											<md-switch ng-model="w1.rea" aria-label="Switch Rea" ng-true-value="'automático'" ng-false-value="'manualR'" >
-												<p>{{ w1.rea }}</p>
-											</md-switch>
-										</div>
-									</md-list-item>
-
-									<md-list-item >
-										<div class="md-list-item-text" layout="row">
-											<p for="prep">Satisfacción: </p>
-											<md-switch ng-model="w1.sat" aria-label="Switch Sat" ng-true-value="'automático'" ng-false-value="'manualS'" >
-												<p>{{ w1.sat }}</p>
-											</md-switch>
-										</div>
-									</md-list-item>
-								</md-list>
 							</div>
 						</md-list-item>
 
 						<md-divider></md-divider>
 
 						<md-list-item>
-
 								<md-input-container>
 									<label for="Descripcion">Descripción</label>
-									<input type="text" id="Descripcion" ng-model="w1.descripcion" >
+									<input type="text" id="Descripcion" ng-model="descripcionCC" ng-change="agregarDescripcionCC()">
 								</md-input-container>
-
 						</md-list-item>
-
 
 					</md-list>
 				</form>
-				<md-button ng-click="close()" class="md-primary">
+				<md-button ng-click="toggleCC()" class="md-primary">
 					Volver
 				</md-button>
 			</md-content>
@@ -407,7 +350,7 @@
 						</md-radio-group>
 					</md-input-container>
 				</form>
-				<md-button ng-click="close()" class="md-primary">
+				<md-button ng-click="toggleEnlace()" class="md-primary">
 					Volver
 				</md-button>
 			</md-content>
@@ -442,7 +385,7 @@
 								<md-radio-button value="rol">Rol</md-radio-button>
 							</md-radio-group>
 							<div ng-if=" cond.responsable == 'rol'">
-								<div class="md-list-item-text" layout="row" ng-controller="SelectAsyncRolController">
+								<div class="md-list-item-text" layout="row"  >
 									<md-select  placeholder="Rol Cliente" ng-model="cond.rol" md-on-open="loadUsers()" style="min-width: 200px;">
 										<md-option ng-value="user" ng-repeat="user in users">{{user.name}}</md-option>
 									</md-select>
@@ -467,7 +410,6 @@
 									 </thead>
 									 <tbody md-body>
 										<tr md-row ng-repeat="x in condiciones">
-
 										<td md-cell>{{x.var}}</td>
 										<td md-cell>{{x.cond}}</td>
 										<td md-cell>{{x.exp}}</td>
@@ -477,8 +419,7 @@
 							</md-table-container>
 
 							<div class="demo-md-panel-content" >
-								<md-button class="md-primary md-raised demo-dialog-open-button"
-										   ng-click="showPrompt($event)">
+								<md-button class="md-primary md-raised demo-dialog-open-button" ng-click="showPrompt($event)">
 									Agregar condición
 								</md-button>
 							</div>
@@ -507,25 +448,7 @@
 	</div>
 
 </md-content>
-<!--<div>
-	<p> elementView -> {{elementView | json}}</p>
-	<p> celdaPressDown -> {{celdaPressDown | json}}</p>
-	<p> objetoPosition -> {{objetoPosition | json}}</p>
-	<p> objetoCenter -> {{objetoCenter | json}}</p>
-	<p> objeto -> {{objeto | json}}</p>
-	<p> celda -> {{celda | json}}</p>
-	<p> w1 -> {{w1 | json}}</p>
-	<p> cellView -> {{cellView | json}}</p>
-	<p> evt -> {{evt | json}}</p>
-	<p> magnet -> {{magnet | json}}</p>
-	<p> arrowhead -> {{arrowhead | json}}</p>
-	<p> cellViewCC -> {{cellViewCC | json}}</p>
-	<p> cellViewLink -> {{cellViewLink | json}}</p>
-	<p> celdaPresionada -> {{perro | json}}</p>
-	<p> enlaces -> {{enlaces | json}}</p>
-	<p> enlacesOrdenados -> {{enlacesOrdenados | json}}</p>
 
-</div>-->
 <div>
 	<pre id="json-renderer"></pre>
 </div>
