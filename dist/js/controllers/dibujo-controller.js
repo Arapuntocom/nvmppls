@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('dibujo', ['ngRoute', 'ui.router','ngMaterial', 'md.data.table', 'ngContextMenu', 'ShapesNova'])
+angular.module('dibujo', ['ngRoute', 'ui.router','ngMaterial', 'ngMessages', 'md.data.table', 'ngContextMenu', 'ShapesNova'])
 
 .controller('DibujoController', function($scope, $timeout, $mdSidenav, $log, $mdDialog, $document, contextMenu, $mdMenu, $rootScope, $compile, ShapesNova) {
 	$log.debug("DibujoController is here!!!");
@@ -162,6 +162,7 @@ angular.module('dibujo', ['ngRoute', 'ui.router','ngMaterial', 'md.data.table', 
 	var btnAgregarOr = false;
 
 	var graph = new joint.dia.Graph;
+	$scope.graph = graph;
 
 	var puntoInterseccionFun = function(celdaRestrictiva, punto){
 		if(celdaRestrictiva === undefined || punto === undefined){
@@ -661,25 +662,25 @@ angular.module('dibujo', ['ngRoute', 'ui.router','ngMaterial', 'md.data.table', 
 	}
 
 	$scope.setRolCliente = function(){
-		var celda = graph.getCell($scope.cellViewCC.id);
+		var celda = graph.getCell($scope.cellCC.id);
 		celda.attr('.cliente/text', $scope.w1.cliente.name);
 		joint.util.setByPath(celda.get('etiquetas'), 'cliente', $scope.w1.cliente.name, '/');
 	}
 
 	$scope.setRolRealizador = function(){
-		var celda = graph.getCell($scope.cellViewCC.id);
+		var celda = graph.getCell($scope.cellCC.id);
 		celda.attr('.realizador/text', $scope.w1.realizador.name);
 		joint.util.setByPath(celda.get('etiquetas'), 'realizador', $scope.w1.realizador.name, '/');
 	}
 
 	$scope.setRolObservador = function(){
-		var celda = graph.getCell($scope.cellViewCC.id);
+		var celda = graph.getCell($scope.cellCC.id);
 		celda.attr('.observador/text', $scope.w1.observador.name);
 		joint.util.setByPath(celda.get('etiquetas'), 'observador', $scope.w1.observador.name, '/');
 	}
 
 	$scope.setNombreCC = function(){
-		var celda = graph.getCell($scope.cellViewCC.id);
+		var celda = graph.getCell($scope.cellCC.id);
 		celda.attr('.nombre/text', $scope.w1.name);
 		joint.util.setByPath(celda.get('etiquetas'), 'nombre', $scope.w1.name, '/');
 	}
@@ -814,17 +815,7 @@ angular.module('dibujo', ['ngRoute', 'ui.router','ngMaterial', 'md.data.table', 
 
 		switch(type){
 			case 'cell type-cicloconversacional element':
-				$scope.cellViewCC = graph.getCell(cellView.model.id);
-
-				var etiquetas = $scope.cellViewCC.get('etiquetas');
-
-				$scope.w1 = {
-					idNova : etiquetas.idNova || 'no definido',
-					name:  etiquetas.nombre || 'no definido',
-					cliente: etiquetas.cliente  || 'no definido',
-					realizador: etiquetas.realizador || 'no definido',
-					observador: etiquetas.observador || 'no definido'
-				};
+				cargarNav(cellView);
 				$scope.toggleCC();
 				break;
 			case 'cell type-enlace link':
@@ -849,7 +840,7 @@ angular.module('dibujo', ['ngRoute', 'ui.router','ngMaterial', 'md.data.table', 
 	})
 
 	paper.on('cell:pointerclick', function(cellView, evt, x, y) {
-		$log.debug("cell:pointerClick className: "+cellView.className());
+		//$log.debug("cell:pointerClick className: "+cellView.className());
 		var thisCell = graph.getCell(cellView.model.id);
 		if(celdaViewPointerClick != null){
 			custumUnhighlight(celdaViewPointerClick);
@@ -890,7 +881,7 @@ angular.module('dibujo', ['ngRoute', 'ui.router','ngMaterial', 'md.data.table', 
 	});
 
 	paper.on('cell:pointerdown', function(cellView, evt){
-		$log.debug("cell:pointerDOWN className: "+cellView.className());
+		//$log.debug("cell:pointerDOWN className: "+cellView.className());
 		var thisCell = graph.getCell(cellView.model.id);
 		if(celdaViewPointerClick != null){
 			custumUnhighlight(celdaViewPointerClick);
@@ -900,7 +891,7 @@ angular.module('dibujo', ['ngRoute', 'ui.router','ngMaterial', 'md.data.table', 
 	})
 
 	paper.on('cell:pointerup', function(cellView, evt){
-		$log.debug('cell:pointerUP: '+cellView.className());
+		//$log.debug('cell:pointerUP: '+cellView.className());
 		var celda = graph.getCell(cellView.model.id);
 		var celdaPadre = graph.getCell(celda.get('parent'));
 		var nuevaEtapa = null;
@@ -1077,10 +1068,152 @@ angular.module('dibujo', ['ngRoute', 'ui.router','ngMaterial', 'md.data.table', 
 		$('#json-renderer').jsonViewer(graph.toJSON());
 	})
 
+	var cicloConvNav = null;
+	var cargarNav = function(viewElemento){
+		$log.debug('cargarNav: viewElemento.id: '+viewElemento.model.id);
+		var celda = graph.getCell(viewElemento.model.id);
+		var etiquetas = celda.get('etiquetas');
+		var type = celda.get('type');
+		var descripcion = celda.get('descripcion');
+		switch (type) {
+			case 'cicloConversacional':
+				cicloConvNav = celda;
+
+				$scope.rolCliente = etiquetas.cliente != undefined ? [{name: etiquetas.cliente}] : [];
+				$scope.rolClienteSeleccionado = null;
+				$scope.rolClienteBuscado = null;
+
+				$scope.rolRealizador = etiquetas.realizador != undefined ? [{name: etiquetas.realizador}] : [];
+				$scope.rolRealizadorSeleccionado = null;
+				$scope.rolRealizadorBuscado = null;
+
+				$scope.rolObservador = etiquetas.observador != undefined ? [{name: etiquetas.observador}] : [];
+				$scope.rolObservadorSeleccionado = null;
+				$scope.rolObservadorBuscado = null;
+
+				$scope.descripcionCC = descripcion != (undefined || '') ? descripcion : undefined;
+				$scope.nombreCC = etiquetas.nombre 
+				break;
+			case 'estacionOr':
+				$scope.estOr = {
+					idNova: etiquetas.idNova || ''
+				}
+				break;
+			case 'estacionAnd':
+				$scope.estAnd = {
+					idNova: etiquetas.idNova || ''
+				}
+				break;
+			default:
+		}
+	}
+
+	var mapaConversacional = { roles: []};
+
+	$scope.transformarChipRol = function(chip){
+		$log.debug('trans: '+chip);
+		if (angular.isObject(chip)) {
+			return chip;
+		}
+		return { name: chip, cant: 0 }
+	}
+
+	$scope.filterRoles = function(query){
+		var resultado = mapaConversacional.roles.filter(function(rol){
+			return (rol.name.toLowerCase().indexOf(query.toLowerCase()) === 0);
+		});
+		return resultado;
+	}
+
+
+	$scope.agregarRolCicloConv = function(tipo){
+		switch (tipo) {
+			case 'cliente':
+				cicloConvNav.attr('.cliente/text', $scope.rolCliente[0].name);
+				joint.util.setByPath(cicloConvNav.get('etiquetas'), 'cliente', $scope.rolCliente[0].name, '/');
+				agregarRolMapaConv(cicloConvNav.get('etiquetas').cliente);
+				$scope.rolClienteSeleccionado = null;
+				$scope.rolClienteBuscado = null;
+				break;
+			case 'realizador':
+				cicloConvNav.attr('.realizador/text', $scope.rolRealizador[0].name);
+				joint.util.setByPath(cicloConvNav.get('etiquetas'), 'realizador', $scope.rolRealizador[0].name, '/');
+				agregarRolMapaConv(cicloConvNav.get('etiquetas').realizador);
+				$scope.rolRealizadorSeleccionado = null;
+				$scope.rolRealizadorBuscado = null;
+				break;
+			case 'observador':
+				cicloConvNav.attr('.observador/text', $scope.rolObservador[0].name);
+				joint.util.setByPath(cicloConvNav.get('etiquetas'), 'observador', $scope.rolObservador[0].name, '/');
+				agregarRolMapaConv(cicloConvNav.get('etiquetas').observador);
+				$scope.rolObservadorSeleccionado = null;
+				$scope.rolObservadorBuscado = null;
+				break;
+			default:
+
+		}
+	}
+
+	$scope.eliminarRolCicloConv = function(tipo){
+		switch (tipo) {
+			case 'cliente':
+				eliminarRolMapaConv(cicloConvNav.get('etiquetas').cliente);
+				cicloConvNav.attr('.cliente/text', '');
+				joint.util.setByPath(cicloConvNav.get('etiquetas'), 'cliente', undefined, '/');
+				break;
+			case 'realizador':
+				eliminarRolMapaConv(cicloConvNav.get('etiquetas').realizador);
+				cicloConvNav.attr('.realizador/text', '');
+				joint.util.setByPath(cicloConvNav.get('etiquetas'), 'realizador', undefined, '/');
+				break;
+			case 'observador':
+				eliminarRolMapaConv(cicloConvNav.get('etiquetas').observador);
+				cicloConvNav.attr('.observador/text', '');
+				joint.util.setByPath(cicloConvNav.get('etiquetas'), 'observador', undefined, '/');
+				break;
+			default:
+		}
+	}
+
+	var eliminarRolMapaConv = function(rolName){
+		$log.debug('REM ants -> '+mapaConversacional.roles.length);
+		for(var i =0; i < mapaConversacional.roles.length; i++){
+			if(mapaConversacional.roles[i].name.toLowerCase() == rolName.toLowerCase()){
+				mapaConversacional.roles[i].cant = mapaConversacional.roles[i].cant - 1;
+				if(mapaConversacional.roles[i].cant == 0){
+					delete mapaConversacional.roles[i];
+				}
+				break;
+			}
+		}
+		$log.debug('REM desp -> '+mapaConversacional.roles.length);
+	}
+
+
+	var agregarRolMapaConv = function(rolName){
+		var isNuevoRol = true;
+		$log.debug('ADD ants, cant roles mapa: '+mapaConversacional.roles.length);
+		for(var i =0; i< mapaConversacional.roles.length; i++){
+			if(mapaConversacional.roles[i].name.toLowerCase() == rolName.toLowerCase()){
+				isNuevoRol = false;
+				mapaConversacional.roles[i].cant = mapaConversacional.roles[i].cant+1;
+				break;
+			}
+		}
+		if(isNuevoRol){
+			mapaConversacional.roles.push({name: rolName, cant: 1});
+			$log.debug('ADD desp, cant roles mapa: '+mapaConversacional.roles.length);
+		}
+	}
+
 })
 
+$scope.agregarDescripcionCC = function(){
+	joint.util.setByPath(cicloConvNav.get('descripcion'), '', $scope.descripcionCC, '/');
+}
 
-.controller('SelectAsyncRolController', function($timeout, $scope) {
+.controller('SelectAsyncRolController', function($timeout, $scope, $log) {
+
 	$scope.user = null;
 	$scope.users = null;
 	$scope.loadUsers = function() {
