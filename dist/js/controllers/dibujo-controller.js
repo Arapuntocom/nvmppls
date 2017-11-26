@@ -661,29 +661,8 @@ angular.module('dibujo', ['ngRoute', 'ui.router','ngMaterial', 'ngMessages', 'md
 		paper.scale(zoom, zoom, 0, 0);
 	}
 
-	$scope.setRolCliente = function(){
-		var celda = graph.getCell($scope.cellCC.id);
-		celda.attr('.cliente/text', $scope.w1.cliente.name);
-		joint.util.setByPath(celda.get('etiquetas'), 'cliente', $scope.w1.cliente.name, '/');
-	}
 
-	$scope.setRolRealizador = function(){
-		var celda = graph.getCell($scope.cellCC.id);
-		celda.attr('.realizador/text', $scope.w1.realizador.name);
-		joint.util.setByPath(celda.get('etiquetas'), 'realizador', $scope.w1.realizador.name, '/');
-	}
 
-	$scope.setRolObservador = function(){
-		var celda = graph.getCell($scope.cellCC.id);
-		celda.attr('.observador/text', $scope.w1.observador.name);
-		joint.util.setByPath(celda.get('etiquetas'), 'observador', $scope.w1.observador.name, '/');
-	}
-
-	$scope.setNombreCC = function(){
-		var celda = graph.getCell($scope.cellCC.id);
-		celda.attr('.nombre/text', $scope.w1.name);
-		joint.util.setByPath(celda.get('etiquetas'), 'nombre', $scope.w1.name, '/');
-	}
 
 	$scope.setRotuloEnlace = function(){
 		var enlace = graph.getCell($scope.cellViewLink.id);
@@ -1074,7 +1053,6 @@ angular.module('dibujo', ['ngRoute', 'ui.router','ngMaterial', 'ngMessages', 'md
 		var celda = graph.getCell(viewElemento.model.id);
 		var etiquetas = celda.get('etiquetas');
 		var type = celda.get('type');
-		var descripcion = celda.get('descripcion');
 		switch (type) {
 			case 'cicloConversacional':
 				cicloConvNav = celda;
@@ -1091,8 +1069,9 @@ angular.module('dibujo', ['ngRoute', 'ui.router','ngMaterial', 'ngMessages', 'md
 				$scope.rolObservadorSeleccionado = null;
 				$scope.rolObservadorBuscado = null;
 
-				$scope.descripcionCC = descripcion != (undefined || '') ? descripcion : undefined;
-				$scope.nombreCC = etiquetas.nombre 
+				$scope.descripcionCC = etiquetas.descripcion != (undefined || '') ? etiquetas.descripcion : undefined;
+				$scope.nombreCC = etiquetas.nombre;
+				$scope.idNovaCC = etiquetas.idNova;
 				break;
 			case 'estacionOr':
 				$scope.estOr = {
@@ -1206,11 +1185,18 @@ angular.module('dibujo', ['ngRoute', 'ui.router','ngMaterial', 'ngMessages', 'md
 		}
 	}
 
+	$scope.setNombreCC = function(){
+		cicloConvNav.attr('.nombre/text', $scope.nombreCC);
+		joint.util.setByPath(cicloConvNav.get('etiquetas'), 'nombre', $scope.nombreCC, '/');
+	}
+
+	$scope.agregarDescripcionCC = function(){
+		joint.util.setByPath(cicloConvNav.get('etiquetas'), 'descripcion', $scope.descripcionCC, '/');
+	}
+
 })
 
-$scope.agregarDescripcionCC = function(){
-	joint.util.setByPath(cicloConvNav.get('descripcion'), '', $scope.descripcionCC, '/');
-}
+
 
 .controller('SelectAsyncRolController', function($timeout, $scope, $log) {
 
