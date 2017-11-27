@@ -1155,23 +1155,20 @@ angular.module('dibujo', ['ngRoute', 'ui.router','ngMaterial', 'ngMessages', 'md
 	}
 
 	var eliminarRolMapaConv = function(rolName){
-		$log.debug('REM ants -> '+mapaConversacional.roles.length);
 		for(var i =0; i < mapaConversacional.roles.length; i++){
 			if(mapaConversacional.roles[i].name.toLowerCase() == rolName.toLowerCase()){
 				mapaConversacional.roles[i].cant = mapaConversacional.roles[i].cant - 1;
 				if(mapaConversacional.roles[i].cant == 0){
-					delete mapaConversacional.roles[i];
+					delete mapaConversacional.roles.splice(i,1);
 				}
 				break;
 			}
 		}
-		$log.debug('REM desp -> '+mapaConversacional.roles.length);
 	}
 
 
 	var agregarRolMapaConv = function(rolName){
 		var isNuevoRol = true;
-		$log.debug('ADD ants, cant roles mapa: '+mapaConversacional.roles.length);
 		for(var i =0; i< mapaConversacional.roles.length; i++){
 			if(mapaConversacional.roles[i].name.toLowerCase() == rolName.toLowerCase()){
 				isNuevoRol = false;
@@ -1181,7 +1178,6 @@ angular.module('dibujo', ['ngRoute', 'ui.router','ngMaterial', 'ngMessages', 'md
 		}
 		if(isNuevoRol){
 			mapaConversacional.roles.push({name: rolName, cant: 1});
-			$log.debug('ADD desp, cant roles mapa: '+mapaConversacional.roles.length);
 		}
 	}
 
