@@ -819,15 +819,21 @@ angular.module('dibujo', ['ngRoute', 'ui.router','ngMaterial', 'ngMessages', 'md
 	})
 
 	paper.on('cell:pointerclick', function(cellView, evt, x, y) {
-		//$log.debug("cell:pointerClick className: "+cellView.className());
-		var thisCell = graph.getCell(cellView.model.id);
+		$log.debug("cell:pointerClick className: "+cellView.className());
+
 		if(celdaViewPointerClick != null){
 			custumUnhighlight(celdaViewPointerClick);
 		}
 		celdaViewPointerClick = cellView;
 		custumHighlight(cellView);
-		if(btnAgregarEnlace){
+		orquestarNuevoEnlace(cellView, evt, x, y);
 
+	});
+
+	var orquestarNuevoEnlace = function(cellView, evt, x, y){
+		var thisCell = graph.getCell(cellView.model.id);
+		if(btnAgregarEnlace){
+$log.debug('cell click o down + btn enlace');
 			if (estacionOrigen == null && puertoOrigen == null){
 				estacionOrigen = thisCell;
 				$log.debug('791 point: '+g.point(x,y));
@@ -856,17 +862,17 @@ angular.module('dibujo', ['ngRoute', 'ui.router','ngMaterial', 'ngMessages', 'md
 				crearEnlace();
 			}
 		}
+	}
 
-	});
-
-	paper.on('cell:pointerdown', function(cellView, evt){
-		//$log.debug("cell:pointerDOWN className: "+cellView.className());
-		var thisCell = graph.getCell(cellView.model.id);
+	paper.on('cell:pointerdown', function(cellView, evt, x, y){
+		$log.debug("cell:pointerDOWN className: "+cellView.className());
+	
 		if(celdaViewPointerClick != null){
 			custumUnhighlight(celdaViewPointerClick);
 		}
 		celdaViewPointerClick = cellView;
 		custumHighlight(cellView);
+		orquestarNuevoEnlace(cellView, evt, x, y);
 	})
 
 	paper.on('cell:pointerup', function(cellView, evt){
@@ -1178,6 +1184,7 @@ angular.module('dibujo', ['ngRoute', 'ui.router','ngMaterial', 'ngMessages', 'md
 		}
 		if(isNuevoRol){
 			mapaConversacional.roles.push({name: rolName, cant: 1});
+			$log.debug('ADD desp, cant roles mapa: '+mapaConversacional.roles.length);
 		}
 	}
 
@@ -1188,6 +1195,29 @@ angular.module('dibujo', ['ngRoute', 'ui.router','ngMaterial', 'ngMessages', 'md
 
 	$scope.agregarDescripcionCC = function(){
 		joint.util.setByPath(cicloConvNav.get('etiquetas'), 'descripcion', $scope.descripcionCC, '/');
+	}
+
+	$scope.mostrarReporteRoles = function(evt){
+		$log.debug('click on mostrar reporte');
+		$scope.ciclosConversacionales = []; //mantiene la información de solamente ciclos conversacionales del modelo
+		$scope.roles = mapaConversacional.roles || undefined; // lista independiente de roles del modelo
+		$scope.reportar = []; // almacena el cruce entre roles y mapas conversacionales del modelo (de ciclos que estan validamente conectados ?)
+
+		var modeloCompleto = graph.getCells();
+
+		for(var i =0; i < modeloCompleto.length; i++){
+			if(modeloCompleto[i].get('type') == 'cicloConversacional'){
+				$log.debug('ciclo conv ++');
+				$scope.ciclosConversacionales.push({
+					idNova: modeloCompleto[i].get('etiquetas').idNova,
+					nombre: modeloCompleto[i].get('etiquetas').nombre,
+					cliente: modeloCompleto[i].get('etiquetas').cliente != (null || undefined) ? modeloCompleto[i].get('etiquetas').cliente.toLowerCase() : null,
+					realizador: modeloCompleto[i].get('etiquetas').realizador != (null || undefined) ? modeloCompleto[i].get('etiquetas').realizador.toLowerCase() : null,
+					observador: modeloCompleto[i].get('etiquetas').observador != (null || undefined) ? modeloCompleto[i].get('etiquetas').observador.toLowerCase() : null
+				});
+			}
+		}
+
 	}
 
 })
