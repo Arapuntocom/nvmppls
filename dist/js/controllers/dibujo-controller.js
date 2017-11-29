@@ -13,8 +13,6 @@ angular.module('dibujo', ['ngRoute', 'ui.router','ngMaterial', 'ngMessages', 'md
 	$scope.message = "msj";
 
 	$scope.w1 = {cliente : ''};
-
-
 	$scope.fijar = function(){
 		if($scope.blocked == true){
 			$scope.blocked = false;
