@@ -26,7 +26,7 @@
 		</md-list-item>
 			|-->
 		<md-list-item>
-			<md-button aria-label="Workflow" class="md-icon-button" ng-click="agregarCicloConversacional()">
+			<md-button aria-label="CicloConversacional" class="md-icon-button" ng-click="agregarCicloConversacional()">
 				<md-icon md-svg-icon="dist/img/icons/novaplus-icons/cc48v2.svg"></md-icon>
 			</md-button>
 		</md-list-item>
@@ -85,13 +85,13 @@
 			</md-button>
 		</md-list-item>
 
-		<!--
+
 		<md-list-item>
-			<md-button aria-label="Roles" class="md-icon-button">
+			<md-button aria-label="RolesReporte" class="md-icon-button" ng-click="mostrarReporteRoles($event)">
 				<md-icon md-svg-icon="dist/img/icons/other-icons/ic_assignment_ind_black_48px.svg"></md-icon>
 			</md-button>
 		</md-list-item>
-
+<!--
 		<md-list-item>
 			<md-button aria-label="SettingsApplications" class="md-icon-button" ng-click="toggleModelo()">
 				<md-icon md-svg-icon="dist/img/icons/other-icons/ic_settings_applications_black_48px.svg"></md-icon>
@@ -146,7 +146,7 @@
 			</md-content>
 		</md-sidenav>
 
-		<!-- sidenav Propiedades -->
+		<!-- sidenav Propiedades Mapa Conversacional -->
 		<md-sidenav class="md-sidenav-right md-whiteframe-4dp" md-component-id="propertiesNav" md-is-locked-open="blocked">
 			<md-toolbar class="md-theme-light">
 				<h1 class="md-toolbar-tools">Propiedades</h1>
@@ -244,7 +244,7 @@
 			<md-toolbar class="md-theme-light">
 				<h1 class="md-toolbar-tools">Ciclo conversacional</h1>
 			</md-toolbar>
-			<md-content layout-padding>
+			<md-content class="md-padding" layout="column">
 				<form>
 					<md-list class="md-3-line"   >
 						<md-list-item >
@@ -261,10 +261,10 @@
 						</md-list-item>
 
 						<md-list-item >
-							<div class="md-list-item-text" layout="row">
+							<div layout="row">
 
-									<md-chips ng-model="rolCliente" md-autocomplete-snap  md-transform-chip="transformarChipRol($chip)" md-require-match="false" md-on-add="agregarRolCicloConv('cliente')" md-on-remove="eliminarRolCicloConv('cliente')" readonly="rolCliente.length >= 1" md-removable="true" md-enable-chip-edit="true" md-floating-label="Cliente">
-										<md-autocomplete md-selected-item="rolClienteSeleccionado" md-search-text="rolClienteBuscado" md-items="item in filterRoles(rolClienteBuscado)" md-item-text="item.name" placeholder="Ingrese nombre" md-floating-label="Cliente">
+									<md-chips ng-model="rolCliente" md-autocomplete-snap  md-transform-chip="transformarChipRol($chip)" md-require-match="false" md-on-add="agregarRolCicloConv('cliente')" md-on-remove="eliminarRolCicloConv('cliente')" readonly="rolCliente.length >= 1" md-removable="true" md-enable-chip-edit="true" >
+										<md-autocomplete md-selected-item="rolClienteSeleccionado" md-search-text="rolClienteBuscado" md-items="item in filterRoles(rolClienteBuscado)" md-item-text="item.name" placeholder="Cliente" >
 											<span md-highlight-text="rolBuscado">{{item.name}}</span>
 										</md-autocomplete>
 										<md-chip-template>
@@ -305,7 +305,7 @@
 							</div>
 						</md-list-item>
 
-						<md-divider></md-divider>
+						<!--	<md-divider></md-divider>	-->
 
 						<md-list-item>
 								<md-input-container>
@@ -449,7 +449,45 @@
 
 </md-content>
 
+
+<!-- Vista Pop-up con Reporte de Participación --><!--
+<div>
+	<md-content layout-padding>
+		<md-table-container>
+			<table md-table>
+				 <thead md-head>
+					<tr md-row>
+						<th md-column>ID Nova</th>
+						<th md-column>Ciclo Conversacional</th>
+						<th md-column ng-repeat="rol in roles">{{rol.name}}</th>
+					</tr>
+				 </thead>
+				 <tbody md-body>
+					<tr md-row ng-repeat="ciclo in ciclosConversacionales">
+						<td md-cell>{{ciclo.idNova}}</td>
+						<td md-cell>{{ciclo.nombre}}</td>
+						<td md-cell ng-repeat="rol in roles">{{ciclo.cliente == rol.name.toLowerCase() ? 'C' : ciclo.realizador == rol.name.toLowerCase() ? 'R' : ''}}</td>
+					</tr>
+				</tbody>
+			</table>
+		</md-table-container>
+
+		<div class="demo-md-panel-content" >
+			<md-button class="md-primary md-raised demo-dialog-open-button"
+						 ng-click="showNewVar($event)">
+				Agregar variable
+			</md-button>
+		</div>
+
+		<md-button ng-click="close()" class="md-primary">
+			Volver
+		</md-button>
+	</md-content>
+</div>
+
+
+
 <div>
 	<pre id="json-renderer"></pre>
-</div>
+</div>-->
 </div>
