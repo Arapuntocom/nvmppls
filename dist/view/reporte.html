@@ -1,0 +1,50 @@
+<md-dialog aria-label="Reporte">
+  <div id="reporteParticipacion">
+  <form ng-cloak>
+    <md-toolbar>
+      <div class="md-toolbar-tools">
+        <h2>Reporte de Participación</h2>
+        <span flex></span>
+        <md-button class="md-icon-button" ng-click="cancel()">
+          <md-icon md-svg-src="dist/img/icons/other-icons/ic_close_black_24px.svg" aria-label="Close dialog"></md-icon>
+        </md-button>
+      </div>
+    </md-toolbar>
+
+    <md-dialog-content>
+      <div class="md-dialog-content" ng-if="roles.length > 0">
+        <md-table-container>
+    			<table md-table>
+    				 <thead md-head>
+    					<tr md-row>
+    						<th md-column>ID Nova</th>
+    						<th md-column>Ciclo Conversacional</th>
+    						<th md-column ng-repeat="rol in roles">{{rol.name}}</th>
+    					</tr>
+    				 </thead>
+    				 <tbody md-body>
+    					<tr md-row ng-repeat="ciclo in ciclosConversacionales">
+    						<td md-cell>{{ciclo.idNova}}</td>
+    						<td md-cell>{{ciclo.nombre}}</td>
+    						<td md-cell ng-repeat="rol in roles">{{ciclo.cliente == rol.name.toLowerCase() ? 'C' : ciclo.realizador == rol.name.toLowerCase() ? 'R' : ''}}</td>
+    					</tr>
+    				</tbody>
+    			</table>
+    		</md-table-container>
+      </div>
+      <div class="md-dialog-content" ng-if="roles == undefined || roles.length == 0">
+        <h2>No has ingresado roles</h2>
+      </div>
+    </md-dialog-content>
+
+    <md-dialog-actions layout="row">
+      <md-button ng-click="exportarImagen()">
+       Exportar imagen
+      </md-button>
+      <md-button ng-click="cancel()">
+        volver
+      </md-button>
+    </md-dialog-actions>
+  </form>
+</div>
+</md-dialog>

@@ -96,14 +96,14 @@
 			<md-button aria-label="SettingsApplications" class="md-icon-button" ng-click="toggleModelo()">
 				<md-icon md-svg-icon="dist/img/icons/other-icons/ic_settings_applications_black_48px.svg"></md-icon>
 			</md-button>
-		</md-list-item>
+		</md-list-item>-->
 
 		<md-list-item>
-			<md-button aria-label="Download" class="md-icon-button" ng-click="exportarImagen()">
+			<md-button id="perro" aria-label="Download" class="md-icon-button" ng-click="exportarImagen()">
 				<md-icon md-svg-icon="dist/img/icons/other-icons/ic_file_download_black_48px.svg"></md-icon>
 			</md-button>
 		</md-list-item>
-		-->
+
 
 		<!--<md-list-item>
 			<button class="joint-theme-modern joint-widget" id="btn-png" data-tooltip="Open as PNG in a pop-up" data-tooltip-position="top" data-tooltip-position-selector=".toolbar-container" data-type="button" data-name="png" >Export PNG</button>
@@ -263,7 +263,7 @@
 						<md-list-item >
 							<div layout="row">
 
-									<md-chips ng-model="rolCliente" md-autocomplete-snap  md-transform-chip="transformarChipRol($chip)" md-require-match="false" md-on-add="agregarRolCicloConv('cliente')" md-on-remove="eliminarRolCicloConv('cliente')" readonly="rolCliente.length >= 1" md-removable="true" md-enable-chip-edit="true" >
+									<md-chips ng-model="rolCliente" md-autocomplete-snap  md-transform-chip="transformarChipRol($chip)" md-require-match="false" md-on-add="agregarRolCicloConv('cliente')" md-on-remove="eliminarRolCicloConv('cliente')" readonly="rolCliente.length >= 1" md-removable="true" md-separator-keys="customKeysChip" >
 										<md-autocomplete md-selected-item="rolClienteSeleccionado" md-search-text="rolClienteBuscado" md-items="item in filterRoles(rolClienteBuscado)" md-item-text="item.name" placeholder="Cliente" >
 											<span md-highlight-text="rolBuscado">{{item.name}}</span>
 										</md-autocomplete>
@@ -278,7 +278,7 @@
 						<md-list-item >
 							<div class="md-list-item-text" layout="row">
 
-									<md-chips ng-model="rolRealizador" md-autocomplete-snap  md-transform-chip="transformarChipRol($chip)" md-require-match="false" md-on-add="agregarRolCicloConv('realizador')" md-on-remove="eliminarRolCicloConv('realizador')" readonly="rolRealizador.length >= 1" md-removable="true" md-enable-chip-edit="true" md-floating-label="Realizador">
+									<md-chips ng-model="rolRealizador" md-autocomplete-snap  md-transform-chip="transformarChipRol($chip)" md-require-match="false" md-on-add="agregarRolCicloConv('realizador')" md-on-remove="eliminarRolCicloConv('realizador')" readonly="rolRealizador.length >= 1" md-removable="true"  md-floating-label="Realizador" md-separator-keys="customKeysChip" >
 										<md-autocomplete md-selected-item="rolRealizadorSeleccionado" md-search-text="rolRealizadorBuscado" md-items="item in filterRoles(rolRealizadorBuscado)" md-item-text="item.name" placeholder="Ingrese nombre" md-floating-label="Realizador">
 											<span md-highlight-text="rolRealizadorBuscado">{{item.name}}</span>
 										</md-autocomplete>
@@ -293,7 +293,7 @@
 						<md-list-item >
 							<div class="md-list-item-text" layout="row">
 
-									<md-chips ng-model="rolObservador" md-autocomplete-snap  md-transform-chip="transformarChipRol($chip)" md-require-match="false" md-on-add="agregarRolCicloConv('observador')" md-on-remove="eliminarRolCicloConv('observador')" readonly="rolObservador.length >= 1" md-removable="true" md-enable-chip-edit="true" md-floating-label="Observador">
+									<md-chips ng-model="rolObservador" md-autocomplete-snap  md-transform-chip="transformarChipRol($chip)" md-require-match="false" md-on-add="agregarRolCicloConv('observador')" md-on-remove="eliminarRolCicloConv('observador')" readonly="rolObservador.length >= 1" md-removable="true" md-floating-label="Observador" md-separator-keys="customKeysChip">
 										<md-autocomplete md-selected-item="rolObservadorSeleccionado" md-search-text="rolObservadorBuscado" md-items="item in filterRoles(rolObservadorBuscado)" md-item-text="item.name" placeholder="Ingrese nombre" md-floating-label="Observador">
 											<span md-highlight-text="rolObservadorBuscado">{{item.name}}</span>
 										</md-autocomplete>
@@ -451,7 +451,8 @@
 
 
 <!-- Vista Pop-up con Reporte de Participación -->
-<div>
+<div id="2reporteParticipacion2" >
+
 	<md-content layout-padding>
 		<md-table-container>
 			<table md-table>
@@ -483,6 +484,7 @@
 			Volver
 		</md-button>-->
 	</md-content>
+
 </div>
 
 

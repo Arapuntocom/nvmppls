@@ -2,7 +2,7 @@
 
 angular.module('dibujo', ['ngRoute', 'ui.router','ngMaterial', 'ngMessages', 'md.data.table', 'ngContextMenu', 'ShapesNova'])
 
-.controller('DibujoController', function($scope, $timeout, $mdSidenav, $log, $mdDialog, $document, contextMenu, $mdMenu, $rootScope, $compile, ShapesNova) {
+.controller('DibujoController', function($scope, $timeout, $mdSidenav, $log, $mdDialog, $document, contextMenu, $mdMenu, $rootScope, $compile, $mdConstant, ShapesNova) {
 	$log.debug("DibujoController is here!!!");
 	$scope.toggleTree = buildDelayedToggler('tree');
 	$scope.toggleModelo = buildToggler('propertiesNav');
@@ -531,7 +531,28 @@ angular.module('dibujo', ['ngRoute', 'ui.router','ngMaterial', 'ngMessages', 'md
 
 	$scope.exportarImagen = function(){
 		cancelarAccionEnCurso();
+		//alert('Not implemented yet');
 		$log.debug("No implementado");
+
+		/*var source = new XMLSerializer().serializeToString(paper.svg);
+
+		//add name spaces.
+		if(!source.match(/^<svg[^>]+xmlns="http\:\/\/www\.w3\.org\/2000\/svg"/)){
+		    source = source.replace(/^<svg/, '<svg xmlns="http://www.w3.org/2000/svg"');
+		}
+		if(!source.match(/^<svg[^>]+"http\:\/\/www\.w3\.org\/1999\/xlink"/)){
+		    source = source.replace(/^<svg/, '<svg xmlns:xlink="http://www.w3.org/1999/xlink"');
+		}
+
+		//add xml declaration
+		source = '<?xml version="1.0" standalone="no"?>\r\n' + source;
+		//convert svg source to URI data scheme.
+		var url = "data:image/svg+xml;charset=utf-8,"+encodeURIComponent(source);
+
+$log.debug(url);
+		$log.debug(source);
+
+		window.open(url); */
 	}
 
 	$scope.agregarCicloConversacional = function(){
@@ -866,7 +887,7 @@ $log.debug('cell click o down + btn enlace');
 
 	paper.on('cell:pointerdown', function(cellView, evt, x, y){
 		$log.debug("cell:pointerDOWN className: "+cellView.className());
-	
+
 		if(celdaViewPointerClick != null){
 			custumUnhighlight(celdaViewPointerClick);
 		}
@@ -1059,6 +1080,7 @@ $log.debug('cell click o down + btn enlace');
 		var celda = graph.getCell(viewElemento.model.id);
 		var etiquetas = celda.get('etiquetas');
 		var type = celda.get('type');
+		$scope.customKeysChip = [$mdConstant.KEY_CODE.ENTER, 9];
 		switch (type) {
 			case 'cicloConversacional':
 				cicloConvNav = celda;
@@ -1218,7 +1240,38 @@ $log.debug('cell click o down + btn enlace');
 			}
 		}
 
+		$mdDialog.show({
+			controller: DialogController,
+			templateUrl: 'dist/view/reporte.html',
+			parent: angular.element(document.body),
+			targetEvent: evt,
+			clickOutsideToClose:true,
+			fullscreen: $scope.customFullscreen, // Only for -xs, -sm breakpoints.
+			scope: $scope
+		})
+		.then(function(answer) {
+			$scope.status = 'You said the information was "' + answer + '".';
+		}, function() {
+			$scope.status = 'You cancelled the dialog.';
+		});
+
 	}
+
+	function DialogController($scope, $mdDialog) {
+		$log.debug('dialog controller');
+
+    $scope.hide = function() {
+      $mdDialog.hide();
+    };
+
+    $scope.cancel = function() {
+      $mdDialog.cancel();
+    };
+
+    $scope.answer = function(answer) {
+      $mdDialog.hide(answer);
+    };
+  }
 
 })
 
