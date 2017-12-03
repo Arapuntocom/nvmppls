@@ -1081,7 +1081,10 @@ $log.debug('cell click o down + btn enlace');
 
 	/* Actualiza el json del modelo*/
 	graph.on('all',function(eventName, cell){
-		$('#json-renderer').jsonViewer(graph.toJSON());
+		$scope.modeloJson = graph.toJSON();
+		$('#json-renderer').jsonViewer($scope.modeloJson);
+
+
 	})
 
 	var cicloConvNav = null;
@@ -1277,7 +1280,7 @@ $log.debug('cell click o down + btn enlace');
 
 		$mdDialog.show({
 			controller: DialogController,
-			templateUrl: 'dist/view/reporte.html',
+			templateUrl: 'dist/view/pop/reporte.html',
 			parent: angular.element(document.body),
 			targetEvent: evt,
 			clickOutsideToClose:true,
@@ -1307,6 +1310,27 @@ $log.debug('cell click o down + btn enlace');
       $mdDialog.hide(answer);
     };
   }
+
+
+ 	$scope.abrirMenuOpciones = function($mdMenu, ev) {
+    $log.debug('abrirMenuOpciones');
+    $mdMenu.open(ev);
+  };
+
+	$scope.exportarModeloJson = function(){
+		$log.debug('exportarModeloJson');
+
+		var nombreModelo = "nuevo modelo"
+
+		var dlAnchorElem = document.getElementById('downloadAnchorElem');
+		var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(graph.toJSON()));
+		var dlAnchorElem = document.getElementById('downloadAnchorElem');
+		dlAnchorElem.setAttribute("href",     dataStr     );
+		dlAnchorElem.setAttribute("download", nombreModelo+".json");
+		dlAnchorElem.click();
+		
+	}
+
 
 })
 

@@ -1,10 +1,36 @@
 <md-toolbar class="md-hue-2">
 	<div class="md-toolbar-tools">
-		<md-button class="md-icon-button" aria-label="Settings" ng-disabled="true">
-			 <md-icon md-svg-icon="dist/img/icons/other-icons/ic_menu_black_48px.svg"></md-icon>
-		</md-button>
-		<h2>
-			<span>Nuevo modelo conversacional</span>
+		<md-menu>
+			<md-button class="md-icon-button" aria-label="Settings" ng-click="abrirMenuOpciones($mdMenu, $event)">
+				 <md-icon md-svg-icon="dist/img/icons/other-icons/ic_menu_black_48px.svg"></md-icon>
+			</md-button>
+			<md-menu-content width="4">
+        <md-menu-item>
+          <md-button ng-click="nuevoModelo($event)">
+            <md-icon  md-menu-align-target></md-icon>
+            Nuevo modelo
+          </md-button>
+        </md-menu-item>
+				<md-menu-item>
+					<md-button ng-click="abrirModeloJson($event)">
+						<md-icon md-menu-alingn-target></md-icon>
+						Abrir modelo
+					</md-button>
+				</md-menu-item>
+				<md-menu-item>
+<a id="downloadAnchorElem" class="md-menu-item" style="display:none"></a>
+						<md-button ng-click="exportarModeloJson()">
+
+							<md-icon md-menu-alingn-target></md-icon>
+							Guardar modelo
+
+						</md-button>
+
+				</md-menu-item>
+			</md-menu-content>
+		</md-menu>
+		<h2 md-truncate flex>
+			Nuevo modelo conversacional
 		</h2>
 	</div>
 </md-toolbar>

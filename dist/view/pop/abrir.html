@@ -1,0 +1,20 @@
+<md-dialog aria-label="Reporte">
+  <div id="reporteParticipacion">
+  <form ng-cloak>
+    <md-dialog-content>
+      <div class="md-dialog-content" ng-if="roles == undefined || roles.length == 0">
+        <h2>No has ingresado roles</h2>
+      </div>
+    </md-dialog-content>
+
+    <md-dialog-actions layout="row">
+      <md-button ng-click="exportarImagen()">
+       Exportar imagen
+      </md-button>
+      <md-button ng-click="cancel()">
+        volver
+      </md-button>
+    </md-dialog-actions>
+  </form>
+</div>
+</md-dialog>

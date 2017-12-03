@@ -24,8 +24,7 @@ angular.module('myApp', [
     url: '/test',
     templateUrl: 'dist/view/test.html',
     controller: 'testDiagramaController'
-  });;
+  });
 
-
- // $routeProvider.otherwise({redirectTo: '/'});
+  $routeProvider.otherwise({redirectTo: '/'});
 }]);
