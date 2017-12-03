@@ -450,44 +450,6 @@
 </md-content>
 
 
-<!-- Vista Pop-up con Reporte de Participación -->
-<div id="2reporteParticipacion2" >
-
-	<md-content layout-padding>
-		<md-table-container>
-			<table md-table>
-				 <thead md-head>
-					<tr md-row>
-						<th md-column>ID Nova</th>
-						<th md-column>Ciclo Conversacional</th>
-						<th md-column ng-repeat="rol in roles">{{rol.name}}</th>
-					</tr>
-				 </thead>
-				 <tbody md-body>
-					<tr md-row ng-repeat="ciclo in ciclosConversacionales">
-						<td md-cell>{{ciclo.idNova}}</td>
-						<td md-cell>{{ciclo.nombre}}</td>
-						<td md-cell ng-repeat="rol in roles">{{ciclo.cliente == rol.name.toLowerCase() ? 'C' : ciclo.realizador == rol.name.toLowerCase() ? 'R' : ''}}</td>
-					</tr>
-				</tbody>
-			</table>
-		</md-table-container>
-<!--
-		<div class="demo-md-panel-content" >
-			<md-button class="md-primary md-raised demo-dialog-open-button"
-						 ng-click="showNewVar($event)">
-				Agregar variable
-			</md-button>
-		</div>
-
-		<md-button ng-click="close()" class="md-primary">
-			Volver
-		</md-button>-->
-	</md-content>
-
-</div>
-
-
 
 <div>
 	<pre id="json-renderer"></pre>

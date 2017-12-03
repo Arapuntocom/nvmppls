@@ -13,6 +13,8 @@ angular.module('dibujo', ['ngRoute', 'ui.router','ngMaterial', 'ngMessages', 'md
 	$scope.message = "msj";
 
 	$scope.w1 = {cliente : ''};
+
+
 	$scope.fijar = function(){
 		if($scope.blocked == true){
 			$scope.blocked = false;
@@ -302,11 +304,9 @@ angular.module('dibujo', ['ngRoute', 'ui.router','ngMaterial', 'ngMessages', 'md
 		return angulo;
 	}
 
-	var setearIdsNova = function(celdaOrigen){ //debe ser la celda de origen para determinar el orden de los puertos salientes
-		$log.debug('ID-NOVA- cellOrigen: '+celdaOrigen.id);
-
+	var puertosSalientesFun = function(celda){
 		// determinar puertos que son salida
-		var puertos = celdaOrigen.getEmbeddedCells();
+		var puertos = celda.getEmbeddedCells();
 		var puertosSalientes = [];
 		var grupo;
 		for(var i =0; i<puertos.length; i++){
@@ -326,6 +326,14 @@ angular.module('dibujo', ['ngRoute', 'ui.router','ngMaterial', 'ngMessages', 'md
 				return 1;
 			return 0;
 		})
+
+		return puertosSalientes || [];
+	}
+
+	var setearIdsNova = function(celdaOrigen){ //debe ser la celda de origen para determinar el orden de los puertos salientes
+		$log.debug('ID-NOVA- cellOrigen: '+celdaOrigen.id);
+
+		var puertosSalientes = puertosSalientesFun(celdaOrigen);
 
 		//setear id Nova
 		var idNovaOrigen = celdaOrigen.get('etiquetas').idNova == 'Main' ? '' : celdaOrigen.get('etiquetas').idNova;
@@ -620,6 +628,7 @@ $log.debug(url);
 		btnAgregarOr = false;
 	}
 
+var cicloMain = null;
 	var crearCicloConversacional = function(x,y){
 		$log.debug("Agregando Ciclo Conversacional ");
 		var nombre = 'ciclo_'+cantCiclosConversacionales;
@@ -642,6 +651,9 @@ $log.debug(url);
 		graph.addCell(nuevoCC2);
 		cantCiclosConversacionales++;
 		btnAgregarCicloConversacional = false;
+		if(cantCiclosConversacionales == 1){
+			cicloMain = nuevoCC2;
+		}
 	}
 
 	$scope.agregarEnlace = function(tipo){
@@ -1203,7 +1215,7 @@ $log.debug('cell click o down + btn enlace');
 			}
 		}
 		if(isNuevoRol){
-			mapaConversacional.roles.push({name: rolName, cant: 1});
+			mapaConversacional.roles.push({name: rolName, cant: 1, cantC: 0, cantR: 0});
 			$log.debug('ADD desp, cant roles mapa: '+mapaConversacional.roles.length);
 		}
 	}
@@ -1217,24 +1229,49 @@ $log.debug('cell click o down + btn enlace');
 		joint.util.setByPath(cicloConvNav.get('etiquetas'), 'descripcion', $scope.descripcionCC, '/');
 	}
 
+
+	var ciclosConversacionalesValidosFun = function(){
+		var ciclosConversacionalesValidos = [];
+
+		function agregarSiguienteCicloConversacional(cicloConversacional){
+			if(cicloConversacional.get('type') == 'cicloConversacional'){
+				ciclosConversacionalesValidos.push({
+					idNova: cicloConversacional.get('etiquetas').idNova || '',
+					nombre: cicloConversacional.get('etiquetas').nombre || '',
+					cliente: cicloConversacional.get('etiquetas').cliente || '',
+					realizador: cicloConversacional.get('etiquetas').realizador || '',
+					observador: cicloConversacional.get('etiquetas').observador || ''
+				});
+			}
+			var puertos = puertosSalientesFun(cicloConversacional);
+			for(var p = 0; p<puertos.length; p++){
+				var enlaces = graph.getConnectedLinks(puertos[p]);
+				var targetPuerto = graph.getCell(enlaces[0].get('target').id);
+				var targetCelda = graph.getCell(targetPuerto.get('parent'));
+				agregarSiguienteCicloConversacional(targetCelda);
+			}
+		}
+
+		agregarSiguienteCicloConversacional(cicloMain);
+
+		return ciclosConversacionalesValidos || [];
+	}
+
 	$scope.mostrarReporteRoles = function(evt){
 		$log.debug('click on mostrar reporte');
-		$scope.ciclosConversacionales = []; //mantiene la información de solamente ciclos conversacionales del modelo
-		$scope.roles = mapaConversacional.roles || undefined; // lista independiente de roles del modelo
-		$scope.reportar = []; // almacena el cruce entre roles y mapas conversacionales del modelo (de ciclos que estan validamente conectados ?)
+		$scope.ciclosConversacionales = ciclosConversacionalesValidosFun();
+		$scope.roles = mapaConversacional.roles || []; // lista independiente de roles del modelo
+		for( var r =0; r<$scope.roles.length; r++){
+			$scope.roles[r].cantC =0;
+			$scope.roles[r].cantR =0;
+			for(var i =0; i<$scope.ciclosConversacionales.length; i++){
 
-		var modeloCompleto = graph.getCells();
-
-		for(var i =0; i < modeloCompleto.length; i++){
-			if(modeloCompleto[i].get('type') == 'cicloConversacional'){
-				$log.debug('ciclo conv ++');
-				$scope.ciclosConversacionales.push({
-					idNova: modeloCompleto[i].get('etiquetas').idNova,
-					nombre: modeloCompleto[i].get('etiquetas').nombre,
-					cliente: modeloCompleto[i].get('etiquetas').cliente != (null || undefined) ? modeloCompleto[i].get('etiquetas').cliente.toLowerCase() : null,
-					realizador: modeloCompleto[i].get('etiquetas').realizador != (null || undefined) ? modeloCompleto[i].get('etiquetas').realizador.toLowerCase() : null,
-					observador: modeloCompleto[i].get('etiquetas').observador != (null || undefined) ? modeloCompleto[i].get('etiquetas').observador.toLowerCase() : null
-				});
+				if($scope.ciclosConversacionales[i].cliente.toLowerCase() == $scope.roles[r].name.toLowerCase()){
+					$scope.roles[r].cantC = $scope.roles[r].cantC+1;
+				}
+				if($scope.ciclosConversacionales[i].realizador.toLowerCase() == $scope.roles[r].name.toLowerCase()){
+					$scope.roles[r].cantR = $scope.roles[r].cantR+1;
+				}
 			}
 		}
 
@@ -1245,7 +1282,8 @@ $log.debug('cell click o down + btn enlace');
 			targetEvent: evt,
 			clickOutsideToClose:true,
 			fullscreen: $scope.customFullscreen, // Only for -xs, -sm breakpoints.
-			scope: $scope
+			scope: $scope,
+			preserveScope: true
 		})
 		.then(function(answer) {
 			$scope.status = 'You said the information was "' + answer + '".';
@@ -1257,7 +1295,6 @@ $log.debug('cell click o down + btn enlace');
 
 	function DialogController($scope, $mdDialog) {
 		$log.debug('dialog controller');
-
     $scope.hide = function() {
       $mdDialog.hide();
     };

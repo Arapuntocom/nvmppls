@@ -26,8 +26,18 @@
     					<tr md-row ng-repeat="ciclo in ciclosConversacionales">
     						<td md-cell>{{ciclo.idNova}}</td>
     						<td md-cell>{{ciclo.nombre}}</td>
-    						<td md-cell ng-repeat="rol in roles">{{ciclo.cliente == rol.name.toLowerCase() ? 'C' : ciclo.realizador == rol.name.toLowerCase() ? 'R' : ''}}</td>
+    						<td md-cell ng-repeat="rol in roles">{{ciclo.cliente.toLowerCase() == rol.name.toLowerCase() ? 'C' : ciclo.realizador.toLowerCase() == rol.name.toLowerCase() ? 'R' : ''}}</td>
     					</tr>
+              <tr md-row>
+                <td md-cell></td>
+                <td md-cell><strong>Total Cliente</strong></td>
+                <td md-cell ng-repeat="rol in roles"><strong>{{rol.cantC}}</strong></td>
+              </tr>
+              <tr md-row>
+                <td md-cell></td>
+                <td md-cell><strong>Total Realizador</strong></td>
+                <td md-cell ng-repeat="rol in roles"><strong>{{rol.cantR}}</strong></td>
+              </tr>
     				</tbody>
     			</table>
     		</md-table-container>
