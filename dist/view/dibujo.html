@@ -12,20 +12,17 @@
           </md-button>
         </md-menu-item>
 				<md-menu-item>
-					<md-button ng-click="abrirModeloJson($event)">
+					<md-button ng-click="mostrarDialogAbrirModeloJson($event)">
 						<md-icon md-menu-alingn-target></md-icon>
 						Abrir modelo
 					</md-button>
 				</md-menu-item>
 				<md-menu-item>
-<a id="downloadAnchorElem" class="md-menu-item" style="display:none"></a>
-						<md-button ng-click="exportarModeloJson()">
-
-							<md-icon md-menu-alingn-target></md-icon>
-							Guardar modelo
-
+					<a id="downloadAnchorElem" class="md-menu-item" style="display:none"></a>
+					<md-button ng-click="exportarModeloJson()">
+						<md-icon md-menu-alingn-target></md-icon>
+						Guardar modelo
 						</md-button>
-
 				</md-menu-item>
 			</md-menu-content>
 		</md-menu>
@@ -474,7 +471,9 @@
 	</div>
 
 </md-content>
-
+<div> {{jotasonP || 'nada'}}</div>
+<div>------</div>
+<div> {{jotasonS || 'nada2'}}</div>
 
 
 <div>

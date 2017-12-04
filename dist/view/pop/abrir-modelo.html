@@ -1,0 +1,20 @@
+<md-dialog aria-label="abrirModelo">
+  <div id="abrirModelo">
+  <form name="formAbrirModelo" ng-cloak>
+    <md-dialog-content>
+      <h2>Abrir modelo conversacional</h2>
+      <input type="file" id="files" name="files[]"fileinput="file" filepreview="filepreview" md-autofocus/>
+
+    </md-dialog-content>
+
+    <md-dialog-actions layout="row">
+      <md-button ng-click="cancel()">
+        Cancelar
+      </md-button>
+      <md-button ng-click="answer('open')" >
+        Abrir archivo
+      </md-button>
+    </md-dialog-actions>
+  </form>
+</div>
+</md-dialog>

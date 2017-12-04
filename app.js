@@ -4,8 +4,6 @@
 angular.module('myApp', [
   'ngRoute',
   'ui.router',
-  'header',
-  'draw',
   'dibujo'
 ])
 
@@ -19,12 +17,6 @@ angular.module('myApp', [
     templateUrl: 'dist/view/dibujo.html',
     controller: 'DibujoController'
   })
-
-  .state('test', {
-    url: '/test',
-    templateUrl: 'dist/view/test.html',
-    controller: 'testDiagramaController'
-  });
 
   $routeProvider.otherwise({redirectTo: '/'});
 }]);

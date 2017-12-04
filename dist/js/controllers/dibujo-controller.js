@@ -1,8 +1,8 @@
 'use strict';
 
-angular.module('dibujo', ['ngRoute', 'ui.router','ngMaterial', 'ngMessages', 'md.data.table', 'ngContextMenu', 'ShapesNova'])
+angular.module('dibujo', ['ngRoute', 'ui.router','ngMaterial', 'ngMessages', 'md.data.table', 'ngContextMenu'])
 
-.controller('DibujoController', function($scope, $timeout, $mdSidenav, $log, $mdDialog, $document, contextMenu, $mdMenu, $rootScope, $compile, $mdConstant, ShapesNova) {
+.controller('DibujoController', function($scope, $timeout, $mdSidenav, $log, $mdDialog, $document, contextMenu, $mdMenu, $rootScope, $compile, $mdConstant, $http) {
 	$log.debug("DibujoController is here!!!");
 	$scope.toggleTree = buildDelayedToggler('tree');
 	$scope.toggleModelo = buildToggler('propertiesNav');
@@ -147,6 +147,147 @@ angular.module('dibujo', ['ngRoute', 'ui.router','ngMaterial', 'ngMessages', 'md
 		};
 	}
 
+/*--- Definición de elementos customizados --*/
+joint.shapes.cicloConversacional = joint.shapes.basic.Generic.extend({
+	markup:'<g class="rotatable"><g class="scalable"><ellipse/><path class="left"/><path class="up"/><path class="right"/><path class="bottom"/></g><text class="nombre"/><text class="cliente"/><text class="realizador"/><text class="observador"/><text class="idNova"/></g>',
+	defaults: joint.util.deepSupplement({
+		type: 'cicloConversacional',
+		attrs:{
+			'ellipse':{
+				fill: '#ffffff',
+				stroke: '#000000',
+				rx: 60,
+				ry: 30
+			},
+			'path.left':{ stroke: '#000000', d: 'M-65 0 h 10 L -60 6 z'},
+			'path.up':{ stroke: '#000000', d: 'M0 -35 v 10 L 6 -30 z'},
+			'path.right':{ stroke: '#000000', d: 'M55 0 h 10 L 60 6 z'},
+			'path.bottom':{ stroke: '#000000', d: 'M0 25 v 10 L -6 30 z'},
+			'.nombre': {
+				'ref': 'ellipse',
+				'ref-x': '50%',
+				'ref-y': '50%',
+				'x-alignment': 'middle',
+				'y-alignment': 'middle'
+			},
+			'.cliente':{
+				'ref': 'path.left',
+				'ref-x': '-5%',
+				'ref-y': '50%',
+				'x-alignment': 'right',
+				'y-alignment': 'middle'
+			},
+			'.realizador':{
+				'ref':'path.right',
+				'ref-x': '105%',
+				'ref-y': '50%',
+				'x-alignment': 'left',
+				'y-alignment': 'middle'
+			},
+			'.observador':{
+				'ref': 'path.bottom',
+				'ref-x': '50%',
+				'ref-y': '130%',
+				'x-alignment': 'middle',
+				'y-alignment': 'up'
+			},
+			'.idNova':{
+				'ref': 'ellipse',
+				'ref-x': '-5%',
+				'ref-y': '-5%',
+				'x-alignment': 'left',
+				'y-alignment': 'middle',
+				fill: '#bfbfbf'
+			}
+		}
+	})
+}),
+
+joint.shapes.estacionAnd = joint.shapes.basic.Generic.extend({
+	markup: '<g class="rotatable"><g class="scalable"><circle/><path class="vertical"/><path class="horizontal"/></g><text class="idNova"/></g>',
+	defaults: joint.util.deepSupplement({
+		type: 'estacionAnd',
+		size: { width: 35, height: 35 },
+		attrs: {
+			'circle': {
+				fill: '#ffffff',
+				stroke: '#000',
+				r: 12,
+				cx: 0,
+				cy: 0
+			},
+			'.idNova': {
+				'ref': 'circle',
+				'ref-x': '-25%',
+				'ref-y': '-25%',
+				'x-alignment': 'left',
+				'y-alignment': 'middle',
+				fill: '#bfbfbf'
+			},
+			'path.vertical':{ stroke: '#000000', d: 'M0 -4 v 8 '},
+			'path.horizontal':{stroke: '#000000', d: 'M-4 0 h 8 '}
+		}
+	})
+}),
+
+joint.shapes.estacionOr = joint.shapes.basic.Generic.extend({
+	markup: '<g class="rotatable"><g class="scalable"><path class="rombo"/></g><text class="idNova"/><text class="condiciones"/></g>',
+	defaults: joint.util.deepSupplement({
+		type: 'estacionOr',
+		size: { width: 35, height: 35 },
+		attrs:{
+			'path.rombo': { stroke: '#000000', d: 'M 30 0 L 60 30 30 60 0 30 z', fill: '#ffffff'},
+			'.idNova': {
+				'ref': 'path.rombo',
+				'ref-x': '-25%',
+				'ref-y': '-25%',
+				'x-alignment': 'left',
+				'y-alignment': 'middle',
+				fill: '#bfbfbf'
+			},
+			'.condiciones': {
+				'ref': 'path.rombo',
+				'ref-x': '115%',
+				'ref-y': '115%',
+				'x-alignment': 'left',
+				'y-alignment': 'middle',
+				fill: '#000000'
+			}
+		}
+	})
+}),
+
+joint.shapes.enlace = joint.dia.Link.extend({
+		defaults: {
+			type: 'enlace',
+			attrs:{
+				text:{
+					'etapaOrigen':'',
+					'etapaDestino':'',
+					'rotulo': '',
+					'tipoEnlace': '',
+					'mostrarRotulo' : true
+				},
+				'.link-tools': {
+					display: 'none'
+				},
+				'.tool-remove': {
+					display: 'none'
+				},
+				'.marker-arrowheads': {
+					display: 'none'
+				}
+			}
+		},
+		arrowheadMarkup: [
+			'<g class="marker-arrowhead-group marker-arrowhead-group-<%= end %>">',
+				'<circle class="marker-arrowhead" end="<%= end %>" r="3" fill="green" stroke="green"/>',
+			'</g>'
+		].join('')
+})
+
+
+//-----------------------
 
 	var celdaViewPointerClick = null;
 
@@ -440,7 +581,7 @@ angular.module('dibujo', ['ngRoute', 'ui.router','ngMaterial', 'ngMessages', 'md
 		var etapaOrigen = etapaCiclo(estacionOrigen, puertoOrigen);
 		var etapaDestino = etapaCiclo(estacionDestino, puertoDestino);
 
-		var enlace = new ShapesNova.enlace({
+		var enlace = new joint.shapes.enlace({
 			source: { id: puertoOrigen.id},
 	    target: { id: puertoDestino.id},
 	    attrs: {
@@ -599,7 +740,7 @@ $log.debug(url);
 
 	var crearEstacionAnd = function(x,y){
 		$log.debug("Agregando estacion And");
-		var nuevoAND2 = new ShapesNova.estacionAnd({
+		var nuevoAND2 = new joint.shapes.estacionAnd({
 			position: { x: x, y: y },
 			size: { width: 25, height: 25},
 			etiquetas : {
@@ -612,7 +753,7 @@ $log.debug(url);
 
 	var crearEstacionOr = function(x,y){
 		$log.debug("Agregando estacion Or");
-		var rombo = new ShapesNova.estacionOr({
+		var rombo = new joint.shapes.estacionOr({
 			position: { x: x, y: y },
 			size: { width: 25, height: 25 },
 			etiquetas : {
@@ -636,7 +777,7 @@ var cicloMain = null;
 		if(cantCiclosConversacionales == 0){
 			idNova = 'Main'
 		}
-		var nuevoCC2 = new ShapesNova.cicloConversacional({
+		var nuevoCC2 = new joint.shapes.cicloConversacional({
 			position: { x: x, y: y },
 			size: { width: 134, height: 74 },
 			etiquetas : {
@@ -1323,17 +1464,75 @@ $log.debug('cell click o down + btn enlace');
 		var nombreModelo = "nuevo modelo"
 
 		var dlAnchorElem = document.getElementById('downloadAnchorElem');
-		var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(graph.toJSON()));
+		var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(graph));
 		var dlAnchorElem = document.getElementById('downloadAnchorElem');
 		dlAnchorElem.setAttribute("href",     dataStr     );
 		dlAnchorElem.setAttribute("download", nombreModelo+".json");
 		dlAnchorElem.click();
-		
+
+	}
+
+	$scope.mostrarDialogAbrirModeloJson = function(evt){
+		$log.debug('mostrarDialogAbrirModeloJson');
+
+		$mdDialog.show({
+			controller: DialogController,
+			templateUrl: 'dist/view/pop/abrir-modelo.html',
+			parent: angular.element(document.body),
+			targetEvent: evt,
+			clickOutsideToClose:true,
+			fullscreen: $scope.customFullscreen, // Only for -xs, -sm breakpoints.
+			scope: $scope,
+			preserveScope: true
+		})
+		.then(function(answer) {
+			$log.debug('answer: '+answer);
+			graph.fromJSON(JSON.parse($scope.filepreview));
+
+			var elementos = graph.getCells();
+			$scope.jotasonP = elementos[0].type;
+			$scope.jotasonS = elementos[0].get('type');
+
+			for(var i =0; i < elementos.length; i++){
+				if(elementos[i].get('type') == 'cicloConversacional' && elementos[i].get('etiquetas').idNova == 'Main'){
+					cicloMain = graph.getCell(elementos[i].id);
+					cantCiclosConversacionales++;
+					$log.debug('id: '+cicloMain.id);
+					break;
+				}
+			}
+
+
+		}, function() {
+			$log.debug('cancelar abrir archivo');
+		});
+
 	}
 
 
-})
 
+
+
+}).directive("fileinput", [function() {
+    return {
+      scope: {
+        fileinput: "=",
+        filepreview: "="
+      },
+      link: function(scope, element, attributes) {
+        element.bind("change", function(changeEvent) {
+          scope.fileinput = changeEvent.target.files[0];
+          var reader = new FileReader();
+          reader.onload = function(loadEvent) {
+            scope.$apply(function() {
+              scope.filepreview = loadEvent.target.result;
+            });
+          }
+          reader.readAsText(scope.fileinput);
+        });
+      }
+    }
+}])
 
 
 .controller('SelectAsyncRolController', function($timeout, $scope, $log) {
