@@ -6,28 +6,36 @@
 			</md-button>
 			<md-menu-content width="4">
         <md-menu-item>
-          <md-button ng-click="nuevoModelo($event)">
-            <md-icon  md-menu-align-target></md-icon>
+          <md-button ng-click="preguntarSiGuardar($event)">
+            <!--<md-icon  md-menu-align-target></md-icon>-->
             Nuevo modelo
           </md-button>
         </md-menu-item>
 				<md-menu-item>
 					<md-button ng-click="mostrarDialogAbrirModeloJson($event)">
-						<md-icon md-menu-alingn-target></md-icon>
+						<!--<md-icon  md-menu-align-target></md-icon>-->
 						Abrir modelo
 					</md-button>
 				</md-menu-item>
 				<md-menu-item>
 					<a id="downloadAnchorElem" class="md-menu-item" style="display:none"></a>
 					<md-button ng-click="exportarModeloJson()">
-						<md-icon md-menu-alingn-target></md-icon>
+						<!--<md-icon  md-menu-align-target></md-icon>-->
 						Guardar modelo
+						</md-button>
+				</md-menu-item>
+				<md-menu-item>
+					<md-button ng-click="toggleModelo()">
+						<!--<md-icon  md-menu-align-target></md-icon>-->
+						Propiedades
 						</md-button>
 				</md-menu-item>
 			</md-menu-content>
 		</md-menu>
 		<h2 md-truncate flex>
-			Nuevo modelo conversacional
+			<md-input-container  layout="center">
+				<input type="text" style="color:white" id="nameModel" ng-model="model.name">
+			</md-input-container>
 		</h2>
 	</div>
 </md-toolbar>
@@ -50,7 +58,7 @@
 			|-->
 		<md-list-item>
 			<md-button aria-label="CicloConversacional" class="md-icon-button" ng-click="agregarCicloConversacional()">
-				<md-icon md-svg-icon="dist/img/icons/novaplus-icons/cc48v2.svg"></md-icon>
+				<md-icon md-svg-icon="dist/img/icons/novaplus-icons/cc48v4.svg"></md-icon>
 			</md-button>
 		</md-list-item>
 
@@ -122,7 +130,7 @@
 		</md-list-item>-->
 
 		<md-list-item>
-			<md-button id="perro" aria-label="Download" class="md-icon-button" ng-click="exportarImagen()">
+			<md-button id="perro" aria-label="Download" class="md-icon-button" ng-click="exportarModeloJson()">
 				<md-icon md-svg-icon="dist/img/icons/other-icons/ic_file_download_black_48px.svg"></md-icon>
 			</md-button>
 		</md-list-item>
@@ -146,38 +154,122 @@
 <div>
 
 <!-- area del dibujo -->
-<md-content layout="row" class="diag" >
+<md-content layout="row" class="diag" ng-cloak>
 
 	<!-- div del diagrama -->
-	<div id="miDiagrama" layout="column" layout-align="top center" >	</div>
+	<div id="miDiagrama" layout="column" layout-align="top center" ng-init="crearModelo()">	</div>
 
 	<!-- div con los mil sidenav -->
 	<div ng-init="blocked = false">
 
-		<!-- sidenav Mapa del proyecto -->
-		<md-sidenav class="md-sidenav-left" md-component-id="tree" md-whiteframe="4">
-			<md-toolbar class="md-theme-indigo">
-				<h1 class="md-toolbar-tools">Mapa del proyecto</h1>
+
+		<!-- sidenav Enlace -->
+		<md-sidenav class="md-sidenav-right md-whiteframe-4dp"  md-component-id='enlaceNav'>
+			<md-toolbar class="md-theme-light">
+				<h1 class="md-toolbar-tools">Enlace</h1>
 			</md-toolbar>
-			<md-content layout-padding >
-				<p >
-					(Mapa del proyecto)
-				</p>
-				<md-button ng-click="close()" class="md-primary">
+			<md-content layout-padding layout="column">
+				<form>
+					<md-input-container>
+						<label for="enlaceRotulo">Rótulo</label>
+						<input type="text" id="enlaceRotulo" ng-model="enlace.rotulo" ng-change="setRotuloEnlace()">
+						<div ng-if="enlace.rotulo != ''">
+							<md-checkbox  ng-model="enlace.mostrarRotulo" aria-label="MostrarRotulo" ng-change="setMostrarRotulo()">
+							   Mostrar rótulo
+							</md-checkbox>
+						</div>
+					</md-input-container>
+					<md-input-container>
+						<h2 class="md-title" >Tipo de enlace</h2>
+						<md-radio-group ng-model="enlace.tipo" ng-change="cambiarTipoEnlace()">
+							<md-radio-button value="pertenencia">Pertenencia</md-radio-button>
+							<md-radio-button value="excepcion">Excepción</md-radio-button>
+						</md-radio-group>
+					</md-input-container>
+				</form>
+				<md-button ng-click="toggleEnlace()" class="md-primary" md-autofocus>
 					Volver
 				</md-button>
 			</md-content>
 		</md-sidenav>
 
-		<!-- sidenav Propiedades Mapa Conversacional -->
-		<md-sidenav class="md-sidenav-right md-whiteframe-4dp" md-component-id="propertiesNav" md-is-locked-open="blocked">
+		<!-- sidenav Estación -->
+		<md-sidenav class="md-sidenav-right md-whiteframe-4dp" md-component-id="condNav">
+			<md-toolbar class="md-theme-light">
+				<h1 class="md-toolbar-tools">Condicional</h1>
+			</md-toolbar>
+			<md-content layout-padding layout="column">
+				<form>
+					<div layout="column">
+
+						<md-input-container>
+							<label for="condID">ID Nova</label>
+							<input type="text" id="condID" ng-model="cond.id" disabled="true">
+						</md-input-container>
+
+						<div>
+							<h2 class="md-title" >Condicionales</h2>
+							<md-table-container>
+								<table md-table>
+									 <thead md-head>
+										<tr md-row>
+											<th md-column>Variable</th>
+											<th md-column>Condición</th>
+											<th md-column>Valor</th>
+										</tr>
+									 </thead>
+									 <tbody md-body>
+										<tr md-row ng-repeat="x in condiciones">
+											<td md-cell>{{x.var}}</td>
+											<td md-cell>{{x.cond}}</td>
+											<td md-cell>{{x.exp}}</td>
+										</tr>
+									</tbody>
+								</table>
+							</md-table-container>
+						</div>
+						<p></p>
+						<div>
+							<md-checkbox  ng-model="mostrarCondicionesEstacion" aria-label="mostrarCondicionesEstacion" ng-change="setMostrarCondicionesEstacion()">
+								Mostrar condiciones
+							</md-checkbox>
+						</div>
+
+						<div class="demo-md-panel-content" >
+							<md-button class="md-secondary md-raised demo-dialog-open-button" ng-click="showPrompt($event)">
+								Agregar condición
+							</md-button>
+						</div>
+
+						<p></p>
+
+						<h2 class="md-title" >Satisfacer</h2>
+						<md-radio-group ng-model="cond.satisfacer" id="satisfacerT">
+							<md-radio-button value="todas">Todas</md-radio-button>
+							<md-radio-button value="alguna">Alguna</md-radio-button>
+						</md-radio-group>
+
+						<md-input-container>
+							<label for="condDescripcion">Descripción</label>
+							<textarea type="text" id="condDescripcion" ng-model="cond.descripcion" ></textarea>
+						</md-input-container>
+					</div>
+				</form>
+				<md-button ng-click="toggleCondicional()" class="md-primary" md-autofocus>
+					Volver
+				</md-button>
+			</md-content>
+		</md-sidenav>
+
+		<!-- sidenav Propiedades Mapa Conversacional  // md-disable-backdrop-->
+		<md-sidenav class="md-sidenav-right md-whiteframe-4dp" md-component-id="propertiesNav" md-is-locked-open="blocked" >
 			<md-toolbar class="md-theme-light">
 				<h1 class="md-toolbar-tools">Propiedades</h1>
 			</md-toolbar>
 
 			<md-tabs md-dynamic-height md-border-bottom>
 				<md-tab label="General">
-					<md-content layout-padding>
+					<md-content layout-padding layout="column">
 						<form>
 							<md-input-container>
 								<label for="nameModel">Nombre</label>
@@ -197,25 +289,14 @@
 							</md-input-container>
 							<md-input-container>
 								<label for="cpplModel">Ciclo principal</label>
-								<input type="text" id="cpplModel" ng-model="model.cppl" >
+								<input type="text" id="cpplModel" ng-model="model.cppl" disabled="true">
 							</md-input-container>
 							<md-input-container>
 								<label for="descripcionModel">Descripción</label>
-								<input type="text" id="descripcionModel" ng-model="model.descripcion" >
+								<textarea type="text" id="descripcionModel" ng-model="model.descripcion"></textarea>
 							</md-input-container>
 						</form>
-						<md-button ng-click="close()" class="md-primary">
-							Volver
-						</md-button>
-					</md-content>
-				</md-tab>
-				<md-tab label="Roles">
-					<md-content layout-padding>
-						<form>
-							<md-chips ng-model="users" readonly="false" md-removable="true" md-enable-chip-edit="true" >
-							</md-chips>
-						</form>
-						<md-button ng-click="close()" class="md-primary">
+						<md-button ng-click="toggleModelo()" class="md-primary">
 							Volver
 						</md-button>
 					</md-content>
@@ -254,7 +335,7 @@
 							</md-button>
 						</div>
 
-						<md-button ng-click="close()" class="md-primary">
+						<md-button ng-click="toggleModelo()" class="md-primary">
 							Volver
 						</md-button>
 					</md-content>
@@ -262,8 +343,9 @@
 			</md-tabs>
 		</md-sidenav>
 
+
 		<!-- sidenav Ciclo conversacional -->
-		<md-sidenav class="md-sidenav-right md-whiteframe-4dp" md-component-id='CCNav'>
+		<md-sidenav class="md-sidenav-right md-whiteframe-4dp" md-component-id='CCNav' >
 			<md-toolbar class="md-theme-light">
 				<h1 class="md-toolbar-tools">Ciclo conversacional</h1>
 			</md-toolbar>
@@ -301,8 +383,8 @@
 						<md-list-item >
 							<div class="md-list-item-text" layout="row">
 
-									<md-chips ng-model="rolRealizador" md-autocomplete-snap  md-transform-chip="transformarChipRol($chip)" md-require-match="false" md-on-add="agregarRolCicloConv('realizador')" md-on-remove="eliminarRolCicloConv('realizador')" readonly="rolRealizador.length >= 1" md-removable="true"  md-floating-label="Realizador" md-separator-keys="customKeysChip" >
-										<md-autocomplete md-selected-item="rolRealizadorSeleccionado" md-search-text="rolRealizadorBuscado" md-items="item in filterRoles(rolRealizadorBuscado)" md-item-text="item.name" placeholder="Ingrese nombre" md-floating-label="Realizador">
+									<md-chips ng-model="rolRealizador" md-autocomplete-snap  md-transform-chip="transformarChipRol($chip)" md-require-match="false" md-on-add="agregarRolCicloConv('realizador')" md-on-remove="eliminarRolCicloConv('realizador')" readonly="rolRealizador.length >= 1" md-removable="true"  md-separator-keys="customKeysChip" >
+										<md-autocomplete md-selected-item="rolRealizadorSeleccionado" md-search-text="rolRealizadorBuscado" md-items="item in filterRoles(rolRealizadorBuscado)" md-item-text="item.name" placeholder="Realizador">
 											<span md-highlight-text="rolRealizadorBuscado">{{item.name}}</span>
 										</md-autocomplete>
 										<md-chip-template>
@@ -314,10 +396,11 @@
 						</md-list-item>
 
 						<md-list-item >
-							<div class="md-list-item-text" layout="row">
+							<div  layout="column">
+							<div class="md-list-item-text">
 
-									<md-chips ng-model="rolObservador" md-autocomplete-snap  md-transform-chip="transformarChipRol($chip)" md-require-match="false" md-on-add="agregarRolCicloConv('observador')" md-on-remove="eliminarRolCicloConv('observador')" readonly="rolObservador.length >= 1" md-removable="true" md-floating-label="Observador" md-separator-keys="customKeysChip">
-										<md-autocomplete md-selected-item="rolObservadorSeleccionado" md-search-text="rolObservadorBuscado" md-items="item in filterRoles(rolObservadorBuscado)" md-item-text="item.name" placeholder="Ingrese nombre" md-floating-label="Observador">
+									<md-chips ng-model="rolObservador" md-autocomplete-snap  md-transform-chip="transformarChipRol($chip)" md-require-match="false" md-on-add="agregarRolCicloConv('observador')" md-on-remove="eliminarRolCicloConv('observador')" readonly="rolObservador.length >= 1" md-removable="true"  md-separator-keys="customKeysChip">
+										<md-autocomplete md-selected-item="rolObservadorSeleccionado" md-search-text="rolObservadorBuscado" md-items="item in filterRoles(rolObservadorBuscado)" md-item-text="item.name" placeholder="Observador" >
 											<span md-highlight-text="rolObservadorBuscado">{{item.name}}</span>
 										</md-autocomplete>
 										<md-chip-template>
@@ -326,6 +409,15 @@
 									</md-chips>
 
 							</div>
+
+						</div>
+						</md-list-item>
+						<md-list-item>
+							<div >
+								<md-checkbox  ng-model="mostrarRolObservador" aria-label="mostrarRolObservadorAria" ng-change="setMostrarRolObservador()">
+								  Mostrar rol observador
+								</md-checkbox>
+							</div>
 						</md-list-item>
 
 						<!--	<md-divider></md-divider>	-->
@@ -333,7 +425,7 @@
 						<md-list-item>
 								<md-input-container>
 									<label for="Descripcion">Descripción</label>
-									<input type="text" id="Descripcion" ng-model="descripcionCC" ng-change="agregarDescripcionCC()">
+									<textarea type="text" id="Descripcion" ng-model="descripcionCC" ng-change="agregarDescripcionCC()"></textarea>
 								</md-input-container>
 						</md-list-item>
 
@@ -345,135 +437,10 @@
 			</md-content>
 		</md-sidenav>
 
-		<!-- sidenav Enlace -->
-		<md-sidenav class="md-sidenav-right md-whiteframe-4dp" md-component-id="enlaceNav">
-			<md-toolbar class="md-theme-light">
-				<h1 class="md-toolbar-tools">Enlace</h1>
-			</md-toolbar>
-			<md-content layout-padding>
-				<form>
-					<!--<md-input-container>
-						<label for="enlaceID">ID Nova</label>
-						<input type="text" id="enlaceID" ng-model="enlace.id" md-autofocus>
-					</md-input-container>-->
-					<md-input-container>
-						<label for="enlaceRotulo">Rótulo</label>
-						<input type="text" id="enlaceRotulo" ng-model="enlace.rotulo" ng-change="setRotuloEnlace()">
-						<div ng-if="enlace.rotulo != ''">
-							<md-checkbox  ng-model="enlace.mostrarRotulo" aria-label="MostrarRotulo" ng-change="setMostrarRotulo()">
-							   Mostrar rótulo
-							</md-checkbox>
-						</div>
-					</md-input-container>
-					<md-input-container>
-						<b class="md-title" >Tipo de enlace</b>
-						<md-radio-group ng-model="enlace.tipo" ng-change="cambiarTipoEnlace()">
-							<md-radio-button value="pertenencia">Pertenencia</md-radio-button>
-							<md-radio-button value="excepcion">Excepción</md-radio-button>
-						</md-radio-group>
-					</md-input-container>
-				</form>
-				<md-button ng-click="toggleEnlace()" class="md-primary">
-					Volver
-				</md-button>
-			</md-content>
-		</md-sidenav>
 
-		<!-- sidenav Condicional -->
-		<md-sidenav class="md-sidenav-right md-whiteframe-4dp" md-component-id="condNav">
-			<md-toolbar class="md-theme-light">
-				<h1 class="md-toolbar-tools">Condicional</h1>
-			</md-toolbar>
-			<md-content layout-padding>
-				<form>
-					<div layout="column">
-
-						<md-input-container>
-							<label for="condID">ID Nova</label>
-							<input type="text" id="condID" ng-model="cond.id" md-autofocus>
-						</md-input-container>
-
-						 <md-input-container>
-							<b class="md-title" >Tipo </b>
-							<md-radio-group ng-model="cond.tipo">
-								<md-radio-button value="agregacion">Agregación</md-radio-button>
-								<md-radio-button value="decision">Decisión</md-radio-button>
-							</md-radio-group>
-						</md-input-container>
-
-						<md-input-container>
-							<b class="md-title" >Responsable</b>
-							<md-radio-group ng-model="cond.responsable">
-								<md-radio-button value="automatico">Automático</md-radio-button>
-								<md-radio-button value="rol">Rol</md-radio-button>
-							</md-radio-group>
-							<div ng-if=" cond.responsable == 'rol'">
-								<div class="md-list-item-text" layout="row"  >
-									<md-select  placeholder="Rol Cliente" ng-model="cond.rol" md-on-open="loadUsers()" style="min-width: 200px;">
-										<md-option ng-value="user" ng-repeat="user in users">{{user.name}}</md-option>
-									</md-select>
-								</div>
-							</div>
-
-						</md-input-container>
-
-						<md-divider></md-divider>
-
-						<md-input-container>
-							<b class="md-title" >Condicionales</b>
-
-							<md-table-container>
-								<table md-table>
-									 <thead md-head>
-										<tr md-row>
-											<th md-column>Variable</th>
-											<th md-column>Condición</th>
-											<th md-column>Expresión</th>
-										</tr>
-									 </thead>
-									 <tbody md-body>
-										<tr md-row ng-repeat="x in condiciones">
-										<td md-cell>{{x.var}}</td>
-										<td md-cell>{{x.cond}}</td>
-										<td md-cell>{{x.exp}}</td>
-										</tr>
-									</tbody>
-								</table>
-							</md-table-container>
-
-							<div class="demo-md-panel-content" >
-								<md-button class="md-primary md-raised demo-dialog-open-button" ng-click="showPrompt($event)">
-									Agregar condición
-								</md-button>
-							</div>
-						</md-input-container>
-						<md-input-container>
-							<b class="md-title" >Satisfacer</b>
-							<md-radio-group ng-model="cond.satisfacer">
-								<md-radio-button value="todas">Todas</md-radio-button>
-								<md-radio-button value="alguna">Alguna</md-radio-button>
-							</md-radio-group>
-						</md-input-container>
-
-						<md-divider></md-divider>
-
-						<md-input-container>
-							<label for="condDescripcion">Descripción</label>
-							<input type="text" id="condDescripcion" ng-model="cond.descripcion" >
-						</md-input-container>
-					</div>
-				</form>
-				<md-button ng-click="close()" class="md-primary">
-					Volver
-				</md-button>
-			</md-content>
-		</md-sidenav>
 	</div>
 
 </md-content>
-<div> {{jotasonP || 'nada'}}</div>
-<div>------</div>
-<div> {{jotasonS || 'nada2'}}</div>
 
 
 <div>

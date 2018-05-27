@@ -10,11 +10,6 @@ angular.module('dibujo', ['ngRoute', 'ui.router','ngMaterial', 'ngMessages', 'md
 	$scope.toggleEnlace = buildToggler('enlaceNav');
 	$scope.toggleCondicional = buildToggler('condNav');
 
-	$scope.message = "msj";
-
-	$scope.w1 = {cliente : ''};
-
-
 	$scope.fijar = function(){
 		if($scope.blocked == true){
 			$scope.blocked = false;
@@ -30,6 +25,17 @@ angular.module('dibujo', ['ngRoute', 'ui.router','ngMaterial', 'ngMessages', 'md
 		'rotulo': ""
 	};
 
+	$scope.model = {
+		name: 'modelo conversacional',
+		version: 'v1.0',
+		dueno: '',
+		disenador: '',
+		cppl: '',
+		descripcion: ''
+	}
+
+	$scope.mostrarRolObservador = true;
+
 	$scope.users = ['Scooby Doo','Shaggy Rodgers','Fred Jones','Daphne Blake','Velma Dinkley'];
 
 	$scope.variable = null;
@@ -43,7 +49,7 @@ angular.module('dibujo', ['ngRoute', 'ui.router','ngMaterial', 'ngMessages', 'md
 		}, 650);
 	};
 
-	$scope.condiciones = [{'var':"Var1", 'cond':"==", 'exp':"Var3"}];
+	$scope.condiciones = [{'var': "saldo", 'cond':">", 'exp':"0"}];
 
 
 	$scope.isOpenRight = function(navID){
@@ -104,7 +110,7 @@ angular.module('dibujo', ['ngRoute', 'ui.router','ngMaterial', 'ngMessages', 'md
 	// Appending dialog to document.body to cover sidenav in docs app
 		$mdDialog.show({
 			controller: DialogController,
-			templateUrl: '/view/panel-conditions.html',
+			templateUrl: 'dist/view/panel-conditions.html',
 			parent: angular.element(document.body),
 			targetEvent: ev,
 			clickOutsideToClose:true,
@@ -121,7 +127,7 @@ angular.module('dibujo', ['ngRoute', 'ui.router','ngMaterial', 'ngMessages', 'md
 	// Appending dialog to document.body to cover sidenav in docs app
 		$mdDialog.show({
 			controller: DialogController,
-			templateUrl: '/view/panel-new-var.html',
+			templateUrl: 'dist/view/panel-new-var.html',
 			parent: angular.element(document.body),
 			targetEvent: ev,
 			clickOutsideToClose:true,
@@ -135,19 +141,26 @@ angular.module('dibujo', ['ngRoute', 'ui.router','ngMaterial', 'ngMessages', 'md
 	};
 
 
-	function DialogController($scope, $mdDialog) {
-		$scope.hide = function() {
-			$mdDialog.hide();
-		};
-		$scope.cancel = function() {
-			$mdDialog.cancel();
-		};
-		$scope.answer = function(answer) {
-			$mdDialog.hide(answer);
-		};
-	}
+
 
 /*--- Definición de elementos customizados --*/
+joint.shapes.modeloConversacional = joint.shapes.basic.Generic.extend({
+	markup: '<g class="rotatable"><g class="scalable"></g></g>',
+	defaults: joint.util.deepSupplement({
+		type: 'modeloConversacional',
+		size: { width: 1, height: 1 },
+		atributos: {
+			name: 'modelo conversacional',
+			version: 'v1.0',
+			dueno: '',
+			disenador: '',
+			cppl: '',
+			descripcion: '',
+			roles: []
+		}
+	})
+}),
+
 joint.shapes.cicloConversacional = joint.shapes.basic.Generic.extend({
 	markup:'<g class="rotatable"><g class="scalable"><ellipse/><path class="left"/><path class="up"/><path class="right"/><path class="bottom"/></g><text class="nombre"/><text class="cliente"/><text class="realizador"/><text class="observador"/><text class="idNova"/></g>',
 	defaults: joint.util.deepSupplement({
@@ -193,8 +206,8 @@ joint.shapes.cicloConversacional = joint.shapes.basic.Generic.extend({
 			},
 			'.idNova':{
 				'ref': 'ellipse',
-				'ref-x': '-5%',
-				'ref-y': '-5%',
+				'ref-x': '-10%',
+				'ref-y': '-10%',
 				'x-alignment': 'left',
 				'y-alignment': 'middle',
 				fill: '#bfbfbf'
@@ -204,10 +217,9 @@ joint.shapes.cicloConversacional = joint.shapes.basic.Generic.extend({
 }),
 
 joint.shapes.estacionAnd = joint.shapes.basic.Generic.extend({
-	markup: '<g class="rotatable"><g class="scalable"><circle/><path class="vertical"/><path class="horizontal"/></g><text class="idNova"/></g>',
+	markup: '<g class="rotatable"><g class="scalable"><circle/><path class="vertical"/><path class="horizontal"/></g><text class="idNova"/><text class="condiciones"/></g>',
 	defaults: joint.util.deepSupplement({
 		type: 'estacionAnd',
-		size: { width: 35, height: 35 },
 		attrs: {
 			'circle': {
 				fill: '#ffffff',
@@ -223,6 +235,14 @@ joint.shapes.estacionAnd = joint.shapes.basic.Generic.extend({
 				'x-alignment': 'left',
 				'y-alignment': 'middle',
 				fill: '#bfbfbf'
+			},
+			'.condiciones': {
+				'ref': 'circle',
+				'ref-x': '50%',
+				'ref-y': '115%',
+				'x-alignment': 'left',
+				'y-alignment': 'middle',
+				fill: '#000000'
 			},
 			'path.vertical':{ stroke: '#000000', d: 'M0 -4 v 8 '},
 			'path.horizontal':{stroke: '#000000', d: 'M-4 0 h 8 '}
@@ -247,7 +267,7 @@ joint.shapes.estacionOr = joint.shapes.basic.Generic.extend({
 			},
 			'.condiciones': {
 				'ref': 'path.rombo',
-				'ref-x': '115%',
+				'ref-x': '50%',
 				'ref-y': '115%',
 				'x-alignment': 'left',
 				'y-alignment': 'middle',
@@ -288,7 +308,7 @@ joint.shapes.enlace = joint.dia.Link.extend({
 
 
 //-----------------------
-
+	var modeloConversacionalElemento = null;
 	var celdaViewPointerClick = null;
 
 	var cantCiclosConversacionales = 0;
@@ -575,6 +595,13 @@ joint.shapes.enlace = joint.dia.Link.extend({
 		return true;
 	}
 
+
+	$scope.crearModelo = function(){
+		modeloConversacionalElemento = new joint.shapes.modeloConversacional();
+		graph.addCell(modeloConversacionalElemento);
+	}
+
+
 	var crearEnlace =  function(){
 		$log.debug("creando enlace");
 
@@ -744,7 +771,13 @@ $log.debug(url);
 			position: { x: x, y: y },
 			size: { width: 25, height: 25},
 			etiquetas : {
-				idNova: ''
+				idNova: '',
+				condiciones: [],
+				satisfacerTodas: true
+			},
+			attrs: {
+				'.idNova': { text : ''},
+				'.condiciones': { text : ''}
 			}
 		});
 		graph.addCell(nuevoAND2);
@@ -758,10 +791,12 @@ $log.debug(url);
 			size: { width: 25, height: 25 },
 			etiquetas : {
 				idNova: '',
-				condiciones: ''
+				condiciones: [],
+				satisfacerTodas: true
 			},
 			attrs: {
-				'.idNova': { text : ''}
+				'.idNova': { text : ''},
+				'.condiciones': { text : ''}
 			}
 		})
 
@@ -775,7 +810,7 @@ var cicloMain = null;
 		var nombre = 'ciclo_'+cantCiclosConversacionales;
 		var idNova = '';
 		if(cantCiclosConversacionales == 0){
-			idNova = 'Main'
+			idNova = 'Main';
 		}
 		var nuevoCC2 = new joint.shapes.cicloConversacional({
 			position: { x: x, y: y },
@@ -786,7 +821,7 @@ var cicloMain = null;
 			},
 			attrs: {
 				'.idNova': { text : joint.util.breakText(idNova, { width: 180 })},
-				'.nombre': { text: joint.util.breakText(nombre, { width: 180 })}
+				'.nombre': { text: joint.util.breakText(nombre, { width: 100 })}
 			}
 		});
 		graph.addCell(nuevoCC2);
@@ -794,6 +829,8 @@ var cicloMain = null;
 		btnAgregarCicloConversacional = false;
 		if(cantCiclosConversacionales == 1){
 			cicloMain = nuevoCC2;
+			joint.util.setByPath(modeloConversacionalElemento.get('atributos'), 'cppl', nombre, '/');
+			$scope.model.cppl = modeloConversacionalElemento.get('atributos').cppl;
 		}
 	}
 
@@ -978,6 +1015,14 @@ var cicloMain = null;
 				}
 				$scope.toggleEnlace();
 				break;
+			case 'cell type-estacionor element':
+			var elemento = graph.getCell(cellView.model.id);
+				$scope.cond = { id: elemento.get('etiquetas').idNova || ''};
+				$scope.toggleCondicional();
+				break;
+			case 'cell type-estacionand element':
+				$scope.toggleCondicional();
+				break;
 		}
 	})
 
@@ -1120,6 +1165,7 @@ $log.debug('cell click o down + btn enlace');
 			custumHighlight(cellView);
 			celdaViewPointerClick = cellView;
 	})
+
 
 	var custumHighlight = function(cellView){
 		if(cellView){
@@ -1350,23 +1396,27 @@ $log.debug('cell click o down + btn enlace');
 
 
 	var agregarRolMapaConv = function(rolName){
-		var isNuevoRol = true;
-		for(var i =0; i< mapaConversacional.roles.length; i++){
-			if(mapaConversacional.roles[i].name.toLowerCase() == rolName.toLowerCase()){
-				isNuevoRol = false;
-				mapaConversacional.roles[i].cant = mapaConversacional.roles[i].cant+1;
-				break;
+		if(rolName != null || rolName != undefined){
+			var isNuevoRol = true;
+			for(var i =0; i< mapaConversacional.roles.length; i++){
+				if(mapaConversacional.roles[i].name.toLowerCase() == rolName.toLowerCase()){
+					isNuevoRol = false;
+					mapaConversacional.roles[i].cant = mapaConversacional.roles[i].cant+1;
+					break;
+				}
 			}
-		}
-		if(isNuevoRol){
-			mapaConversacional.roles.push({name: rolName, cant: 1, cantC: 0, cantR: 0});
-			$log.debug('ADD desp, cant roles mapa: '+mapaConversacional.roles.length);
+			if(isNuevoRol){
+				mapaConversacional.roles.push({name: rolName, cant: 1, cantC: 0, cantR: 0});
+				$log.debug('ADD desp, cant roles mapa: '+mapaConversacional.roles.length);
+			}
 		}
 	}
 
 	$scope.setNombreCC = function(){
-		cicloConvNav.attr('.nombre/text', $scope.nombreCC);
+		cicloConvNav.attr('.nombre/text', joint.util.breakText($scope.nombreCC, { width: 100 }));
 		joint.util.setByPath(cicloConvNav.get('etiquetas'), 'nombre', $scope.nombreCC, '/');
+		joint.util.setByPath(modeloConversacionalElemento.get('atributos'), 'cppl', $scope.nombreCC, '/');
+		$scope.model.cppl = modeloConversacionalElemento.get('atributos').cppl;
 	}
 
 	$scope.agregarDescripcionCC = function(){
@@ -1386,6 +1436,7 @@ $log.debug('cell click o down + btn enlace');
 					realizador: cicloConversacional.get('etiquetas').realizador || '',
 					observador: cicloConversacional.get('etiquetas').observador || ''
 				});
+
 			}
 			var puertos = puertosSalientesFun(cicloConversacional);
 			for(var p = 0; p<puertos.length; p++){
@@ -1461,15 +1512,72 @@ $log.debug('cell click o down + btn enlace');
 	$scope.exportarModeloJson = function(){
 		$log.debug('exportarModeloJson');
 
-		var nombreModelo = "nuevo modelo"
 
 		var dlAnchorElem = document.getElementById('downloadAnchorElem');
 		var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(graph));
 		var dlAnchorElem = document.getElementById('downloadAnchorElem');
 		dlAnchorElem.setAttribute("href",     dataStr     );
-		dlAnchorElem.setAttribute("download", nombreModelo+".json");
+		dlAnchorElem.setAttribute("download", $scope.model.name+".json");
 		dlAnchorElem.click();
 
+	}
+
+	var resetearModelo = function(){
+		$scope.enlace = {
+			'rotulo': ""
+		};
+		$scope.model = {
+			name: 'modelo conversacional',
+			version: 'v1.0',
+			dueno: '',
+			disenador: '',
+			cppl: '',
+			descripcion: ''
+		};
+		$scope.mostrarRolObservador = true;
+		$scope.users = [];
+		$scope.variable = null;
+		$scope.variables = null;
+		$scope.condiciones = [];
+		mapaConversacional = { roles: []};
+		celdaViewPointerClick = null;
+
+		cantCiclosConversacionales = 0;
+		tipoEnlace, pointStickOrigen, pointStickDestino, portIdOrigen, portIdDestino;
+		estacionOrigen = null;
+		estacionDestino = null;
+		puertoOrigen = null;
+		puertoDestino = null;
+		btnAgregarEnlace = false;
+		btnAgregarCicloConversacional = false;
+		btnAgregarAnd = false;
+		btnAgregarOr = false;
+		cancelarAccionEnCurso();
+		graph.clear();
+		modeloConversacionalElemento = new joint.shapes.modeloConversacional();
+		graph.addCell(modeloConversacionalElemento);
+	}
+
+	$scope.preguntarSiGuardar = function(evt){
+		//si cantCiclosConversacionales >= 1 mostrar dialogo de verificacion
+		// si answer es ok, mostrar dialogo preguntarSiGuardar
+		// si answer es 'no me importa perder mi trabajo' mostrar dialogo(<opcion nuevo || opcion abrir>)
+		if(cantCiclosConversacionales >= 1){
+			var confirm = $mdDialog.confirm()
+	          .title('Desea continuar sin guardar?')
+	          .textContent('Al iniciar un nuevo modelo perderás los cambios que no hayas guardado.')
+	          .ariaLabel('Lucky day')
+	          .targetEvent(evt)
+	          .ok('No guardar')
+	          .cancel('Guardar');
+
+	    $mdDialog.show(confirm).then(function() { // se borra mapa actual
+				resetearModelo();
+	    }, function() { //guarda el modelo actual exportándolo.
+				$scope.exportarModeloJson();
+				resetearModelo();
+	    });
+		}
 	}
 
 	$scope.mostrarDialogAbrirModeloJson = function(evt){
@@ -1486,30 +1594,45 @@ $log.debug('cell click o down + btn enlace');
 			preserveScope: true
 		})
 		.then(function(answer) {
+			resetearModelo();
 			$log.debug('answer: '+answer);
 			graph.fromJSON(JSON.parse($scope.filepreview));
 
 			var elementos = graph.getCells();
-			$scope.jotasonP = elementos[0].type;
-			$scope.jotasonS = elementos[0].get('type');
+			//$scope.jotasonP = elementos[0].type;
+			//$scope.jotasonS = elementos[0].get('type');
 
 			for(var i =0; i < elementos.length; i++){
+				$log.debug('mapeando...');
 				if(elementos[i].get('type') == 'cicloConversacional' && elementos[i].get('etiquetas').idNova == 'Main'){
 					cicloMain = graph.getCell(elementos[i].id);
+					joint.util.setByPath(modeloConversacionalElemento.get('atributos'), 'cppl', cicloMain.get('etiquetas').nombre, '/');
+					$scope.model.cppl = modeloConversacionalElemento.get('atributos').cppl;
 					cantCiclosConversacionales++;
-					$log.debug('id: '+cicloMain.id);
-					break;
+					//$log.debug('id: '+cicloMain.id);
+					$log.debug('cantCiclosConversacionales...'+cantCiclosConversacionales);
+					//break;
+				}
+				if(elementos[i].get('type') == 'cicloConversacional'){
+				//
+					var cicloConv = graph.getCell(elementos[i].id);
+					$log.debug('nuevo '+i+': '+elementos[i].get('etiquetas').cliente+', '+elementos[i].get('etiquetas').realizador+', '+elementos[i].get('etiquetas').observador);
+					agregarRolMapaConv(elementos[i].get('etiquetas').cliente);
+					agregarRolMapaConv(elementos[i].get('etiquetas').realizador);
+					agregarRolMapaConv(elementos[i].get('etiquetas').observador);
+					//agregarRolMapaConv(cicloConv.get('atributos').realizador);
+					//agregarRolMapaConv(cicloConv.get('atributos').observador);
+					//$log.debug('nuevo: '+cicloConv.get('atributos').cliente+', '+cicloConv.get('atributos').realizador+', '+cicloConv.get('atributos').observador);
 				}
 			}
 
+			//$scope.ciclosConversacionales = ciclosConversacionalesValidosFun();
 
 		}, function() {
 			$log.debug('cancelar abrir archivo');
 		});
 
 	}
-
-
 
 
 
