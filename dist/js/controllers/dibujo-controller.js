@@ -1566,7 +1566,7 @@ $log.debug('cell click o down + btn enlace');
 			var confirm = $mdDialog.confirm()
 	          .title('Desea continuar sin guardar?')
 	          .textContent('Al iniciar un nuevo modelo perderás los cambios que no hayas guardado.')
-	          .ariaLabel('Lucky day')
+	          .ariaLabel('text')
 	          .targetEvent(evt)
 	          .ok('No guardar')
 	          .cancel('Guardar');

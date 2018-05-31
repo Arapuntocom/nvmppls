@@ -2,11 +2,12 @@
   <div id="abrirModelo">
   <form name="formAbrirModelo" ng-cloak>
     <md-dialog-content>
-      <h2>Abrir modelo conversacional</h2>
-      <input type="file" id="files" name="files[]"fileinput="file" filepreview="filepreview" md-autofocus/>
+      <md-input-container>
+        <h2>Abrir modelo conversacional</h2>
+        <input type="file" id="files" name="files[]"fileinput="file" filepreview="filepreview" md-autofocus/>
+      </md-input-container>
 
     </md-dialog-content>
-
     <md-dialog-actions layout="row">
       <md-button ng-click="cancel()">
         Cancelar

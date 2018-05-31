@@ -58,60 +58,90 @@
 			|-->
 		<md-list-item>
 			<md-button aria-label="CicloConversacional" class="md-icon-button" ng-click="agregarCicloConversacional()">
-				<md-icon md-svg-icon="dist/img/icons/novaplus-icons/cc48v4.svg"></md-icon>
+				<md-tooltip md-direction="bottom" md-delay="600">
+          Insertar Ciclo Conversacional
+        </md-tooltip>
+				<md-icon md-svg-icon="dist/img/icons/novaplus-icons/cc48.svg"></md-icon>
 			</md-button>
 		</md-list-item>
 
 		<md-list-item>
 			<md-button aria-label="Decision" class="md-icon-button" ng-click="agregarEstacionOr()">
+				<md-tooltip md-direction="bottom" md-delay="600">
+          Insertar Decisión
+        </md-tooltip>
 				<md-icon md-svg-icon="dist/img/icons/nova-icons/decision24.svg"></md-icon>
 			</md-button>
 		</md-list-item>
 
 		<md-list-item>
 			<md-button aria-label="Agregacion" class="md-icon-button" ng-click="agregarEstacionAnd()">
+				<md-tooltip md-direction="bottom" md-delay="600">
+          Insertar Agregación
+        </md-tooltip>
 				<md-icon md-svg-icon="dist/img/icons/nova-icons/agregacion24.svg"></md-icon>
 			</md-button>
 		</md-list-item>
 
 		<md-list-item>
 			<md-button aria-label="Pertenencia" class="md-icon-button" ng-click="agregarEnlace('pertenencia')">
+				<md-tooltip md-direction="bottom" md-delay="600">
+          Insertar Enlace de Pertenencia
+        </md-tooltip>
 				<md-icon md-svg-icon="dist/img/icons/nova-icons/particiop24.svg"></md-icon>
 			</md-button>
 		</md-list-item>
 
 		<md-list-item>
 			<md-button aria-label="Excepcion" class="md-icon-button" ng-click="agregarEnlace('excepcion')">
+				<md-tooltip md-direction="bottom" md-delay="600">
+          Insertar Enlace de Excepción
+        </md-tooltip>
 				<md-icon md-svg-icon="dist/img/icons/nova-icons/excep24.svg"></md-icon>
 			</md-button>
 		</md-list-item>
 			|
 		<md-list-item>
 			<md-button aria-label="Undo" class="md-icon-button">
+				<md-tooltip md-direction="bottom" md-delay="600">
+          Deshacer
+        </md-tooltip>
 				<md-icon md-svg-icon="dist/img/icons/other-icons/ic_undo_black_48px.svg"></md-icon>
 			</md-button>
 		</md-list-item>
 
 		<md-list-item>
 			<md-button aria-label="Redo" class="md-icon-button">
+				<md-tooltip md-direction="bottom" md-delay="600">
+          Rehacer
+        </md-tooltip>
 				<md-icon md-svg-icon="dist/img/icons/other-icons/ic_redo_black_48px.svg"></md-icon>
 			</md-button>
 		</md-list-item>
 			|
 		<md-list-item>
 			<md-button aria-label="ZoomIn" class="md-icon-button" ng-click="zoom('acercar')">
+				<md-tooltip md-direction="bottom" md-delay="600">
+          Acercar
+        </md-tooltip>
 				<md-icon md-svg-icon="dist/img/icons/other-icons/ic_zoom_in_black_48px.svg"></md-icon>
 			</md-button>
 		</md-list-item>
 
 		<md-list-item>
 			<md-button aria-label="ZoomOut" class="md-icon-button" ng-click="zoom('alejar')">
+				<md-tooltip md-direction="bottom" md-delay="600">
+          Alejar
+        </md-tooltip>
 				<md-icon md-svg-icon="dist/img/icons/other-icons/ic_zoom_out_black_48px.svg"></md-icon>
 			</md-button>
 		</md-list-item>
 			|
 		<md-list-item>
 			<md-button aria-label="Delete" class="md-icon-button" ng-click="removerElementoPresionado()">
+				<md-tooltip md-direction="bottom" md-delay="600">
+          Remover
+        </md-tooltip>
 				<md-icon md-svg-icon="dist/img/icons/other-icons/ic_delete_black_48px.svg"></md-icon>
 			</md-button>
 		</md-list-item>
@@ -119,6 +149,9 @@
 
 		<md-list-item>
 			<md-button aria-label="RolesReporte" class="md-icon-button" ng-click="mostrarReporteRoles($event)">
+				<md-tooltip md-direction="bottom" md-delay="600">
+          Ver Reporte de Participación
+        </md-tooltip>
 				<md-icon md-svg-icon="dist/img/icons/other-icons/ic_assignment_ind_black_48px.svg"></md-icon>
 			</md-button>
 		</md-list-item>
@@ -131,6 +164,9 @@
 
 		<md-list-item>
 			<md-button id="perro" aria-label="Download" class="md-icon-button" ng-click="exportarModeloJson()">
+				<md-tooltip md-direction="bottom" md-delay="600">
+          Exportar Modelo
+        </md-tooltip>
 				<md-icon md-svg-icon="dist/img/icons/other-icons/ic_file_download_black_48px.svg"></md-icon>
 			</md-button>
 		</md-list-item>
