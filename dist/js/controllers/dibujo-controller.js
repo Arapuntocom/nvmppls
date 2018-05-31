@@ -1664,7 +1664,7 @@ var cicloMain = null;
 		  ];
 		}, 650);
 	};)*/
-})*/
+})
 
 .controller('SelectAsyncPtoEnterController', function($timeout, $scope) {
 	$scope.pto = null;
