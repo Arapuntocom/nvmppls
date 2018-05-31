@@ -3,7 +3,7 @@
 angular.module('dibujo', ['ngRoute', 'ui.router','ngMaterial', 'ngMessages', 'md.data.table', 'ngContextMenu'])
 
 .controller('DibujoController', function($scope, $timeout, $mdSidenav, $log, $mdDialog, $document, contextMenu, $mdMenu, $rootScope, $compile, $mdConstant, $http) {
-	$log.debug("DibujoController is here!!!");
+	//$log.debug("DibujoController is here!!!");
 	$scope.toggleTree = buildDelayedToggler('tree');
 	$scope.toggleModelo = buildToggler('propertiesNav');
 	$scope.toggleCC = buildToggler('CCNav');
@@ -81,7 +81,7 @@ angular.module('dibujo', ['ngRoute', 'ui.router','ngMaterial', 'ngMessages', 'md
 			$mdSidenav(navID)
 			.toggle()
 			.then(function () {
-				$log.debug("toggle " + navID + " is done");
+				//$log.debug("toggle " + navID + " is done");
 			});
 		}, 200);
 	}
@@ -92,7 +92,7 @@ angular.module('dibujo', ['ngRoute', 'ui.router','ngMaterial', 'ngMessages', 'md
 			$mdSidenav(navID)
 			.toggle()
 			.then(function () {
-				$log.debug("toggle " + navID + " is done");
+				//$log.debug("toggle " + navID + " is done");
 			});
 		}
 	}
@@ -101,7 +101,7 @@ angular.module('dibujo', ['ngRoute', 'ui.router','ngMaterial', 'ngMessages', 'md
 	  // Component lookup should always be available since we are not using `ng-if`
 		$mdSidenav(navID).close()
 		.then(function () {
-			$log.debug("close navID is done");
+			//$log.debug("close navID is done");
 		});
 	};
 
@@ -614,7 +614,7 @@ joint.shapes.enlace = joint.dia.Link.extend({
 
 
 	var crearEnlace =  function(){
-		$log.debug("creando enlace");
+		//$log.debug("creando enlace");
 
 		var etapaOrigen = etapaCiclo(estacionOrigen, puertoOrigen);
 		var etapaDestino = etapaCiclo(estacionDestino, puertoDestino);
@@ -643,7 +643,7 @@ joint.shapes.enlace = joint.dia.Link.extend({
 		enlace.toBack();
 
 		if(validarEnlace(enlace)){
-			$log.debug("409: enlace valido");
+			//$log.debug("409: enlace valido");
 			setearIdsNova(graph.getCell(estacionOrigen));
 		}
 
@@ -716,15 +716,15 @@ joint.shapes.enlace = joint.dia.Link.extend({
 
 	$scope.exportarImagen = function(){
 		cancelarAccionEnCurso();
-		$log.debug("No implementado");
+		//$log.debug("No implementado");
 	}
 
 	$scope.agregarCicloConversacional = function(){
 		cancelarAccionEnCurso();
-		$log.debug("new CC2");
+		//$log.debug("new CC2");
 		btnAgregarCicloConversacional = true;
 		if(celdaViewPointerClick != null){
-			$log.debug("agregarCicloConversacional, se apaga celda seleccionada");
+			//$log.debug("agregarCicloConversacional, se apaga celda seleccionada");
 			//celdaViewPointerClick.unhighlight();
 			custumUnhighlight(celdaViewPointerClick);
 			celdaViewPointerClick = null;
@@ -733,10 +733,10 @@ joint.shapes.enlace = joint.dia.Link.extend({
 
 	$scope.agregarEstacionAnd = function(){
 		cancelarAccionEnCurso();
-		$log.debug("btn Estacion AND");
+		//$log.debug("btn Estacion AND");
 		btnAgregarAnd = true;
 		if(celdaViewPointerClick != null){
-			$log.debug("agregarEstacionAnd, se apaga celda seleccionada");
+			//$log.debug("agregarEstacionAnd, se apaga celda seleccionada");
 			//celdaViewPointerClick.unhighlight();
 			custumUnhighlight(celdaViewPointerClick);
 			celdaViewPointerClick = null;
@@ -745,10 +745,10 @@ joint.shapes.enlace = joint.dia.Link.extend({
 
 	$scope.agregarEstacionOr = function(){
 		cancelarAccionEnCurso();
-		$log.debug("btn Estacion OR");
+		//$log.debug("btn Estacion OR");
 		btnAgregarOr = true;
 		if(celdaViewPointerClick != null){
-			$log.debug("agregarEstacionOr, se apaga celda seleccionada");
+			//$log.debug("agregarEstacionOr, se apaga celda seleccionada");
 			//celdaViewPointerClick.unhighlight();
 			custumUnhighlight(celdaViewPointerClick);
 			celdaViewPointerClick = null;
@@ -756,7 +756,7 @@ joint.shapes.enlace = joint.dia.Link.extend({
 	}
 
 	var crearEstacionAnd = function(x,y){
-		$log.debug("Agregando estacion And");
+		//$log.debug("Agregando estacion And");
 		var nuevoAND2 = new joint.shapes.estacionAnd({
 			position: { x: x, y: y },
 			size: { width: 25, height: 25},
@@ -775,7 +775,7 @@ joint.shapes.enlace = joint.dia.Link.extend({
 	}
 
 	var crearEstacionOr = function(x,y){
-		$log.debug("Agregando estacion Or");
+		//$log.debug("Agregando estacion Or");
 		var rombo = new joint.shapes.estacionOr({
 			position: { x: x, y: y },
 			size: { width: 25, height: 25 },
@@ -796,7 +796,7 @@ joint.shapes.enlace = joint.dia.Link.extend({
 
 var cicloMain = null;
 	var crearCicloConversacional = function(x,y){
-		$log.debug("Agregando Ciclo Conversacional ");
+		//$log.debug("Agregando Ciclo Conversacional ");
 		var nombre = 'ciclo_'+cantCiclosConversacionales;
 		var idNova = '';
 		if(cantCiclosConversacionales == 0){
@@ -826,7 +826,7 @@ var cicloMain = null;
 
 	$scope.agregarEnlace = function(tipo){
 		cancelarAccionEnCurso();
-		$log.debug("click on newLinkEP");
+		//$log.debug("click on newLinkEP");
 		tipoEnlace = tipo;
 		estacionOrigen = null;
 		estacionDestino = null;
@@ -834,7 +834,7 @@ var cicloMain = null;
 		puertoDestino = null;
 		btnAgregarEnlace = true;
 		if(celdaViewPointerClick != null){
-			$log.debug("agregarEnlace, se apaga celda seleccionada");
+			//$log.debug("agregarEnlace, se apaga celda seleccionada");
 			//celdaViewPointerClick.unhighlight();
 			custumUnhighlight(celdaViewPointerClick);
 			celdaViewPointerClick = null;
@@ -847,14 +847,14 @@ var cicloMain = null;
 		switch (valor){
 			case 'acercar':
 				zoom = zoom + 0.2;
-				$log.debug("zoom Acercar");
+				//$log.debug("zoom Acercar");
 				break;
 			case 'restablecer':
 				zoom = zoom + 1;
 				break;
 			case 'alejar':
 				zoom = zoom - 0.2;
-				$log.debug("zoom Alejar");
+				//$log.debug("zoom Alejar");
 				break;
 		}
 		paper.scale(zoom, zoom, 0, 0);
@@ -899,7 +899,7 @@ var cicloMain = null;
 	}
 
 	var cancelarAccionEnCurso = function(){
-		$log.debug("candelar accion en curso");
+		//$log.debug("candelar accion en curso");
 		if(celdaViewPointerClick != null){
 			custumUnhighlight(celdaViewPointerClick);
 		}
@@ -1026,7 +1026,7 @@ var cicloMain = null;
 	})
 
 	paper.on('cell:pointerclick', function(cellView, evt, x, y) {
-		$log.debug("cell:pointerClick className: "+cellView.className());
+		//$log.debug("cell:pointerClick className: "+cellView.className());
 
 		if(celdaViewPointerClick != null){
 			custumUnhighlight(celdaViewPointerClick);
@@ -1072,7 +1072,7 @@ var cicloMain = null;
 	}
 
 	paper.on('cell:pointerdown', function(cellView, evt, x, y){
-		$log.debug("cell:pointerDOWN className: "+cellView.className());
+		//$log.debug("cell:pointerDOWN className: "+cellView.className());
 
 		if(celdaViewPointerClick != null){
 			custumUnhighlight(celdaViewPointerClick);
@@ -1102,7 +1102,7 @@ var cicloMain = null;
 	})
 
 	paper.on('cell:pointermove',function(cellView, evt, x, y){
-		$log.debug("cell:pointermove");
+		//$log.debug("cell:pointermove");
 		var thisCell = graph.getCell(cellView.model.id);
 		var type = thisCell.get('type');
 		custumHighlight(cellView);
@@ -1110,7 +1110,7 @@ var cicloMain = null;
 
 	paper.on('cell:mouseover', function(cellView, evt){
 		if(btnAgregarEnlace && graph.getCell(cellView.model.id).isElement()){
-			$log.debug("mouseOver Agregando Enlace");
+			//$log.debug("mouseOver Agregando Enlace");
 			//cellView.highlight();
 			custumHighlight(cellView);
 		}
@@ -1118,16 +1118,16 @@ var cicloMain = null;
 
 	paper.on('cell:mouseout',function(cellView, evt){
 		if(btnAgregarEnlace && graph.getCell(cellView.model.id).isElement()){
-			$log.debug("mouseOut Agregando Enlace");
+			//$log.debug("mouseOut Agregando Enlace");
 			//cellView.unhighlight();
 			custumUnhighlight(cellView);
 		}
 	})
 
 	paper.on('blank:pointerclick', function(evt, x, y){
-		$log.debug("blank:pointerClick: "+g.point(x,y));
+		//$log.debug("blank:pointerClick: "+g.point(x,y));
 		if(celdaViewPointerClick != null){
-			$log.debug("blank: apagar celda antes presionada");
+			//$log.debug("blank: apagar celda antes presionada");
 			//celdaViewPointerClick.unhighlight();
 			custumUnhighlight(celdaViewPointerClick);
 			celdaViewPointerClick = null;
@@ -1145,10 +1145,10 @@ var cicloMain = null;
 
 	graph.on('add', function(cell) {
 		var cellView = paper.findViewByModel(cell);
-		$log.debug("celda agregada, activar su highlight, cellView-> "+cellView.className());
+		//$log.debug("celda agregada, activar su highlight, cellView-> "+cellView.className());
 
 	    if(celdaViewPointerClick != null){
-				$log.debug("add: apagar celda antes presionada");
+				//$log.debug("add: apagar celda antes presionada");
 				//celdaViewPointerClick.unhighlight();
 				custumUnhighlight(celdaViewPointerClick);
 			}
@@ -1250,7 +1250,7 @@ var cicloMain = null;
 				RightClickMenuCtrl.open(evt);
 				break;
 			case 'link':
-				$log.debug("switch contextmenu=link");
+				//$log.debug("switch contextmenu=link");
 				RightClickMenuCtrl.open(evt);
 				break;
 		}
