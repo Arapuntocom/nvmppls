@@ -58,90 +58,60 @@
 			|-->
 		<md-list-item>
 			<md-button aria-label="CicloConversacional" class="md-icon-button" ng-click="agregarCicloConversacional()">
-				<md-tooltip md-direction="bottom" md-delay="600">
-          Insertar Ciclo Conversacional
-        </md-tooltip>
-				<md-icon md-svg-icon="dist/img/icons/novaplus-icons/cc48.svg"></md-icon>
+				<md-icon md-svg-icon="dist/img/icons/novaplus-icons/cc48v2.svg"></md-icon>
 			</md-button>
 		</md-list-item>
 
 		<md-list-item>
 			<md-button aria-label="Decision" class="md-icon-button" ng-click="agregarEstacionOr()">
-				<md-tooltip md-direction="bottom" md-delay="600">
-          Insertar Decisión
-        </md-tooltip>
 				<md-icon md-svg-icon="dist/img/icons/nova-icons/decision24.svg"></md-icon>
 			</md-button>
 		</md-list-item>
 
 		<md-list-item>
 			<md-button aria-label="Agregacion" class="md-icon-button" ng-click="agregarEstacionAnd()">
-				<md-tooltip md-direction="bottom" md-delay="600">
-          Insertar Agregación
-        </md-tooltip>
 				<md-icon md-svg-icon="dist/img/icons/nova-icons/agregacion24.svg"></md-icon>
 			</md-button>
 		</md-list-item>
 
 		<md-list-item>
 			<md-button aria-label="Pertenencia" class="md-icon-button" ng-click="agregarEnlace('pertenencia')">
-				<md-tooltip md-direction="bottom" md-delay="600">
-          Insertar Enlace de Pertenencia
-        </md-tooltip>
 				<md-icon md-svg-icon="dist/img/icons/nova-icons/particiop24.svg"></md-icon>
 			</md-button>
 		</md-list-item>
 
 		<md-list-item>
 			<md-button aria-label="Excepcion" class="md-icon-button" ng-click="agregarEnlace('excepcion')">
-				<md-tooltip md-direction="bottom" md-delay="600">
-          Insertar Enlace de Excepción
-        </md-tooltip>
 				<md-icon md-svg-icon="dist/img/icons/nova-icons/excep24.svg"></md-icon>
 			</md-button>
 		</md-list-item>
 			|
 		<md-list-item>
 			<md-button aria-label="Undo" class="md-icon-button">
-				<md-tooltip md-direction="bottom" md-delay="600">
-          Deshacer
-        </md-tooltip>
 				<md-icon md-svg-icon="dist/img/icons/other-icons/ic_undo_black_48px.svg"></md-icon>
 			</md-button>
 		</md-list-item>
 
 		<md-list-item>
 			<md-button aria-label="Redo" class="md-icon-button">
-				<md-tooltip md-direction="bottom" md-delay="600">
-          Rehacer
-        </md-tooltip>
 				<md-icon md-svg-icon="dist/img/icons/other-icons/ic_redo_black_48px.svg"></md-icon>
 			</md-button>
 		</md-list-item>
 			|
 		<md-list-item>
 			<md-button aria-label="ZoomIn" class="md-icon-button" ng-click="zoom('acercar')">
-				<md-tooltip md-direction="bottom" md-delay="600">
-          Acercar
-        </md-tooltip>
 				<md-icon md-svg-icon="dist/img/icons/other-icons/ic_zoom_in_black_48px.svg"></md-icon>
 			</md-button>
 		</md-list-item>
 
 		<md-list-item>
 			<md-button aria-label="ZoomOut" class="md-icon-button" ng-click="zoom('alejar')">
-				<md-tooltip md-direction="bottom" md-delay="600">
-          Alejar
-        </md-tooltip>
 				<md-icon md-svg-icon="dist/img/icons/other-icons/ic_zoom_out_black_48px.svg"></md-icon>
 			</md-button>
 		</md-list-item>
 			|
 		<md-list-item>
 			<md-button aria-label="Delete" class="md-icon-button" ng-click="removerElementoPresionado()">
-				<md-tooltip md-direction="bottom" md-delay="600">
-          Remover
-        </md-tooltip>
 				<md-icon md-svg-icon="dist/img/icons/other-icons/ic_delete_black_48px.svg"></md-icon>
 			</md-button>
 		</md-list-item>
@@ -149,9 +119,6 @@
 
 		<md-list-item>
 			<md-button aria-label="RolesReporte" class="md-icon-button" ng-click="mostrarReporteRoles($event)">
-				<md-tooltip md-direction="bottom" md-delay="600">
-          Ver Reporte de Participación
-        </md-tooltip>
 				<md-icon md-svg-icon="dist/img/icons/other-icons/ic_assignment_ind_black_48px.svg"></md-icon>
 			</md-button>
 		</md-list-item>
@@ -164,9 +131,6 @@
 
 		<md-list-item>
 			<md-button id="perro" aria-label="Download" class="md-icon-button" ng-click="exportarModeloJson()">
-				<md-tooltip md-direction="bottom" md-delay="600">
-          Exportar Modelo
-        </md-tooltip>
 				<md-icon md-svg-icon="dist/img/icons/other-icons/ic_file_download_black_48px.svg"></md-icon>
 			</md-button>
 		</md-list-item>
@@ -207,11 +171,11 @@
 			<md-content layout-padding layout="column">
 				<form>
 					<md-input-container>
-						<label for="enlaceRotulo">Rótulo</label>
+						<label for="enlaceRotulo">RÃ³tulo</label>
 						<input type="text" id="enlaceRotulo" ng-model="enlace.rotulo" ng-change="setRotuloEnlace()">
 						<div ng-if="enlace.rotulo != ''">
 							<md-checkbox  ng-model="enlace.mostrarRotulo" aria-label="MostrarRotulo" ng-change="setMostrarRotulo()">
-							   Mostrar rótulo
+							   Mostrar rÃ³tulo
 							</md-checkbox>
 						</div>
 					</md-input-container>
@@ -219,7 +183,7 @@
 						<h2 class="md-title" >Tipo de enlace</h2>
 						<md-radio-group ng-model="enlace.tipo" ng-change="cambiarTipoEnlace()">
 							<md-radio-button value="pertenencia">Pertenencia</md-radio-button>
-							<md-radio-button value="excepcion">Excepción</md-radio-button>
+							<md-radio-button value="excepcion">ExcepciÃ³n</md-radio-button>
 						</md-radio-group>
 					</md-input-container>
 				</form>
@@ -229,7 +193,7 @@
 			</md-content>
 		</md-sidenav>
 
-		<!-- sidenav Estación -->
+		<!-- sidenav EstaciÃ³n -->
 		<md-sidenav class="md-sidenav-right md-whiteframe-4dp" md-component-id="condNav">
 			<md-toolbar class="md-theme-light">
 				<h1 class="md-toolbar-tools">Condicional</h1>
@@ -250,7 +214,7 @@
 									 <thead md-head>
 										<tr md-row>
 											<th md-column>Variable</th>
-											<th md-column>Condición</th>
+											<th md-column>CondiciÃ³n</th>
 											<th md-column>Valor</th>
 										</tr>
 									 </thead>
@@ -273,7 +237,7 @@
 
 						<div class="demo-md-panel-content" >
 							<md-button class="md-secondary md-raised demo-dialog-open-button" ng-click="showPrompt($event)">
-								Agregar condición
+								Agregar condiciÃ³n
 							</md-button>
 						</div>
 
@@ -286,7 +250,7 @@
 						</md-radio-group>
 
 						<md-input-container>
-							<label for="condDescripcion">Descripción</label>
+							<label for="condDescripcion">DescripciÃ³n</label>
 							<textarea type="text" id="condDescripcion" ng-model="cond.descripcion" ></textarea>
 						</md-input-container>
 					</div>
@@ -312,15 +276,15 @@
 								<input type="text" id="nameModel" ng-model="model.name" md-autofocus>
 							</md-input-container>
 							<md-input-container>
-								<label for="versionModel">Versión</label>
+								<label for="versionModel">VersiÃ³n</label>
 								<input type="text" id="versionModel" ng-model="model.version" >
 							</md-input-container>
 							<md-input-container>
-								<label for="duenoModel">Dueño</label>
+								<label for="duenoModel">DueÃ±o</label>
 								<input type="text" id="duenoModel" ng-model="model.dueno" >
 							</md-input-container>
 							<md-input-container>
-								<label for="disenadorModel">Diseñador</label>
+								<label for="disenadorModel">DiseÃ±ador</label>
 								<input type="text" id="disenadorModel" ng-model="model.disenador">
 							</md-input-container>
 							<md-input-container>
@@ -328,7 +292,7 @@
 								<input type="text" id="cpplModel" ng-model="model.cppl" disabled="true">
 							</md-input-container>
 							<md-input-container>
-								<label for="descripcionModel">Descripción</label>
+								<label for="descripcionModel">DescripciÃ³n</label>
 								<textarea type="text" id="descripcionModel" ng-model="model.descripcion"></textarea>
 							</md-input-container>
 						</form>
@@ -460,7 +424,7 @@
 
 						<md-list-item>
 								<md-input-container>
-									<label for="Descripcion">Descripción</label>
+									<label for="Descripcion">DescripciÃ³n</label>
 									<textarea type="text" id="Descripcion" ng-model="descripcionCC" ng-change="agregarDescripcionCC()"></textarea>
 								</md-input-container>
 						</md-list-item>
@@ -474,12 +438,102 @@
 		</md-sidenav>
 
 
+
+
+		<!-- sidenav Condicional -->
+		<md-sidenav class="md-sidenav-right md-whiteframe-4dp" md-component-id="condNav">
+			<md-toolbar class="md-theme-light">
+				<h1 class="md-toolbar-tools">Condicional</h1>
+			</md-toolbar>
+			<md-content layout-padding>
+				<form>
+					<div layout="column">
+
+						<md-input-container>
+							<label for="condID">ID Nova</label>
+							<input type="text" id="condID" ng-model="cond.id" md-autofocus>
+						</md-input-container>
+
+						 <md-input-container>
+							<b class="md-title" >Tipo </b>
+							<md-radio-group ng-model="cond.tipo">
+								<md-radio-button value="agregacion">AgregaciÃ³n</md-radio-button>
+								<md-radio-button value="decision">DecisiÃ³n</md-radio-button>
+							</md-radio-group>
+						</md-input-container>
+
+						<md-input-container>
+							<b class="md-title" >Responsable</b>
+							<md-radio-group ng-model="cond.responsable">
+								<md-radio-button value="automatico">AutomÃ¡tico</md-radio-button>
+								<md-radio-button value="rol">Rol</md-radio-button>
+							</md-radio-group>
+							<div ng-if=" cond.responsable == 'rol'">
+								<div class="md-list-item-text" layout="row"  >
+									<md-select  placeholder="Rol Cliente" ng-model="cond.rol" md-on-open="loadUsers()" style="min-width: 200px;">
+										<md-option ng-value="user" ng-repeat="user in users">{{user.name}}</md-option>
+									</md-select>
+								</div>
+							</div>
+
+						</md-input-container>
+
+						<md-divider></md-divider>
+
+						<md-input-container>
+							<b class="md-title" >Condicionales</b>
+
+							<md-table-container>
+								<table md-table>
+									 <thead md-head>
+										<tr md-row>
+											<th md-column>Variable</th>
+											<th md-column>CondiciÃ³n</th>
+											<th md-column>ExpresiÃ³n</th>
+										</tr>
+									 </thead>
+									 <tbody md-body>
+										<tr md-row ng-repeat="x in condiciones">
+										<td md-cell>{{x.var}}</td>
+										<td md-cell>{{x.cond}}</td>
+										<td md-cell>{{x.exp}}</td>
+										</tr>
+									</tbody>
+								</table>
+							</md-table-container>
+
+							<div class="demo-md-panel-content" >
+								<md-button class="md-primary md-raised demo-dialog-open-button" ng-click="showPrompt($event)">
+									Agregar condiciÃ³n
+								</md-button>
+							</div>
+						</md-input-container>
+						<md-input-container>
+							<b class="md-title" >Satisfacer</b>
+							<md-radio-group ng-model="cond.satisfacer">
+								<md-radio-button value="todas">Todas</md-radio-button>
+								<md-radio-button value="alguna">Alguna</md-radio-button>
+							</md-radio-group>
+						</md-input-container>
+
+						<md-divider></md-divider>
+
+						<md-input-container>
+							<label for="condDescripcion">DescripciÃ³n</label>
+							<input type="text" id="condDescripcion" ng-model="cond.descripcion" >
+						</md-input-container>
+					</div>
+
+				</form>
+				<md-button ng-click="close()" class="md-primary">
+					Volver
+				</md-button>
+			</md-content>
+		</md-sidenav>
 	</div>
 
 </md-content>
 
 
-<div>
-	<pre id="json-renderer"></pre>
-</div>
+
 </div>

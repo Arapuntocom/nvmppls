@@ -44,7 +44,7 @@ angular.module('dibujo', ['ngRoute', 'ui.router','ngMaterial', 'ngMessages', 'md
 		// Use timeout to simulate a 650ms request.
 		return $timeout(function() {
 			$scope.variables =  $scope.variables  || [
-				{ 'id': 1, 'nombre': 'UF', 'tipo':'Número', 'largo':'32', 'formato':'n/a', 'valorInicial':'25000' }
+				{ 'id': 1, 'nombre': 'UF', 'tipo':'NÃºmero', 'largo':'32', 'formato':'n/a', 'valorInicial':'25000' }
 			];
 		}, 650);
 	};
@@ -141,9 +141,20 @@ angular.module('dibujo', ['ngRoute', 'ui.router','ngMaterial', 'ngMessages', 'md
 	};
 
 
+	function DialogController($scope, $mdDialog) {
+		$scope.hide = function() {
+			$mdDialog.hide();
+		};
+		$scope.cancel = function() {
+			$mdDialog.cancel();
+		};
+		$scope.answer = function(answer) {
+			$mdDialog.hide(answer);
+		};
+	}
 
 
-/*--- Definición de elementos customizados --*/
+/*--- DefiniciÃ³n de elementos customizados --*/
 joint.shapes.modeloConversacional = joint.shapes.basic.Generic.extend({
 	markup: '<g class="rotatable"><g class="scalable"></g></g>',
 	defaults: joint.util.deepSupplement({
@@ -327,14 +338,14 @@ joint.shapes.enlace = joint.dia.Link.extend({
 
 	var puntoInterseccionFun = function(celdaRestrictiva, punto){
 		if(celdaRestrictiva === undefined || punto === undefined){
-			$log.debug('210 ERROR, celda o punto indefinido');
+			//$log.debug('210 ERROR, celda o punto indefinido');
 		}else {
 			var puntoInterseccion;
 			var formaRestriccion;
 			var vista = paper.findViewByModel(celdaRestrictiva);// encontrar la vista del elemento
 			var scalable = vista.$('.scalable')[0]; 						// determinar el subelemento que tiene el valor del escalamiento
 			var transform = scalable.transform.baseVal;					// elemento que tiene el valor del escalamiento
-			$log.debug('fun 271 type: '+celdaRestrictiva.get('type'));
+			//$log.debug('fun 271 type: '+celdaRestrictiva.get('type'));
 			switch (celdaRestrictiva.get('type')) {
 				case 'cicloConversacional':
 					formaRestriccion = g.ellipse(celdaRestrictiva.get('position'),
@@ -351,11 +362,11 @@ joint.shapes.enlace = joint.dia.Link.extend({
 				case 'estacionOr':
 
 					var centro = g.point(celdaRestrictiva.get('position').x + celdaRestrictiva.get('size').width/2, celdaRestrictiva.get('position').y + celdaRestrictiva.get('size').height/2 );
-					$log.debug('192: centro: '+centro);
+					//$log.debug('192: centro: '+centro);
 					var click = g.point(punto.x-5, punto.y-5);
-					$log.debug('193: click = punto: '+click);
+					//$log.debug('193: click = punto: '+click);
 
-					var puntaN, puntaE, puntaS, puntaO; // posición de las puntas del rombo
+					var puntaN, puntaE, puntaS, puntaO; // posiciÃ³n de las puntas del rombo
 					puntaN = g.point(celdaRestrictiva.get('position').x + celdaRestrictiva.get('size').width/2, celdaRestrictiva.get('position').y);
 					puntaO = g.point(celdaRestrictiva.get('position').x, celdaRestrictiva.get('position').y + celdaRestrictiva.get('size').height/2);
 					puntaS = g.point(celdaRestrictiva.get('position').x + celdaRestrictiva.get('size').width/2, celdaRestrictiva.get('position').y+celdaRestrictiva.get('size').height);
@@ -365,39 +376,39 @@ joint.shapes.enlace = joint.dia.Link.extend({
 					var puntoInterseccion;
 					var cuadrante;
 					if(punto.x >= centro.x && punto.y <= centro.y){ //cuadrante NE
-						$log.debug('cuadrante NE');
+						//$log.debug('cuadrante NE');
 						path = g.line(puntaN, puntaE);
 						click = click.offset(celdaRestrictiva.get('size').width, -celdaRestrictiva.get('size').height);
-						$log.debug('208: new click NE: '+click);
+						//$log.debug('208: new click NE: '+click);
 						cuadrante =  'NE';
 					}
 					if(punto.x >= centro.x && punto.y >= centro.y){ //cuadrante SE
 						path = g.line(puntaS, puntaE);
-						$log.debug('cuadrante SE');
+						//$log.debug('cuadrante SE');
 						click = click.offset(celdaRestrictiva.get('size').width, celdaRestrictiva.get('size').height);
-						$log.debug('214: new click SE: '+click);
+						//$log.debug('214: new click SE: '+click);
 						cuadrante =  'SE';
 					}
 					if(punto.x <= centro.x && punto.y >= centro.y){ //cuadrante SO
 						path = g.line(puntaS, puntaO);
-						$log.debug('cuadrante SO');
+						//$log.debug('cuadrante SO');
 						click = click.offset(-celdaRestrictiva.get('size').width, celdaRestrictiva.get('size').height);
-						$log.debug('220: new click SO: '+click);
+						//$log.debug('220: new click SO: '+click);
 						cuadrante =  'SO';
 					}
 					if(punto.x <= centro.x && punto.y <= centro.y){ //cuadrante NO
 						path = g.line(puntaN, puntaO);
-						$log.debug('cuadrante NO');
+						//$log.debug('cuadrante NO');
 						click = click.offset(-celdaRestrictiva.get('size').width, -celdaRestrictiva.get('size').height);
-						$log.debug('226: new click NO: '+click);
+						//$log.debug('226: new click NO: '+click);
 						cuadrante =  'NO';
 					}
 					lineaCentroClick = g.line(centro, click);
 					puntoInterseccion = path.intersect(lineaCentroClick);
-					$log.debug('230: linea centro click: '+lineaCentroClick);
-					$log.debug('231: path: '+path);
+					//$log.debug('230: linea centro click: '+lineaCentroClick);
+					//$log.debug('231: path: '+path);
 					if (puntoInterseccion == null || puntoInterseccion == 'undefined'){
-							$log.debug('233: no se encontró punto de intersección');
+							//$log.debug('233: no se encuentra punto de interseccion');
 					}
 					break;
 				default:
@@ -457,7 +468,7 @@ joint.shapes.enlace = joint.dia.Link.extend({
 	var angulo = function(puerto){
 		var celdaPadre = graph.getCell(puerto.get('parent'));
 		var centroPadre = g.point(celdaPadre.get('position').x, celdaPadre.get('position').y);
-		$log.debug('272: celdaPadre type: '+celdaPadre.get('type'));
+		//$log.debug('272: celdaPadre type: '+celdaPadre.get('type'));
 		if(celdaPadre.get('type') == 'estacionOr'){
 			centroPadre = g.point(celdaPadre.get('position').x + celdaPadre.get('size').width/2, celdaPadre.get('position').y + celdaPadre.get('size').height/2);
 		}
@@ -492,7 +503,7 @@ joint.shapes.enlace = joint.dia.Link.extend({
 	}
 
 	var setearIdsNova = function(celdaOrigen){ //debe ser la celda de origen para determinar el orden de los puertos salientes
-		$log.debug('ID-NOVA- cellOrigen: '+celdaOrigen.id);
+		//$log.debug('ID-NOVA- cellOrigen: '+celdaOrigen.id);
 
 		var puertosSalientes = puertosSalientesFun(celdaOrigen);
 
@@ -501,7 +512,7 @@ joint.shapes.enlace = joint.dia.Link.extend({
 		var idNovaDestino;
 		var enlaces, targetPuerto, targetCelda;
 		for(var i =0; i<puertosSalientes.length; i++){
-			$log.debug('j: '+i+' id: '+puertosSalientes[i].id+' angle: '+angulo(puertosSalientes[i]));
+			//$log.debug('j: '+i+' id: '+puertosSalientes[i].id+' angle: '+angulo(puertosSalientes[i]));
 			enlaces = graph.getConnectedLinks(puertosSalientes[i] ,{'inbound': false, 'outbound': true});
 			targetPuerto = graph.getCell(enlaces[0].get('target').id);
 			targetCelda = graph.getCell(targetPuerto.get('parent'));
@@ -579,7 +590,7 @@ joint.shapes.enlace = joint.dia.Link.extend({
 		}
 
 		var enlacesEntrantesEnDestino = graph.getConnectedLinks(celdaTarget, {'outbound' : false, 'inbound' : true, 'deep': true});
-		$log.debug('363: enlacesEntrantesEnDestino: '+enlacesEntrantesEnDestino.length);
+		//$log.debug('363: enlacesEntrantesEnDestino: '+enlacesEntrantesEnDestino.length);
 		var count = 0;
 		for(var i =0; i<enlacesEntrantesEnDestino.length; i++){
 			if(celdaSource = enlacesEntrantesEnDestino[i].getSourceElement()){
@@ -643,9 +654,9 @@ joint.shapes.enlace = joint.dia.Link.extend({
 		btnAgregarEnlace = false;
 
 		enlace.on('change:source change:target',function(){
-			$log.debug('change source');
+			//$log.debug('change source');
 			if(enlace.get('source').id == null && enlace.get('source').x != null){
-				$log.debug('source of the link changed, puerto desconectado');
+				//$log.debug('source of the link changed, puerto desconectado');
 				var celdaSource = graph.getCell(enlace.previous('source').id);
 				if(celdaSource && celdaSource.hasPort(enlace.previous('source').port)){
 					celdaSource.removePort(enlace.previous('source').port);
@@ -655,7 +666,7 @@ joint.shapes.enlace = joint.dia.Link.extend({
 			}
 
 			if(enlace.get('target').id == null && enlace.get('target').x != null){
-				$log.debug('target of the link changed, puerto desconectado');
+				//$log.debug('target of the link changed, puerto desconectado');
 				var celdaTarget = graph.getCell(enlace.previous('target').id);
 				if(celdaTarget && celdaTarget.hasPort(enlace.previous('target').port)){
 					celdaTarget.removePort(enlace.previous('target').port);
@@ -667,8 +678,8 @@ joint.shapes.enlace = joint.dia.Link.extend({
 			}
 
 			if(enlace.get('source').id != null){
-				$log.debug('source of the link changed, puerto reconectado');
-				//volver a calcular punto más cercano al elemento, poner allí el puerto y setearlo al enlace,
+				//$log.debug('source of the link changed, puerto reconectado');
+				//volver a calcular punto mas cercano al elemento, poner alla el puerto y setearlo al enlace,
 				//no olvidar setear etapa
 				//adicionalmente es necesario renombrar todos los idNova sucesores al origen y vecinos
 				var nuevoOrigen = graph.getCell(enlace.get('source').id);
@@ -686,7 +697,7 @@ joint.shapes.enlace = joint.dia.Link.extend({
 			}
 
 			if(enlace.get('target').id != null){
-				$log.debug('target of the link changed, puerto reconectado');
+				//$log.debug('target of the link changed, puerto reconectado');
 				var nuevoDestino = graph.getCell(enlace.get('target').id);
 				var pointStick = determinarStickPoint(nuevoDestino, enlace.previous('target').x, enlace.previous('target').y);
 				var idPortDestino = ''+enlace.get('target').id+'-'+Math.random();
@@ -705,28 +716,7 @@ joint.shapes.enlace = joint.dia.Link.extend({
 
 	$scope.exportarImagen = function(){
 		cancelarAccionEnCurso();
-		//alert('Not implemented yet');
 		$log.debug("No implementado");
-
-		/*var source = new XMLSerializer().serializeToString(paper.svg);
-
-		//add name spaces.
-		if(!source.match(/^<svg[^>]+xmlns="http\:\/\/www\.w3\.org\/2000\/svg"/)){
-		    source = source.replace(/^<svg/, '<svg xmlns="http://www.w3.org/2000/svg"');
-		}
-		if(!source.match(/^<svg[^>]+"http\:\/\/www\.w3\.org\/1999\/xlink"/)){
-		    source = source.replace(/^<svg/, '<svg xmlns:xlink="http://www.w3.org/1999/xlink"');
-		}
-
-		//add xml declaration
-		source = '<?xml version="1.0" standalone="no"?>\r\n' + source;
-		//convert svg source to URI data scheme.
-		var url = "data:image/svg+xml;charset=utf-8,"+encodeURIComponent(source);
-
-$log.debug(url);
-		$log.debug(source);
-
-		window.open(url); */
 	}
 
 	$scope.agregarCicloConversacional = function(){
@@ -971,13 +961,13 @@ var cicloMain = null;
 				var puertoSource = graph.getCell(celda.get('source').id);
 				var puertoTarget = graph.getCell(celda.get('target').id);
 				if(puertoSource){
-					$log.debug('742: remueve source del enlace');
+					//$log.debug('742: remueve source del enlace');
 
 					puertoSource.remove();
 					puertoOrigen = null;
 				}
 				if(puertoTarget){
-					$log.debug('747: remueve Target del enlace');
+					//$log.debug('747: remueve Target del enlace');
 					puertoTarget.remove();
 					puertoDestino = null;
 				}
@@ -987,7 +977,7 @@ var cicloMain = null;
 				celda.remove();
 				break;
 			default:
-				$log.debug('nada que remover');
+				//$log.debug('nada que remover');
 		}
 	}
 
@@ -998,7 +988,7 @@ var cicloMain = null;
 	paper.on('cell:pointerdblclick ', function(cellView, evt, x, y) {
 		//$scope.objeto = cellView;
 		custumHighlight(cellView);
-		$log.debug('cell:pointerdblclick cellView.className-> '+cellView.className());
+		//$log.debug('cell:pointerdblclick cellView.className-> '+cellView.className());
 		var type = cellView.className();
 
 		switch(type){
@@ -1050,31 +1040,31 @@ var cicloMain = null;
 	var orquestarNuevoEnlace = function(cellView, evt, x, y){
 		var thisCell = graph.getCell(cellView.model.id);
 		if(btnAgregarEnlace){
-$log.debug('cell click o down + btn enlace');
+//$log.debug('cell click o down + btn enlace');
 			if (estacionOrigen == null && puertoOrigen == null){
 				estacionOrigen = thisCell;
-				$log.debug('791 point: '+g.point(x,y));
+				//$log.debug('791 point: '+g.point(x,y));
 				puertoOrigen = agregarPuertoAzul(estacionOrigen, x, y);
 				if(puertoOrigen == 'undefined' || puertoOrigen == null){
-					$log.debug('puertoOrigen es Null');
+					//$log.debug('puertoOrigen es Null');
 				}
 				puertoOrigen.attr('grupo', ['salida']);
 				pointStickOrigen = puertoOrigen.get('position');
-				$log.debug('795 pointStickOrigen '+pointStickOrigen.x);
+				//$log.debug('795 pointStickOrigen '+pointStickOrigen.x);
 				estacionDestino = null;
 				puertoDestino = null;
 			}else if (estacionDestino == null && puertoDestino == null) {
-				$log.debug('816: point en destino');
+				//$log.debug('816: point en destino');
 				estacionDestino = thisCell;
-				$log.debug('798 point: '+g.point(x,y));
-				$log.debug('818: estacionDestino: '+estacionDestino.id);
+				//$log.debug('798 point: '+g.point(x,y));
+				//$log.debug('818: estacionDestino: '+estacionDestino.id);
 				puertoDestino = agregarPuertoAzul(estacionDestino, x, y);
 				if(puertoDestino == 'undefined' || puertoDestino == null){
-					$log.debug('puertoDestino es Null');
+					//$log.debug('puertoDestino es Null');
 				}
 				puertoDestino.attr('grupo', ['entrada']);
 				pointStickDestino = puertoDestino.get('position');
-				$log.debug('801 pointStickDestino '+pointStickDestino.x);
+				//$log.debug('801 pointStickDestino '+pointStickDestino.x);
 				//ya que estan seteados ambos puertos, se crea el enlace
 				crearEnlace();
 			}
@@ -1093,7 +1083,7 @@ $log.debug('cell click o down + btn enlace');
 	})
 
 	paper.on('cell:pointerup', function(cellView, evt){
-		//$log.debug('cell:pointerUP: '+cellView.className());
+		////$log.debug('cell:pointerUP: '+cellView.className());
 		var celda = graph.getCell(cellView.model.id);
 		var celdaPadre = graph.getCell(celda.get('parent'));
 		var nuevaEtapa = null;
@@ -1245,9 +1235,9 @@ $log.debug('cell click o down + btn enlace');
 	};
 
 	paper.on('cell:contextmenu', function(cellView, evt, x, y) {
-		$log.debug('cell:contextmenu cellView.id-> '+cellView.id);
+		//$log.debug('cell:contextmenu cellView.id-> '+cellView.id);
 		var type = cellView.className();
-		$log.debug('cell:contextmenu cellView.type-> '+type);
+		//$log.debug('cell:contextmenu cellView.type-> '+type);
 
 		switch(type){
 			case 'cell type-cicloconversacional element':
@@ -1276,7 +1266,7 @@ $log.debug('cell click o down + btn enlace');
 
 	var cicloConvNav = null;
 	var cargarNav = function(viewElemento){
-		$log.debug('cargarNav: viewElemento.id: '+viewElemento.model.id);
+		//$log.debug('cargarNav: viewElemento.id: '+viewElemento.model.id);
 		var celda = graph.getCell(viewElemento.model.id);
 		var etiquetas = celda.get('etiquetas');
 		var type = celda.get('type');
@@ -1318,7 +1308,7 @@ $log.debug('cell click o down + btn enlace');
 	var mapaConversacional = { roles: []};
 
 	$scope.transformarChipRol = function(chip){
-		$log.debug('trans: '+chip);
+		//$log.debug('trans: '+chip);
 		if (angular.isObject(chip)) {
 			return chip;
 		}
@@ -1407,7 +1397,7 @@ $log.debug('cell click o down + btn enlace');
 			}
 			if(isNuevoRol){
 				mapaConversacional.roles.push({name: rolName, cant: 1, cantC: 0, cantR: 0});
-				$log.debug('ADD desp, cant roles mapa: '+mapaConversacional.roles.length);
+				//$log.debug('ADD desp, cant roles mapa: '+mapaConversacional.roles.length);
 			}
 		}
 	}
@@ -1453,7 +1443,7 @@ $log.debug('cell click o down + btn enlace');
 	}
 
 	$scope.mostrarReporteRoles = function(evt){
-		$log.debug('click on mostrar reporte');
+		//$log.debug('click on mostrar reporte');
 		$scope.ciclosConversacionales = ciclosConversacionalesValidosFun();
 		$scope.roles = mapaConversacional.roles || []; // lista independiente de roles del modelo
 		for( var r =0; r<$scope.roles.length; r++){
@@ -1489,7 +1479,7 @@ $log.debug('cell click o down + btn enlace');
 	}
 
 	function DialogController($scope, $mdDialog) {
-		$log.debug('dialog controller');
+		//$log.debug('dialog controller');
     $scope.hide = function() {
       $mdDialog.hide();
     };
@@ -1505,12 +1495,12 @@ $log.debug('cell click o down + btn enlace');
 
 
  	$scope.abrirMenuOpciones = function($mdMenu, ev) {
-    $log.debug('abrirMenuOpciones');
+    //$log.debug('abrirMenuOpciones');
     $mdMenu.open(ev);
   };
 
 	$scope.exportarModeloJson = function(){
-		$log.debug('exportarModeloJson');
+		//$log.debug('exportarModeloJson');
 
 
 		var dlAnchorElem = document.getElementById('downloadAnchorElem');
@@ -1565,15 +1555,15 @@ $log.debug('cell click o down + btn enlace');
 		if(cantCiclosConversacionales >= 1){
 			var confirm = $mdDialog.confirm()
 	          .title('Desea continuar sin guardar?')
-	          .textContent('Al iniciar un nuevo modelo perderás los cambios que no hayas guardado.')
-	          .ariaLabel('text')
+	          .textContent('Al iniciar un nuevo modelo perderÃ¡s los cambios que no hayas guardado.')
+	          .ariaLabel('Lucky day')
 	          .targetEvent(evt)
 	          .ok('No guardar')
 	          .cancel('Guardar');
 
 	    $mdDialog.show(confirm).then(function() { // se borra mapa actual
 				resetearModelo();
-	    }, function() { //guarda el modelo actual exportándolo.
+	    }, function() { //guarda el modelo actual exportÃ¡ndolo.
 				$scope.exportarModeloJson();
 				resetearModelo();
 	    });
@@ -1581,7 +1571,7 @@ $log.debug('cell click o down + btn enlace');
 	}
 
 	$scope.mostrarDialogAbrirModeloJson = function(evt){
-		$log.debug('mostrarDialogAbrirModeloJson');
+		//$log.debug('mostrarDialogAbrirModeloJson');
 
 		$mdDialog.show({
 			controller: DialogController,
@@ -1595,7 +1585,7 @@ $log.debug('cell click o down + btn enlace');
 		})
 		.then(function(answer) {
 			resetearModelo();
-			$log.debug('answer: '+answer);
+			//$log.debug('answer: '+answer);
 			graph.fromJSON(JSON.parse($scope.filepreview));
 
 			var elementos = graph.getCells();
@@ -1603,33 +1593,33 @@ $log.debug('cell click o down + btn enlace');
 			//$scope.jotasonS = elementos[0].get('type');
 
 			for(var i =0; i < elementos.length; i++){
-				$log.debug('mapeando...');
+				//$log.debug('mapeando...');
 				if(elementos[i].get('type') == 'cicloConversacional' && elementos[i].get('etiquetas').idNova == 'Main'){
 					cicloMain = graph.getCell(elementos[i].id);
 					joint.util.setByPath(modeloConversacionalElemento.get('atributos'), 'cppl', cicloMain.get('etiquetas').nombre, '/');
 					$scope.model.cppl = modeloConversacionalElemento.get('atributos').cppl;
 					cantCiclosConversacionales++;
-					//$log.debug('id: '+cicloMain.id);
-					$log.debug('cantCiclosConversacionales...'+cantCiclosConversacionales);
+					////$log.debug('id: '+cicloMain.id);
+					//$log.debug('cantCiclosConversacionales...'+cantCiclosConversacionales);
 					//break;
 				}
 				if(elementos[i].get('type') == 'cicloConversacional'){
 				//
 					var cicloConv = graph.getCell(elementos[i].id);
-					$log.debug('nuevo '+i+': '+elementos[i].get('etiquetas').cliente+', '+elementos[i].get('etiquetas').realizador+', '+elementos[i].get('etiquetas').observador);
+					//$log.debug('nuevo '+i+': '+elementos[i].get('etiquetas').cliente+', '+elementos[i].get('etiquetas').realizador+', '+elementos[i].get('etiquetas').observador);
 					agregarRolMapaConv(elementos[i].get('etiquetas').cliente);
 					agregarRolMapaConv(elementos[i].get('etiquetas').realizador);
 					agregarRolMapaConv(elementos[i].get('etiquetas').observador);
 					//agregarRolMapaConv(cicloConv.get('atributos').realizador);
 					//agregarRolMapaConv(cicloConv.get('atributos').observador);
-					//$log.debug('nuevo: '+cicloConv.get('atributos').cliente+', '+cicloConv.get('atributos').realizador+', '+cicloConv.get('atributos').observador);
+					////$log.debug('nuevo: '+cicloConv.get('atributos').cliente+', '+cicloConv.get('atributos').realizador+', '+cicloConv.get('atributos').observador);
 				}
 			}
 
 			//$scope.ciclosConversacionales = ciclosConversacionalesValidosFun();
 
 		}, function() {
-			$log.debug('cancelar abrir archivo');
+			//$log.debug('cancelar abrir archivo');
 		});
 
 	}
@@ -1662,7 +1652,7 @@ $log.debug('cell click o down + btn enlace');
 
 	$scope.user = null;
 	$scope.users = null;
-	$scope.loadUsers = function() {
+	/*$scope.loadUsers = function() {
 	// Use timeout to simulate a 650ms request.
 		return $timeout(function() {
 		  $scope.users =  $scope.users  || [
@@ -1673,8 +1663,8 @@ $log.debug('cell click o down + btn enlace');
 			{ id: 5, name: 'Velma Dinkley' }
 		  ];
 		}, 650);
-	};
-})
+	};)*/
+})*/
 
 .controller('SelectAsyncPtoEnterController', function($timeout, $scope) {
 	$scope.pto = null;
